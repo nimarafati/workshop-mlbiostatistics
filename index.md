@@ -10,6 +10,7 @@ This is a generic website containing teaching and learning materials used during
 The course is run via Canvas and is advertised via [SciLifeLab training website](https://training.scilifelab.se/events) and [NBIS website](https://nbis.se/training).
 
 The 2024 Canvas course is here: [https://uppsala.instructure.com/courses/93277](https://uppsala.instructure.com/courses/93277).
+
 The 2025 Canvas course is here: [https://uppsala.instructure.com/courses/98820](https://uppsala.instructure.com/courses/98820)
 
 <br/>
@@ -24,6 +25,7 @@ The 2025 Canvas course is here: [https://uppsala.instructure.com/courses/98820](
 - Unsupervised learning incl. clustering and dimension reduction methods
 - Supervised learning incl. classification
 
+Course material can be found [here](materials.md).
 
 ##### <img border="0" src="icons/schedule-01.svg" width="40" height="40"> Generic schedule
 A typical schedule is under [Schedule tab](schedule.md). Times and sessions may vary slightly from one course event to another.
