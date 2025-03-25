@@ -14,9 +14,7 @@ title:  'Schedule'
 
 **09:00 - 10:00** [Welcome](session-welcome/welcome.html)
 
-**10.00 - 10:45** [Introductory lecture](session-intro2/intro2.html)
-
-**11.00 - 12:00** [Descriptive statistics](session-descriptive/docs/index.html) ([.presentation](session-descriptive-presentation/session-descriptive-presentation.html))
+**10.15 - 12:00** [Descriptive statistics](session-descriptive/docs/index.html) ([.presentation](session-descriptive-presentation/session-descriptive-presentation.html))
 
 *12:00 - 13:00 lunch*
 
