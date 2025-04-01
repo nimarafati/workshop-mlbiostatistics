@@ -4,9 +4,9 @@ editor_options:
   chunk_output_type: console
 ---
 
-# Demo: a predictive modelling case study
+# Demo: a predictive modelling case study (tidymodels)
 
-Let's use `tidymodels` framework to run small predictive case study trying to build a predictive model for BMI using our `diabetes` data set. We will use:
+Let's now use `tidymodels` framework to to build a predictive model for BMI using our `diabetes` data set. We will use:
 
 - `rsamples` for splitting data into test and non-test, as well as creating cross-validation folds
 
@@ -21,7 +21,7 @@ Let's use `tidymodels` framework to run small predictive case study trying to bu
 - `workflows` to put all the step together
 
 
-## Data import & EDA
+## Load data and perform EDA
 ```{r}
 #| label: load-data
 #| eval: true
@@ -92,7 +92,7 @@ data_diabetes_narm <- data_diabetes %>%
 
 ```
 
-## Data splitting
+## Split data
 ```{r}
 #| label: data-split
 #| eval: true
