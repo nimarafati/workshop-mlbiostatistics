@@ -4,9 +4,27 @@ editor_options:
   chunk_output_type: console
 ---
 
-# Introduction to Tidymodels
+# Introduction
 
-We have seen that there are many common steps when using supervised learning for prediction, such as data splitting and parameters tuning. Over the years, some initiatives were taken to create a common framework for the machine learning tasks in R. A while back Max Kuhn was the main developer behind a popular `caret` package that among others enabled feature engineering and control of training parameters like cross-validation. In 2020 `tidymodels`framework was introduced as a collection of R packages for modeling and machine learning using tidyverse principles, under a guidance of Max Kuhn and Hadley Wickham, author of `tidyverse` package.
+- Throughout the course, we have seen steps that are common in machine learning workflows, such as data cleaning, feature selection, data splitting, model training, tuning, and evaluation.
+
+- It is valuable to know how to code each step manually, using basic functions or selected R packages. The advantage of this approach is that it gives a deep understanding of the process and full control over each step.
+
+- An alternative approach is to follow a structured pipeline using established frameworks. The advantages here include faster setup, easier experimentation with different algorithms, and better collaboration. A structured pipeline also reduces the risk of data leakage and model overfitting.
+
+- To help streamline this process, several frameworks have been developed in R, like `caret` package and lately the `tidymodels` framework.
+
+- While tidymodels is the most widely used and tidyverse-friendly ML framework in R, other modern options exist. For instance `mlr3` offers a highly modular, object-oriented design suited for advanced tasks like benchmarking and custom pipelines. For deep learning, `torch` and its high-level interface `luz` bring native PyTorch support to R. 
+
+- Here, we will see how to build a predictive models, including all the steps, to predict BMI based on the features from the diabetes dataset. We will try to code things ourselves and see how to put everything together using tidymodels. 
+
+
+## Tidymodels
+
+- One of the earlier initiatives to create a framwork for ML tasks in R was the `caret` package, led by Max Kuhn, which unified many modeling tools and provided support for preprocessing, resampling, and parameter tuning. `Caret`was an early and widely-used framework that provided tools for preprocessing, resampling, and cross-validation.
+
+- Building on this foundation, Kuhn partnered with Hadley Wickham, the creator of the `tidyverse`, to introduce the `tidymodels` ecosystem in 2020: a modern, modular collection of R packages that applies **tidyverse principles** to make machine learning workflows more intuitive, readable, and consistent.
+
 
 | core package                                 | function                                                                                                                                                                    |
 |-----------------|-------------------------------------------------------|
