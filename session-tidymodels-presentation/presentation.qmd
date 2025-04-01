@@ -1,5 +1,5 @@
 ---
-title: "Tidymodels"
+title: "Putting everything together"
 format:
   revealjs: 
     theme: [default, custom.scss]
@@ -11,15 +11,68 @@ editor_options:
   chunk_output_type: console
 ---
 
-## Tidymodels
-
-*History*
+## Machine learning pipelines
 
 <br>
 
--  2007 Max Kuhn was the main developer behind a popular `caret`, (Classification And REgression Training) package that enabled feature engineering and control of training parameters like cross-validation. 
+- Throughout the course, we have seen steps that are common in machine learning workflows, such as data cleaning, feature selection, data splitting, model training, tuning, and evaluation.
 
-- 2020 `tidymodels`framework was introduced as a collection of R packages for modeling and machine learning using tidyverse principles, under a guidance of Max Kuhn and Hadley Wickham, author of `tidyverse` package.
+- It is valuable to know how to code each step manually, using basic functions or selected R packages. 
+
+- An alternative approach is to follow a structured pipeline using established frameworks. 
+
+## Base R vs. Frameworks
+
+<br>
+
+::: columns
+
+:::: column
+### 🛠️ Base R / Custom Code
+
+✅ **Pros**  
+- Full control over each step  
+- Deep understanding of the process  
+- Flexible for non-standard workflows  
+- Easier to debug and customize  
+
+❌ **Cons**  
+- More code to write  
+- Harder to maintain  
+- Manual error checking  
+- Less reproducible  
+
+::::
+
+:::: column
+### ⚙️ Framework
+
+✅ **Pros**  
+- Faster prototyping  
+- Cleaner, modular syntax  
+- Consistent and reproducible pipelines  
+- Easier collaboration and sharing  
+
+❌ **Cons**  
+- Less transparency (black-box risk)  
+- Steeper learning curve at first  
+- May feel restrictive for custom tasks  
+
+::::
+
+:::
+
+
+## ML frameworks
+
+<br>
+
+- To help streamline ML process, several frameworks have been developed in R.
+- One of the earlier initiatives to create a framwork for ML tasks in R was the `caret` package, led by Max Kuhn. 
+- `caret` (2007) unified many modeling tools and was widely-used framework that provided tools for preprocessing, resampling, and cross-validation.
+- Building on this foundation, Kuhn partnered with Hadley Wickham, the creator of the `tidyverse.
+- `Tidymodels` were launched in 2020, as a modern, modular collection of R packages that applies **tidyverse principles** to make machine learning workflows more intuitive, readable, and consistent.
+- Other mentions: `mlr3` offers a highly modular, object-oriented design suited for advanced tasks like benchmarking and custom pipelines. For deep learning, `torch` and its high-level interface `luz` bring native PyTorch support to R. 
 
 ## Tidymodels
 
@@ -33,51 +86,40 @@ Tidymodels is a collection of packages for modeling and statistical analysis in 
 
 - **Emphasis on Tidy Data Principles**: The framework adheres to the principles of "tidy data" set by the tidyverse, ensuring that data manipulation and analysis tasks are approachable and intuitive. 
 
-## Tidymodels
+<!-- ## Tidymodels -->
 
-*History*
+<!-- | core package                                 | function                                                                                                                                                                    | -->
+<!-- |-----------------|-------------------------------------------------------| -->
+<!-- | ![](images/image-1434058929.png){height="60"} | data splitting and resampling                                                                                                         | -->
+<!-- | ![](images/image-849580063.png){height="60"}  | interface to models | -->
+<!-- | ![](images/image-1485488765.png){height="60"} | data pre-processing tools for feature engineering                                                                                | -->
+<!-- | ![](images/image-328218611.png){height="60"}  |  bundle your pre-processing, modeling, and post-processing together                                                                                                | -->
+<!-- | ![](images/image-1827784270.png){height="60"} | optimizes the hyperparameters of your model and pre-processing steps                                                                                          | -->
+<!-- | ![](images/image-229955045.png){height="60"}  |  measures the effectiveness of models using performance metrics                                                                                                    | -->
 
-<br>
+<!-- ## Minimum example -->
 
--  2007 Max Kuhn was the main developer behind a popular `caret`, (Classification And REgression Training) package that enabled feature engineering and control of training parameters like cross-validation. 
+<!-- Let's try to build a predictive model for BMI using our `diabetes` data set using basic R approach and/or `tidymodels` framework. -->
 
-- 2020 `tidymodels`framework was introduced as a collection of R packages for modeling and machine learning using tidyverse principles, under a guidance of Max Kuhn and Hadley Wickham, author of `tidyverse` package.
+<!-- . . . -->
 
-## Tidymodels
+<!-- We will use: -->
 
-| core package                                 | function                                                                                                                                                                    |
-|-----------------|-------------------------------------------------------|
-| ![](images/image-1434058929.png){height="60"} | data splitting and resampling                                                                                                         |
-| ![](images/image-849580063.png){height="60"}  | interface to models |
-| ![](images/image-1485488765.png){height="60"} | data pre-processing tools for feature engineering                                                                                |
-| ![](images/image-328218611.png){height="60"}  |  bundle your pre-processing, modeling, and post-processing together                                                                                                |
-| ![](images/image-1827784270.png){height="60"} | optimizes the hyperparameters of your model and pre-processing steps                                                                                          |
-| ![](images/image-229955045.png){height="60"}  |  measures the effectiveness of models using performance metrics                                                                                                    |
+<!-- ::: {.incremental} -->
+<!-- - `rsamples` for splitting data into test and non-test, as well as creating cross-validation folds -->
 
-## Minimum example
+<!-- - `recipes` for feature engineering, e.g. changing from imperial to metric measurements, removing irrelevant and highly correlated features -->
 
-Let's use `tidymodels` framework to run small predictive case study trying to build a predictive model for BMI using our `diabetes` data set. 
+<!-- - `parsnip` to specify Lasso regression model -->
 
-. . .
+<!-- - `tune` to optimize search space for lambda values -->
 
-We will use:
+<!-- - `yardstick` to assess predictions -->
 
-::: {.incremental}
-- `rsamples` for splitting data into test and non-test, as well as creating cross-validation folds
+<!-- - `workflows` to put all the step together -->
 
-- `recipes` for feature engineering, e.g. changing from imperial to metric measurements, removing irrelevant and highly correlated features
+<!-- ::: -->
 
-- `parsnip` to specify Lasso regression model
-
-- `tune` to optimize search space for lambda values
-
-- `yardstick` to assess predictions
-
-- `workflows` to put all the step together
-
-:::
-
-## Minimum example
 
 ```{r}
 #| label: load-data
@@ -147,4 +189,14 @@ data_diabetes_narm <- data_diabetes %>%
 ## Minimum example
 <br>
 
-[https://nbisweden.github.io/workshop-mlbiostatistics/session-tidymodels/docs/case-study.html](https://nbisweden.github.io/workshop-mlbiostatistics/session-tidymodels/docs/case-study.html)
+Let's try to build a predictive model for BMI using our `diabetes` data set using basic R approach and/or `tidymodels` framework.
+
+. . .
+
+**Custom code**
+
+[https://nbisweden.github.io/workshop-mlbiostatistics/session-tidymodels/docs/case-study-base-r.html](https://nbisweden.github.io/workshop-mlbiostatistics/session-tidymodels/docs/case-study-base-r.html)
+
+**Tidymodels**
+
+[https://nbisweden.github.io/workshop-mlbiostatistics/session-tidymodels/docs/case-study-tidymodels.html](https://nbisweden.github.io/workshop-mlbiostatistics/session-tidymodels/docs/case-study-tidymodels.html)
