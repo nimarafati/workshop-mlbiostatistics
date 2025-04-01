@@ -1,6 +1,6 @@
 ---
 title: "Introduction to Biostatistics and Machine Learning"
-author: "7th - 11th April 2025"
+author: "22th - 26th April 2024"
 format:
   revealjs: 
     theme: [default, custom.scss]
@@ -10,14 +10,13 @@ format:
 editor: source
 editor_options: 
   chunk_output_type: console
-execute: 
-  echo: false
-  cache: false
-  warning: false
-  message: false
 ---
 
 ```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(fig.pos = 'H')
+knitr::opts_chunk$set(cache = FALSE)
+
 library(dplyr)
 library(ggplot2)
 library(RColorBrewer)
@@ -39,7 +38,7 @@ library(kableExtra)
 
 ::: columns
 ::: {.column width="60%"}
--   7th - 11th April 2024
+-   22th - 26th April 2024
 -   BMC, Husargatan 3, Uppsala
 -   Room: Trippelrummet: E10:1307/8/9
 :::
@@ -60,15 +59,14 @@ library(kableExtra)
 -   [Olga Dethlefsen](https://nbis.se/about/staff/olga-dethlefsen/)
 -   [Eva Freyhult](https://nbis.se/about/staff/eva-freyhult/)
 -   [Payam Emami](https://nbis.se/about/staff/payam-emami/)
--   Elena Dracheva
--   [Miguel Redondo](https://nbis.se/staff/miguel-a-redondo-2}
 -   [Julie Lorent](https://nbis.se/about/staff/julie-lorent/)
+-   [Mun-Gwan Hong](https://nbis.se/about/staff/mungwan-hong/)
 
 <br/><br/>
 
 -   NBIS: National Bioinformatics Infrastructure Sweden
 -   SciLifeLab Bioinformatics Platform
--   <https://www.scilifelab.se/units/nbis/> <https://nbis.se>
+-   <https://www.scilifelab.se/units/nbis/>
 :::
 
 ::: {.column width="40%"}
@@ -91,13 +89,12 @@ library(kableExtra)
 
 rm(list=ls())
 
-data_csv <- read_csv("../../admin/NBIS course application.csv",  locale = locale(encoding = "UTF-8"))
+data_csv <- read_csv("background-2024.csv",  locale = locale(encoding = "UTF-8"))
 
-data_students <- data_csv |>
-  mutate(R = factor(`R experience
-Note: we require some R experience, see course announcement for details`, levels=c("Beginner", "Intermediate", "Advanced"))) |>
+data_students <- data_csv %>%
+  mutate(R = factor(R, levels=c("Beginner", "Intermediate", "Advanced"))) %>%
   mutate(Position = factor(Position)) %>%
-  mutate(University = factor(`University/Organisation`))
+  mutate(University = factor(University))
 
 ```
 
@@ -131,7 +128,7 @@ data_position %>%
   theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1)) +
   theme(legend.position = "none") + 
   theme(text = element_text(size = 18))  + 
-  theme(plot.margin = unit(c(0.5, 0.5, 0.5, 0.5), "inches")) + ylim(c(0,max(data_position$n)+0.5))
+  theme(plot.margin = unit(c(0.5, 0.5, 0.5, 0.5), "inches")) 
 
 ```
 
@@ -165,7 +162,7 @@ data_uni %>%
   theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1)) +
   theme(legend.position = "none") + 
   theme(text = element_text(size = 18)) + 
-  theme(plot.margin = unit(c(0.5, 0.5, 0.5, 0.5), "inches"))  + ylim(c(0,max(data_uni$n)+0.5))
+  theme(plot.margin = unit(c(0.5, 0.5, 0.5, 0.5), "inches")) 
 
 ```
 
@@ -254,10 +251,8 @@ data_students %>%
 -   bathrooms locations
 -   no access cards to the building (apologies!)
 -   we will lock the room when going for lunch
--   lunch: Monday, Tuesday, Wednesday and Friday at Bikupan
--   lunch: Thursday at Sven Dufva
--   coffee and sandwich/fika at 8.45 and 14.30
--   Breaks
+-   lunch: Monday, Tuesday, Thursday and Friday at Bikupan
+-   lunch: Wednesday at Sven Dufva
 :::
 
 :::
@@ -287,7 +282,7 @@ data_students %>%
 <br/><br/>
 
 ::: incremental
--   <https://uppsala.instructure.com/courses/98820>
+-   <https://uppsala.instructure.com/courses/93277>
 -   you should be now enrolled and be able to access materials incl. quizzes
 :::
 
@@ -296,8 +291,14 @@ data_students %>%
 <br/><br/>
 
 -   Schedule
+-   Modules
+-   Chat
+-   Discussion
+-   Files
+-   Announcements
 -   Quiz
 
+*please change your name under the Profile*
 
 <br/><br/>
 
@@ -334,51 +335,51 @@ data_students %>%
 
 <br/><br/>
 
-<!-- ## Payam's Active Participation rule -->
+## Payam's Active Participation rule
 
-<!-- <br/><br/> -->
+<br/><br/>
 
-<!-- . . . -->
+. . .
 
-<!-- ::: columns -->
-<!-- ::: {.column width="70%"} -->
-<!-- ::: {.fragment .fade-in} -->
-<!-- 1.  there are no wrong answers -->
-<!-- ::: -->
+::: columns
+::: {.column width="70%"}
+::: {.fragment .fade-in}
+1.  there are no wrong answers
+:::
 
-<!-- ::: {.fragment .fade-in} -->
-<!-- 2.  except: "I do not know" or its equivalents -->
-<!-- ::: -->
+::: {.fragment .fade-in}
+2.  except: "I do not know" or its equivalents
+:::
 
-<!-- ::: {.fragment .fade-in} -->
-<!-- 3.  so when asked a question, say something because 1. -->
-<!-- ::: -->
-<!-- ::: -->
+::: {.fragment .fade-in}
+3.  so when asked a question, say something because 1.
+:::
+:::
 
-<!-- ::: {.column width="30%"} -->
-<!-- ![Image by @thisisengineering](images/robot-hand.jpg){fig-align="left" width="191"} -->
-<!-- ::: -->
-<!-- ::: -->
+::: {.column width="30%"}
+![Image by @thisisengineering](images/robot-hand.jpg){fig-align="left" width="191"}
+:::
+:::
 
-<!-- . . . -->
+. . .
 
-<!-- **Help us building a stimulating learning environment** by actively participating. We love when you talk and ask questions! -->
+**Help us building a stimulating learning environment** by actively participating. We love when you talk and ask questions!
 
-<!-- ## Not enough time -->
+## Not enough time
 
-<!-- <br/><br/> -->
+<br/><br/>
 
-<!-- ::: columns -->
-<!-- ::: {.column width="70%"} -->
-<!-- There is (probably) not enough time during the course to complete all the exercises. -->
+::: columns
+::: {.column width="70%"}
+There is (probably) not enough time during the course to complete all the exercises.
 
-<!-- -   It may be good to prioritize. -->
-<!-- -   We can schedule a follow-up online session. -->
-<!-- -   We will come back to this on Friday. -->
-<!-- ::: -->
+-   It may be good to prioritize.
+-   We can schedule a follow-up online session.
+-   We will come back to this on Friday.
+:::
 
-<!-- ::: {.column width="30%"} -->
-<!-- ![generated by DALL $\cdot$ E 2](images/DALLE-time-03.png){fig-align="left" width="291"} -->
+::: {.column width="30%"}
+![generated by DALL $\cdot$ E 2](images/DALLE-time-03.png){fig-align="left" width="291"}
 :::
 :::
 
@@ -418,7 +419,7 @@ Some common problems we have been observing are due to:
 ::: {.incremental}
 
 -   incorrect study design e.g. absence of adequate controls
--   forming incorrect null and alternative hypothesis
+-   forming incorrectly null and alternative hypothesis
 -   applying statistical methods without understanding
 -   misinterpreting the output of the statistical methods
 -   circular analysis, e.g. testing hypotheses on same sample that led to the generation of the hypotheses in the first place
@@ -453,7 +454,7 @@ Some common problems we have been observing are due to:
 
 We aim to **focus on fundamentals** since we believe that getting the basics right will help with:
 
--   avoiding common errors
+-   avoiding common errors &
 -   studying more advanced topics.
 
 ## Aim
@@ -463,7 +464,7 @@ We aim to **focus on fundamentals** since we believe that getting the basics rig
 **What do we want you to gain from this course?**
 
 ::: {.fragment .fade-in}
--   Framework for statistical learning: learn a selection of methods and develop an understanding to apply methods correctly and explore them independently
+-   Framework for statistical learning: learn a selection of method & develop an understanding to apply methods correctly and explore them independently
 :::
 
 ::: {.fragment .fade-in}
@@ -956,7 +957,7 @@ Same with statistical tests:
 
 We have access to data from a breast cancer study:
 
--   BRCA1 protein expression based on immunohistochemical staining
+-   BRCA1 protein expression based on immunolohistochemical staining
 -   mRNA expression from RNA-seq
 
 for 10 000 study participants
@@ -1432,6 +1433,7 @@ flowchart TD
 -   supervised learning
     -   regularization, Random Forest
     -   overfitting
+    -   tidymodels
 :::
 :::
 
@@ -1467,7 +1469,7 @@ flowchart TD
 
 ### Tuesday
 
-- inferential statistics <br/><br/>
+- inference statistics <br/><br/>
 
 ### Wednesday
 
@@ -1487,7 +1489,7 @@ flowchart TD
 
 ### Friday
 
--   ML pipeline
+-   ML pipeline with tidymodels
 -   Random Forest
 :::
 :::
@@ -1500,9 +1502,9 @@ flowchart TD
 Presentations vs. chapters
 
 
-<!-- ## Welcome -->
+## Welcome
 
-<!-- ![](images/robot-welcome-02.png){fig-align="left" width="200"} -->
+![](images/robot-welcome-02.png){fig-align="left" width="200"}
 
 # Questions?
 
