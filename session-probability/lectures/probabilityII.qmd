@@ -2,14 +2,13 @@
 editor: source
 title: "Probability theory, part II"
 author: "Eva Freyhult"
-date: "2024-04-22"
+date: "2025-04-07"
 date-format: long
 institute: NBIS, SciLifeLab
 embed-resources: true
 format: 
   revealjs:
     slide-number: true
-    self-contained: true
     theme: [default, custom.scss]
 ---
 

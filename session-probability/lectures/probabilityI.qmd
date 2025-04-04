@@ -3,7 +3,7 @@ editor: source
 title: "Probability theory"
 subtitle: "part I"
 author: "Eva Freyhult"
-date: "2024-04-22"
+date: "2025-04-07"
 date-format: long
 institute: NBIS, SciLifeLab
 embed-resources: true
@@ -103,6 +103,12 @@ Based on the axioms the following rules of probability can be proved.
 Let $E,F \subseteq S$ be any two events.
 :::
 
+:::{.notes}
+Använd tärning som exempel!
+
+Ge sedan i övning (gruppdiskussion 1-2 minuter): 
+Vad i era jobb/inom life science kan liknas med en tärningsmodell?
+:::
 
 ## The urn model
 
@@ -216,6 +222,22 @@ kable(matrix(c(as.character(1:6), format(rep(1/6,6), digits=3)),ncol=6, byrow=TR
 ```{r dice, fig.height=3, fig.width=7, out.width="45%", fig.align='center'}
 plot(data.frame(x=1:6, p=1/6) %>% ggplot(aes(x=x, y=p)) + geom_bar(stat="identity") + theme_bw() + ylim(c(0,.25)) + scale_x_continuous(breaks = 1:6))
 ```
+
+## Why a fair six-sided dice?
+
+::: {fig-align="center" layout=[-1,1,-1]}
+![](figures/dice.jpg)
+:::
+
+Group discussion 2 min!
+
+:::{.notes}
+* Gene Expression (On/Off States) – Whether a gene is expressed (1) or not (0) in a given cell.
+* Survival of a Bacterium to an Antibiotic – A bacterium either survives (1) or dies (0) when exposed to an antibiotic.
+* Success of a Drug Treatment – A patient either responds positively (1) or negatively (0) to a treatment.
+* Blood Type Inheritance – Whether a child inherits a certain allele from a parent follows a probabilistic model similar to rolling a die.
+* Presence of a Mutation in a Cell – A cell either has a mutation (1) or does not (0), similar to flipping a coin or rolling for a specific outcome on a die.
+:::
 
 ## Example: Nucleotide at a given site
 

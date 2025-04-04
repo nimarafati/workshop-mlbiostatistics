@@ -3,7 +3,7 @@ editor: source
 title: "Statistical inference, part III"
 subtitle: "Point and interval estimates"
 author: "Eva Freyhult"
-date: "2024-04-23"
+date: "2025-04-08"
 date-format: long
 institute: NBIS, SciLifeLab
 embed-resources: true
@@ -16,6 +16,7 @@ format:
 
 ```{r, include=FALSE}
 require(tidyverse)
+library(ggbeeswarm)
 require(ggplot2)
 require(reshape2)
 require(knitr)
@@ -27,14 +28,73 @@ options(digits=4)
 ```
 
 ## Point estimate
+:::: {.columns}
+::: {.column width="50%"}
 
-Unknown population parameters can be inferred from estimates from random samples from the population of interest. The sample estimate will be our best guess, a **point estimate**, of the population parameter.
+- Unknown population parameters can be inferred from estimates from a random sample. 
 
-The sample proportion and sample mean are **unbiased** estimates of the population proportion and population mean.
+:::
+::: {.column width="50%"}
+```{r randomsample}
+#| out-width: "100%"
+set.seed(123)
+n <- 1000
+dfp <- data.frame(i= 1:n, x=rnorm(n, m=146, sd=20))
+dfp <- dfp |> mutate(s1=i %in% sample(1:n, size=15, replace=FALSE))
+pl <- dfp |> ggplot(aes(x="A", y=x)) + theme_bw() + theme(legend.position = "none") + xlab("")
+##Annotate with sample mean
+m <- mean(dfp$x[dfp$s1])
+pl + geom_quasirandom(color="grey") + ggtitle("Population mean: ?")
+```
+:::
+::::
 
-The expected value of an **unbiased** point estimate is the the population parameter that it estimates.
+## Point estimate
+:::: {.columns}
+::: {.column width="50%"}
 
-The sample estimate is our best guess, but it will not be without error.
+- Unknown population parameters can be inferred from estimates from a random sample. 
+
+:::
+::: {.column width="50%"}
+```{r randomsample2}
+#| out-width: "100%"
+(pl <- pl + geom_quasirandom(aes(color=s1, alpha=s1)) + scale_color_manual(values=c("grey", "red")) + scale_alpha_manual(values=c(0.5, 1))) + ggtitle("Population mean: ?")
+```
+:::
+::::
+
+
+
+
+## Point estimate
+
+:::: {.columns}
+::: {.column width="50%"}
+
+- Unknown population parameters can be inferred from estimates from a random sample.
+
+::: {.incremental}
+
+- The sample estimate will be our best guess, a **point estimate**, of the population parameter.
+
+- The sample proportion and sample mean are **unbiased** estimates of the population proportion and population mean.
+
+- The expected value of an **unbiased** point estimate is the the population parameter that it estimates.
+
+- The sample estimate is our best guess, but it will not be without error.
+:::
+:::
+::: {.column width="50%"}
+```{r randomsample3}
+#| out-width: "100%"
+pl + ggtitle(sprintf("Sample mean: %.2f", m))
+SEM <- sd(df$x[df$s1])
+```
+:::
+::::
+
+
 
 
 ## Bias and precision
@@ -46,6 +106,8 @@ The sample estimate is our best guess, but it will not be without error.
 #| warning: false
 #| echo: false
 #| out-width: "70%"
+
+set.seed(1234)
 bias <- c(Biased=1.5, Unbiased=0)
 precision= c(Precise=0.5, Unprecise=2)
 df <- data.frame(B=rep(names(bias), each=2), P=rep(names(precision),2)) |> mutate(m=bias[B], s=precision[P]) |> group_by(B, P) |> reframe(x=rnorm(10, mean=m, sd=s), y=rnorm(10, mean=m, sd=s)) 
@@ -59,63 +121,109 @@ The expected value of an **unbiased** point estimate is the the population param
 
 ## Interval estimates
 
-To show the uncertainty an **interval estimate** for a population parameter can be computed based on sample data, instead of just a point estimate.
+- To show the uncertainty an **interval estimate** for a population parameter can be computed based on sample data.
 
-An interval estimate is an interval of possible values that with high probability contains the true population parameter.
+- An interval estimate is an interval of possible values that with high probability contains the true population parameter.
 
-The width of the interval estimate can be determined from the sampling distribution.
-
-## Bootstrap interval
-
-If the sampling distribution of the sample statistic of interest is unknown, a bootstrap interval can be computed instead.
-
-Bootstrap is to use the data we have (our sample) and sample repeatedly with replacement from this sample.
-
-Put the entire sample in an urn and resample!
+- The width of the interval estimate can be determined from the sampling distribution.
 
 ## Bootstrap interval
 
-**Pollen example**
+- If the sampling distribution is unknown, a bootstrap interval can be computed instead.
 
-If we are interested in how large proportion of the Uppsala population is allergic to pollen, we can investigate this by studying a random sample. We randomly select 100 persons in Uppsala and observe that 42 have a pollen allergy.
+- Bootstrap is to use the data we have (our sample) and sample repeatedly with replacement from this sample.
 
-Based on this observation our point estimate of the Uppsala popultation proportion $\pi$ is $\pi \approx p = 0.42$.
+- Put the entire sample in an urn and resample!
 
-```{r pollenurn42, echo=FALSE, out.width = "20%", fig.align="center"}
-knitr::include_graphics("figures/pollenurn42.png")
+```{r randomsample4}
+#| out-width: "30%"
+#| fig-align: "center"
+pl + ggtitle(sprintf("Sample mean: %.2f", m))
+SEM <- sd(df$x[df$s1])
 ```
 
-Sample from the urn with replacement to compute the bootstrap distribution.
-
 ## Bootstrap interval
 
-**Pollen example**
-
-:::: {.columns}
-::: {.column width="50%"}
-
-Sample an object with replacement 100 times and note the proportion allergic (black balls).
-
-Repeat this many times to get a bootstrap distribution
-
-Using the bootstrap distribution the uncertainty of our estimate of $\pi$ can be estimated.
+Sample with replacement many times.
 
 ```{r}
-x <- rep(0:1, c(58, 42))
-pboot <- replicate(100000, mean(sample(x, replace=TRUE)))
-ciboot <- quantile(pboot, c(0.025, 0.975))
+#| fig-width: 14
+#| fig-height: 5
+set.seed(123)
+s1 <- dfp |> filter(s1) |> pull(x)
+dfboot <- replicate(1000, data.frame(x=sample(s1, replace=TRUE)), simplify = FALSE) |> bind_rows(.id="nr") |> group_by(nr) |> mutate(nr=as.numeric(nr), boot=sprintf("mean %i: %.2f", nr, mean(x)))
+m <- dfboot |> group_by(nr, boot) |> summarize(m=mean(x))
+dfboot |> filter(nr<10) |> ggplot(aes(x="A", y=x)) + geom_quasirandom() + facet_wrap(~boot, nrow=1) + theme_bw() + geom_hline(data=m|> filter(nr<10), aes(yintercept=m), color="red")
 ```
 
-The 95% bootstrap interval is [`r ciboot`].
+## Bootstrap interval
 
-The bootstrap is very useful if you do not know the distribution of our sampled propery. But in our example we actually do.
-:::
-::: {.column width="50%"}
-```{r CIboot, out.width="95%", fig.align="center"}
-ggplot(data.frame(x=pboot), aes(x=x, fill=x>ciboot[1] & x<ciboot[2])) + geom_histogram(color="white", binwidth=0.02) + theme_bw() + theme(legend.position="none") + xlab("p") + geom_line(data=data.frame(x=ciboot, y=5000), aes(x=x, y=y), arrow=arrow(ends="both")) + annotate("label", x=mean(ciboot), y=5000, label="95%")
+Plot the distribution of bootstrapped means.
+
+```{r}
+#| out-width: "70%"
+#| fig-width: 7
+#| fig-height: 5
+#| fig-align: "center"
+ggplot(m, aes(x=m)) + geom_histogram(color="white", binwidth=1) + theme_bw()
+```
+
+## Bootstrap interval
+
+For a 95% bootstrap interval, compute the 2.5 and 97.5 percentiles.
+
+```{r CIbootmean}
+#| out-width: "70%"
+#| fig-width: 7
+#| fig-height: 5
+#| fig-align: "center"
+ciboot <- quantile(m$m, c(0.025, 0.975))
+ggplot(m, aes(x=m)) + geom_histogram(aes(fill=m>ciboot[1] & m<ciboot[2]), color="white", binwidth=1) + theme_bw() + theme(legend.position="none") + geom_line(data=data.frame(x=ciboot, y=10), aes(x=x, y=y), arrow=arrow(ends="both")) + annotate("label", x=mean(ciboot), y=10, label="95%") + scale_fill_manual(values=c("black", "red"))
 ```   
-:::
-::::
+
+<!-- ## Bootstrap interval -->
+
+<!-- **Pollen example** -->
+
+<!-- If we are interested in how large proportion of the Uppsala population is allergic to pollen, we can investigate this by studying a random sample. We randomly select 100 persons in Uppsala and observe that 42 have a pollen allergy. -->
+
+<!-- Based on this observation our point estimate of the Uppsala popultation proportion $\pi$ is $\pi \approx p = 0.42$. -->
+
+<!-- ```{r pollenurn42, echo=FALSE, out.width = "20%", fig.align="center"} -->
+<!-- knitr::include_graphics("figures/pollenurn42.png") -->
+<!-- ``` -->
+
+<!-- Sample from the urn with replacement to compute the bootstrap distribution. -->
+
+<!-- ## Bootstrap interval -->
+
+<!-- **Pollen example** -->
+
+<!-- :::: {.columns} -->
+<!-- ::: {.column width="50%"} -->
+
+<!-- Sample an object with replacement 100 times and note the proportion allergic (black balls). -->
+
+<!-- Repeat this many times to get a bootstrap distribution -->
+
+<!-- Using the bootstrap distribution the uncertainty of our estimate of $\pi$ can be estimated. -->
+
+<!-- ```{r} -->
+<!-- x <- rep(0:1, c(58, 42)) -->
+<!-- pboot <- replicate(100000, mean(sample(x, replace=TRUE))) -->
+<!-- ciboot <- quantile(pboot, c(0.025, 0.975)) -->
+<!-- ``` -->
+
+<!-- The 95% bootstrap interval is [`r ciboot`]. -->
+
+<!-- The bootstrap is very useful if you do not know the distribution of our sampled propery. But in our example we actually do. -->
+<!-- ::: -->
+<!-- ::: {.column width="50%"} -->
+<!-- ```{r CIboot, out.width="95%", fig.align="center"} -->
+<!-- ggplot(data.frame(x=pboot), aes(x=x, fill=x>ciboot[1] & x<ciboot[2])) + geom_histogram(color="white", binwidth=0.02) + theme_bw() + theme(legend.position="none") + xlab("p") + geom_line(data=data.frame(x=ciboot, y=5000), aes(x=x, y=y), arrow=arrow(ends="both")) + annotate("label", x=mean(ciboot), y=5000, label="95%") -->
+<!-- ```    -->
+<!-- ::: -->
+<!-- :::: -->
 
 
 ## Confidence interval
@@ -142,8 +250,9 @@ pl
 $$\bar X \sim N(\mu, \frac{\sigma}{\sqrt{n}})$$
 
 ```{r meanX1, out.width="100%", fig.align="center", fig.width=7}
-pl <- pl + geom_vline(xintercept=-1.96) + geom_vline(xintercept=1.96)  + geom_line(data=data.frame(x=c(-1.96, 1.96), y=0.18), aes(x=x, y=y), arrow=arrow(ends="both")) + annotate("label", x=0, y=0.18, label="95%")
-pl
+(pl <- pl + annotate("segment",x=-1.96,xend=1.96, y=0.18, yend=0.18, size=1) +
+  annotate("segment",x=-1.96,xend=-1.96, y=0.17,yend=0.19, size=1) +
+  annotate("segment",x=1.96,xend=1.96, y=0.17,yend=0.19, size=1) + annotate("label", x=0, y=0.18, label="95%") + geom_vline(xintercept=-1.96, linetype=3) + geom_vline(xintercept=1.96, linetype=3))
 ```
 
 
@@ -167,6 +276,45 @@ set.seed(1111)
 samples <- data.frame(x=rnorm(40), y=-Inf) |> mutate(col=x>1.96|x<(-1.96))
 pl + geom_point(data=samples, aes(x=x, y=y, color=col), shape="|", stroke=10) + theme(legend.position = "none") + scale_color_manual(values=c("black", "red"))
 ```
+
+## Confidence interval
+
+Based on a random sample compute the sample mean $m$.
+
+```{r samplem}
+#| fig-height: 1
+#| fig-width: 7
+pl2 <- ggplot(data.frame(x=0), aes(x=x, y=0)) +
+    scale_x_continuous(limits = c(-10,15)) +
+  scale_y_continuous(limits = c(-1,1)) +
+  scale_color_manual(values = unname(colours)) + geom_hline(yintercept = 0) + 
+  theme(panel.background = element_blank(),
+        axis.text = element_blank(),
+        axis.ticks = element_blank(),
+        axis.title = element_blank())
+
+pl2 + geom_point(size = 10) + geom_text(label="m", color="white")
+```
+
+Use what is known about the sampleing distribution and compute a confidence interval around $m$.
+
+```{r}
+#| out-width: "30%"
+#| fig-width: 7
+#| fig-height: 3.5
+pl
+```
+
+
+```{r samplemCI}
+#| fig-height: 1
+#| fig-width: 7
+pl2 + annotate("segment",x=-5,xend=5, y=0, yend=0, size=2) +
+  annotate("segment",x=-5,xend=-5, y=-0.5,yend=0.5, size=2) +
+  annotate("segment",x=5,xend=5, y=-0.5,yend=0.5, size=2) + geom_point(size = 10) + geom_text(label="m", color="white") 
+```
+
+
 
 ## Confidence interval of mean
 
@@ -228,8 +376,14 @@ $$P(\mu-z_{\alpha/2}SEM<\bar X<\mu+z_{\alpha/2}SEM) = 1-\alpha$$
 
 . . .
 
-$$P(\bar X-z_{\alpha/2}SE<\mu<\bar X+z_{\alpha/2}SE) = 1-\alpha$$
+$$P(\bar X-z_{\alpha/2}SEM<\mu<\bar X+z_{\alpha/2}SEM) = 1-\alpha$$
 
+. . .
+
+Replace with an observed sample mean, $\bar x$.
+
+
+$$P(\bar x_{obs}-z_{\alpha/2}SEM<\mu<\bar x_{obs}+z_{\alpha/2}SEM) = 1-\alpha$$
 
 
 :::{.notes}
@@ -316,15 +470,15 @@ You study the BMI of male diabetic patients. In a sample of size 6 you observe; 
 :::{.}
 The sample mean is $\bar x = 27.3$ and the sample standard deviation is $s = 3.39$. The degrees of freedom is $n-1 = 5$ and the $t$ value for a 95% confidence interval is `r qt(0.975, df=5)`.
 
-The confidence interval is $\bar x \pm t \frac{s}{\sqrt{n}} = 27.3 \pm 2.57 \frac{3.38}{\sqrt{6}} = 27.3 \pm 3.5$.
+The confidence interval is $\bar x \pm t \frac{s}{\sqrt{n}} = 27.3 \pm 2.57 \frac{3.39}{\sqrt{6}} = 27.3 \pm 3.5$.
 
-```{r}
+```{r echo=TRUE}
 x <- c(27, 25, 31, 29, 30, 22)
 (m <- mean(x))
 (s <- sd(x))
-q <- qt(0.975, df=5)
-SEM <- s/sqrt(6)
-CI <- m + c(-1,1)*q*SEM
+(q <- qt(0.975, df=5))
+(SEM <- s/sqrt(6))
+(CI <- m + c(-1,1)*q*SEM)
 ```
 
 :::
