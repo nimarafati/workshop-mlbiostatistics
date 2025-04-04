@@ -3,7 +3,7 @@ editor: source
 title: "Statistical inference, part II"
 subtitle: "Parametric tests"
 author: "Eva Freyhult"
-date: "2024-04-23"
+date: "2025-04-08"
 date-format: long
 institute: NBIS, SciLifeLab
 embed-resources: true
