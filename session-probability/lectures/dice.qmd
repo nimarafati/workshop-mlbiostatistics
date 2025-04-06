@@ -1,0 +1,41 @@
+---
+title: Dice experiment
+format: html
+---
+
+When rolling 10 dice, how many sixes do you get?
+
+- What are the possible outcomes?
+- What is the probability of exactly 2 sixes?
+- What is the probability of at least 5 sixes?
+- What does the probability mass function look like?
+- What is the expected number of sixes?
+
+We will perform the experiment together!
+
+Repeatedly roll 10 dice and count the number of sixes. Note down the number in the [results sheet](https://docs.google.com/spreadsheets/d/1n33wF3iJ0NAmItyzEEkR8qLQqUiVQZaQh3NBY1nd4Z0).
+
+When the experiment is finished, run the below code to retrieve and plot the results.
+
+```{r echo=TRUE, eval=FALSE}
+library(googledrive)
+library(googlesheets4)
+library(ggplot2)
+library(tidyverse)
+
+drive_deauth()
+gs4_deauth()
+
+readdicerolls <- function(name) {
+  X <- read_sheet(as_id(name))
+  data <- X |> pivot_longer(cols=everything(), names_to = "group")
+  ##Make sure value is numeric
+  data <- data |> mutate(value=as.numeric(value))
+  ##Remove values outside 0:10 or NA
+  data <- data |> filter(!is.na(value), value %in% 0:10)
+  return(data)
+}
+
+data <- readdicerolls("https://docs.google.com/spreadsheets/d/1n33wF3iJ0NAmItyzEEkR8qLQqUiVQZaQh3NBY1nd4Z0")
+ggplot(data, aes(x=value, fill=group)) + geom_histogram(binwidth=1, center=0) + theme_bw()
+```
