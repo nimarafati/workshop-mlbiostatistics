@@ -223,13 +223,21 @@ kable(matrix(c(as.character(1:6), format(rep(1/6,6), digits=3)),ncol=6, byrow=TR
 plot(data.frame(x=1:6, p=1/6) %>% ggplot(aes(x=x, y=p)) + geom_bar(stat="identity") + theme_bw() + ylim(c(0,.25)) + scale_x_continuous(breaks = 1:6))
 ```
 
-## Why a fair six-sided dice?
+## Why a fair sided dice?
 
-::: {fig-align="center" layout=[-1,1,-1]}
+- Can be used to simulate a random outcome.
+- One or several sides can be choosen to represent a successful outcome.
+- By altering the number of sides the probability of success can be set.
+
+::::{.columns}
+:::{.column width="40%"}
 ![](figures/dice.jpg)
 :::
-
-Group discussion 2 min!
+:::{.incremental .column width="60%"}
+* In life science/your work, what could a dice model represent?
+* *Group discussion 2 min!*
+:::
+::::
 
 :::{.notes}
 * Gene Expression (On/Off States) – Whether a gene is expressed (1) or not (0) in a given cell.
@@ -319,8 +327,6 @@ If the distribution is not known, simulation might be the solution.
 
 When rolling a single dice the probabity of *six* is 1/6.
 
-When rolling 10 dice, what is the probability of at least 5 sixes?
-
 :::: {.columns}
 
 ::: {.column width="40%"}
@@ -331,13 +337,29 @@ When rolling 10 dice, what is the probability of at least 5 sixes?
 The outcome of a single dice roll is a
 random variable, $X$, that can be described using an urn model.
 
-:::{.fragment}
-*Simulation in R!*
 :::
-:::
+
+
+
 
 ::::
 
+## Simulate distributions
+
+When rolling 10 dice, how many sixes do you get?
+
+- What are the possible outcomes?
+- What is the probability of exactly 2 sixes?
+- What is the probability of at least 5 sixes?
+- What does the probability mass function look like?
+- What is the expected number of sixes?
+
+:::{.fragment}
+[*Dice experiment*](dice/dice.html)
+:::
+:::{.fragment}
+*Simulation in R!*
+:::
 
 :::{.notes}
 In R we can simulate random draws from an urn model using the
