@@ -580,7 +580,7 @@ occurs in a large number ($n$) of trials.
 ::: {.column width="55%"}
 The probability mass function;
 
-$$P(X=k) = \frac{\lambda}{k!}e^{-\lambda},$$
+$$P(X=k) = \frac{\lambda^k}{k!}e^{-\lambda},$$
 
 $$E[X] = var(X) = \lambda = n p$$
 :::

@@ -2,12 +2,12 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.3.450">
+<meta name="generator" content="quarto-1.5.57">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Probability Theory - Exercises: Discrete random variables</title>
+<title>Exercises: Discrete random variables – Probability Theory</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -22,7 +22,7 @@ ul.task-list li input[type="checkbox"] {
 }
 /* CSS for syntax highlighting */
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span { line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -33,7 +33,7 @@ div.sourceCode { overflow: auto; }
 }
 @media print {
 pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
 }
 pre.numberSource code
   { counter-reset: source-line 0; }
@@ -81,7 +81,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   "collapse-after": 3,
   "panel-placement": "start",
   "type": "textbox",
-  "limit": 20,
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
   "language": {
     "search-no-results-text": "No results",
     "search-matching-documents-text": "matching documents",
@@ -90,14 +96,42 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     "search-more-match-text": "more match in this document",
     "search-more-matches-text": "more matches in this document",
     "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
     "search-detached-cancel-button-title": "Cancel",
     "search-submit-button-title": "Submit",
     "search-label": "Search"
   }
 }</script>
 
-  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
 
 </head>
 
@@ -107,13 +141,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <header id="quarto-header" class="headroom fixed-top">
   <nav class="quarto-secondary-nav">
     <div class="container-fluid d-flex">
-      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-      <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./prob_exr1_discrv_solutions.html">Exercises: Discrete random variables</a></li></ol></nav>
-      <a class="flex-grow-1" role="button" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
-      </a>
-      <button type="button" class="btn quarto-search-button" aria-label="" onclick="window.quartoOpenSearch();">
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./prob_exr1_discrv_solutions.html">Exercises: Discrete random variables</a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
         <i class="bi bi-search"></i>
       </button>
     </div>
@@ -122,7 +156,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <!-- content -->
 <div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
 <!-- sidebar -->
-  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal sidebar-navigation floating overflow-auto">
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
     <div class="pt-lg-2 mt-2 text-left sidebar-header">
     <div class="sidebar-title mb-0 py-0">
       <a href="./">Probability Theory</a> 
@@ -186,7 +220,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     </ul>
     </div>
 </nav>
-<div id="quarto-sidebar-glass" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass"></div>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
     <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
         <nav id="TOC" role="doc-toc" class="toc-active">
@@ -217,12 +251,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   </div>
   
 
+
 </header>
+
 
 <section id="introduction-to-probability" class="level2">
 <h2 class="anchored" data-anchor-id="introduction-to-probability">Introduction to probability</h2>
 <div id="exr-mutation" class="theorem exercise">
-<p><span class="theorem-title"><strong>Exercise 1 (BRCA) </strong></span>The probability of carrying mutations (one or more) in the breast cancer gene BRCA1 is 0.01. What is the probability of not carrying any mutations in BRCA1?</p>
+<p><span class="theorem-title"><strong>Exercise 1 (BRCA)</strong></span> The probability of carrying mutations (one or more) in the breast cancer gene BRCA1 is 0.01. What is the probability of not carrying any mutations in BRCA1?</p>
 <div class="callout callout-style-default callout-tip callout-titled">
 <div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-1-contents" aria-controls="callout-1" aria-expanded="false" aria-label="Toggle callout">
 <div class="callout-icon-container">
@@ -257,7 +293,7 @@ Solution
 </div>
 </div>
 <div id="exr-probcoin" class="theorem exercise">
-<p><span class="theorem-title"><strong>Exercise 2 (A coin toss) </strong></span>When tossing a fair coin</p>
+<p><span class="theorem-title"><strong>Exercise 2 (A coin toss)</strong></span> When tossing a fair coin</p>
 <ol type="a">
 <li>what is the probability of heads?</li>
 <li>what is the probability of tails?</li>
@@ -302,8 +338,8 @@ Solution
 <!-- End solution -->
 </div>
 <div id="exr-children" class="theorem exercise">
-<p><span class="theorem-title"><strong>Exercise 3 (Number of children) </strong></span>In a region in Sweden with many children the number of children per household is between 0 and 6. The probability mass function is as follows;</p>
-<table class="table">
+<p><span class="theorem-title"><strong>Exercise 3 (Number of children)</strong></span> In a region in Sweden with many children the number of children per household is between 0 and 6. The probability mass function is as follows;</p>
+<table class="caption-top table">
 <thead>
 <tr class="header">
 <th style="text-align: left;">x</th>
@@ -361,7 +397,7 @@ Solution
 </div>
 </div>
 <div id="exr-probdie" class="theorem exercise">
-<p><span class="theorem-title"><strong>Exercise 4 (Rolling dice) </strong></span>When tossing a fair six-sided dice</p>
+<p><span class="theorem-title"><strong>Exercise 4 (Rolling dice)</strong></span> When tossing a fair six-sided dice</p>
 <ol type="a">
 <li>what is the probability of getting 6?</li>
 <li>what is the probability of an even number?</li>
@@ -410,7 +446,6 @@ Solution
 </section>
 <section id="simulation" class="level2 unnumbered">
 <h2 class="unnumbered anchored" data-anchor-id="simulation">Simulation</h2>
-
 <!-- ::: {#exr-cointoss}
 In a single coin toss the probability of heads is 0.5. 
 
@@ -440,6 +475,10 @@ e)  0.0002
 Simulate as in the lecture;
 
 
+
+
+
+
 ::: {.cell}
 
 ```{.r .cell-code}
@@ -448,9 +487,12 @@ sample(c("H", "T"), size=1)
 ```
 
 ::: {.cell-output .cell-output-stdout}
+
 ```
 [1] "T"
 ```
+
+
 :::
 
 ```{.r .cell-code}
@@ -459,9 +501,12 @@ sample(c("H", "T"), size=1)
 ```
 
 ::: {.cell-output .cell-output-stdout}
+
 ```
 [1] "T"
 ```
+
+
 :::
 
 ```{.r .cell-code}
@@ -470,10 +515,13 @@ sample(c("H", "T"), size=1)
 ```
 
 ::: {.cell-output .cell-output-stdout}
+
 ```
- [1] "T" "H" "H" "H" "T" "T" "H" "T" "H" "T" "T" "H" "T" "T" "H" "H" "H" "H" "T"
+ [1] "T" "H" "H" "H" "T" "T" "T" "H" "T" "T" "T" "H" "T" "T" "T" "H" "T" "T" "T"
 [20] "T"
 ```
+
+
 :::
 
 ```{.r .cell-code}
@@ -482,9 +530,12 @@ sum(coins == "H")
 ```
 
 ::: {.cell-output .cell-output-stdout}
+
 ```
-[1] 10
+[1] 6
 ```
+
+
 :::
 
 ```{.r .cell-code}
@@ -497,7 +548,15 @@ Nheads <- replicate(10000, {
 :::
 
 
+
+
+
+
 a.  Probability of exactly 15 heads
+
+
+
+
 
 
 ::: {.cell}
@@ -508,9 +567,12 @@ sum(Nheads==15)
 ```
 
 ::: {.cell-output .cell-output-stdout}
+
 ```
-[1] 144
+[1] 152
 ```
+
+
 :::
 
 ```{.r .cell-code}
@@ -519,9 +581,12 @@ sum(Nheads==15)/10000
 ```
 
 ::: {.cell-output .cell-output-stdout}
+
 ```
-[1] 0.014
+[1] 0.015
 ```
+
+
 :::
 
 ```{.r .cell-code}
@@ -530,14 +595,25 @@ mean(Nheads==15)
 ```
 
 ::: {.cell-output .cell-output-stdout}
+
 ```
-[1] 0.014
+[1] 0.015
 ```
+
+
 :::
 :::
+
+
+
+
 
 
 b.  Probability of less than 7 heads
+
+
+
+
 
 
 ::: {.cell}
@@ -547,14 +623,25 @@ mean(Nheads<7)
 ```
 
 ::: {.cell-output .cell-output-stdout}
+
 ```
-[1] 0.06
+[1] 0.055
 ```
+
+
 :::
 :::
+
+
+
+
 
 
 c.  What is the most probable number of heads?
+
+
+
+
 
 
 ::: {.cell}
@@ -574,20 +661,29 @@ table(Nheads)
 ```
 
 ::: {.cell-output .cell-output-stdout}
+
 ```
 Nheads
-   2    3    4    5    6    7    8    9   10   11   12   13   14   15   16   17 
-   1   11   48  156  384  692 1247 1599 1746 1562 1210  790  356  144   44    9 
-  18 
-   1 
+   3    4    5    6    7    8    9   10   11   12   13   14   15   16   17 
+  13   49  150  342  723 1226 1577 1779 1632 1184  761  359  152   44    9 
 ```
+
+
 :::
 :::
+
+
+
+
 
 
 d.  What is the probability of 5 tails or less?
 
 To get five or less tails out of 20 throws is equal to getting 15 or more heads out of 20.
+
+
+
+
 
 
 ::: {.cell}
@@ -598,14 +694,25 @@ mean(Nheads>=15)
 ```
 
 ::: {.cell-output .cell-output-stdout}
+
 ```
-[1] 0.02
+[1] 0.021
 ```
+
+
 :::
 :::
+
+
+
+
 
 
 e.  what is the probability of 2 heads or less?
+
+
+
+
 
 
 ::: {.cell}
@@ -615,9 +722,12 @@ mean(Nheads<=2)
 ```
 
 ::: {.cell-output .cell-output-stdout}
+
 ```
-[1] 1e-04
+[1] 0
 ```
+
+
 :::
 
 ```{.r .cell-code}
@@ -625,9 +735,12 @@ sum(Nheads<=2)
 ```
 
 ::: {.cell-output .cell-output-stdout}
+
 ```
-[1] 1
+[1] 0
 ```
+
+
 :::
 
 ```{.r .cell-code}
@@ -641,9 +754,12 @@ sum(Nheads<=2)
 ```
 
 ::: {.cell-output .cell-output-stdout}
+
 ```
-[1] 182
+[1] 210
 ```
+
+
 :::
 
 ```{.r .cell-code}
@@ -651,16 +767,23 @@ mean(Nheads<=2)
 ```
 
 ::: {.cell-output .cell-output-stdout}
+
 ```
-[1] 0.00018
+[1] 0.00021
 ```
+
+
 :::
 :::
+
+
+
+
 
 :::
 ::: -->
 <div id="exr-rand" class="theorem exercise">
-<p><span class="theorem-title"><strong>Exercise 5 (Randomization) </strong></span>In a clinical trial, enrolled patients are randomly assigned to treatment or control group with equal probability.</p>
+<p><span class="theorem-title"><strong>Exercise 5 (Randomization)</strong></span> In a clinical trial, enrolled patients are randomly assigned to treatment or control group with equal probability.</p>
 <p>For a single patient, what is the probability of being assigned to</p>
 <ol type="a">
 <li>the treatment group?</li>
@@ -715,18 +838,18 @@ Solution
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Randomization for a single patient</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sample</span>(<span class="fu">c</span>(<span class="st">"T"</span>, <span class="st">"C"</span>), <span class="at">size=</span><span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] "C"</code></pre>
+<pre><code>[1] "T"</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Randomize 20 independent patients</span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>(patients <span class="ot">&lt;-</span> <span class="fu">sample</span>(<span class="fu">c</span>(<span class="st">"T"</span>, <span class="st">"c"</span>), <span class="at">size=</span><span class="dv">20</span>, <span class="at">replace=</span><span class="cn">TRUE</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code> [1] "c" "T" "T" "c" "c" "c" "c" "T" "c" "T" "T" "c" "c" "T" "T" "c" "T" "T" "c"
-[20] "T"</code></pre>
+<pre><code> [1] "T" "T" "T" "T" "c" "T" "T" "c" "T" "c" "T" "T" "T" "c" "c" "c" "c" "c" "T"
+[20] "c"</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="do">## How many patients are assigned to treatment group?</span></span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span>(patients <span class="sc">==</span> <span class="st">"T"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] 10</code></pre>
+<pre><code>[1] 11</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Simulate by repeating 10000 times</span></span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>Ntreat <span class="ot">&lt;-</span> <span class="fu">replicate</span>(<span class="dv">10000</span>, {</span>
@@ -741,7 +864,7 @@ Solution
 <div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Proportion of the 10000 repeats with exactly 15 T</span></span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="fu">mean</span>(Ntreat<span class="sc">==</span><span class="dv">15</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] 0.016</code></pre>
+<pre><code>[1] 0.015</code></pre>
 </div>
 </div>
 <ol start="4" type="a">
@@ -760,16 +883,18 @@ Solution
 <div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="do">## plot the distribution and read the graph</span></span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="fu">hist</span>(Ntreat, <span class="at">breaks=</span><span class="dv">0</span><span class="sc">:</span><span class="dv">21</span><span class="fl">-0.5</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<p><img src="Rfigures/prob_solrandome-1.png" class="img-fluid" width="2100"></p>
+<div>
+<figure class="figure">
+<p><img src="Rfigures/prob_solrandome-1.png" class="img-fluid figure-img" width="2100"></p>
+</figure>
+</div>
 </div>
 <div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="do">## or tabulate</span></span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(Ntreat)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Ntreat
-   2    3    4    5    6    7    8    9   10   11   12   13   14   15   16   17 
-   6   11   55  133  391  699 1203 1598 1753 1617 1214  713  376  164   50   16 
-  18 
-   1 </code></pre>
+   3    4    5    6    7    8    9   10   11   12   13   14   15   16   17   18 
+  12   58  154  375  761 1195 1555 1778 1599 1194  751  348  147   52   18    3 </code></pre>
 </div>
 </div>
 <ol start="6" type="a">
@@ -780,7 +905,7 @@ Solution
 <div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="do">## probability of 15 T or more</span></span>
 <span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="fu">mean</span>(Ntreat<span class="sc">&gt;=</span><span class="dv">15</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] 0.023</code></pre>
+<pre><code>[1] 0.022</code></pre>
 </div>
 </div>
 <ol start="7" type="a">
@@ -789,11 +914,11 @@ Solution
 <div class="cell">
 <div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mean</span>(Ntreat<span class="sc">&lt;=</span><span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] 6e-04</code></pre>
+<pre><code>[1] 0</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span>(Ntreat<span class="sc">&lt;=</span><span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] 6</code></pre>
+<pre><code>[1] 0</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="do">## with this low number of observations, more repeats is required to get a more accurate answer</span></span>
 <span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>  </span>
@@ -814,7 +939,6 @@ Solution
 </div>
 </div>
 </div>
-
 <!-- ::: {#exr-dice}
 ## Ten dice
 
@@ -843,6 +967,10 @@ b.  ${0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10}$
 c.  
 
 
+
+
+
+
 ::: {.cell}
 
 ```{.r .cell-code}
@@ -852,11 +980,14 @@ table(N)
 ```
 
 ::: {.cell-output .cell-output-stdout}
+
 ```
 N
     0     1     2     3     4     5     6     7     8 
-16027 32267 29322 15365  5428  1349   215    24     3 
+16308 32309 28885 15510  5460  1290   209    28     1 
 ```
+
+
 :::
 
 ```{.r .cell-code}
@@ -865,11 +996,14 @@ table(N)/length(N)
 ```
 
 ::: {.cell-output .cell-output-stdout}
+
 ```
 N
       0       1       2       3       4       5       6       7       8 
-0.16027 0.32267 0.29322 0.15365 0.05428 0.01349 0.00215 0.00024 0.00003 
+0.16308 0.32309 0.28885 0.15510 0.05460 0.01290 0.00209 0.00028 0.00001 
 ```
+
+
 :::
 
 ```{.r .cell-code}
@@ -882,33 +1016,58 @@ hist(N, breaks=(0:11)-0.5)
 :::
 
 
+
+
+
+
 d)  0.015
+
+
+
+
 
 
 ::: {.cell}
 ::: {.cell-output .cell-output-stdout}
+
 ```
-[1] 1591
+[1] 1528
 ```
+
+
 :::
 
 ::: {.cell-output .cell-output-stdout}
+
 ```
-[1] 0.016
+[1] 0.015
 ```
+
+
 :::
 
 ::: {.cell-output .cell-output-stdout}
+
 ```
-[1] 0.016
+[1] 0.015
 ```
+
+
 :::
 :::
+
+
+
+
 
 
 e)  1 (Use the PMF to answer this question)
 
 f)  0.29
+
+
+
+
 
 
 ::: {.cell}
@@ -918,14 +1077,25 @@ mean(N==2)
 ```
 
 ::: {.cell-output .cell-output-stdout}
+
 ```
 [1] 0.29
 ```
+
+
 :::
 :::
+
+
+
+
 
 
 g)  1.7
+
+
+
+
 
 
 ::: {.cell}
@@ -935,9 +1105,12 @@ mean(N)
 ```
 
 ::: {.cell-output .cell-output-stdout}
+
 ```
 [1] 1.7
 ```
+
+
 :::
 
 ```{.r .cell-code}
@@ -945,16 +1118,23 @@ mean(N)
 ```
 
 ::: {.cell-output .cell-output-stdout}
+
 ```
 [1] 1.7
 ```
+
+
 :::
 :::
+
+
+
+
 
 :::
 ::: -->
 <div id="exr-bacteria" class="theorem exercise">
-<p><span class="theorem-title"><strong>Exercise 6 (Bacterial colonies) </strong></span>In a bacterial sample, 1/6 are antibiotic resistant. From bacterial colonies on an agar plate, you randomly pick 10 colonies and investigate how many that are antibiotic resistant.</p>
+<p><span class="theorem-title"><strong>Exercise 6 (Bacterial colonies)</strong></span> In a bacterial sample, 1/6 are antibiotic resistant. From bacterial colonies on an agar plate, you randomly pick 10 colonies and investigate how many that are antibiotic resistant.</p>
 <ol type="a">
 <li>Define the random variable of interest</li>
 <li>What are the possible outcomes?</li>
@@ -1004,18 +1184,22 @@ Solution
 <div class="cell-output cell-output-stdout">
 <pre><code>N
     0     1     2     3     4     5     6     7     8 
-16390 32371 29043 15314  5364  1268   224    24     2 </code></pre>
+16204 32333 28995 15570  5363  1285   222    25     3 </code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="do">##The probability mass function</span></span>
 <span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(N)<span class="sc">/</span><span class="fu">length</span>(N)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>N
       0       1       2       3       4       5       6       7       8 
-0.16390 0.32371 0.29043 0.15314 0.05364 0.01268 0.00224 0.00024 0.00002 </code></pre>
+0.16204 0.32333 0.28995 0.15570 0.05363 0.01285 0.00222 0.00025 0.00003 </code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="fu">hist</span>(N, <span class="at">breaks=</span>(<span class="dv">0</span><span class="sc">:</span><span class="dv">11</span>)<span class="sc">-</span><span class="fl">0.5</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<p><img src="Rfigures/prob_CFUc-1.png" class="img-fluid" width="2100"></p>
+<div>
+<figure class="figure">
+<p><img src="Rfigures/prob_CFUc-1.png" class="img-fluid figure-img" width="2100"></p>
+</figure>
+</div>
 </div>
 </div>
 <ol start="4" type="a">
@@ -1023,7 +1207,7 @@ Solution
 </ol>
 <div class="cell">
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] 1518</code></pre>
+<pre><code>[1] 1535</code></pre>
 </div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 0.015</code></pre>
@@ -1076,6 +1260,10 @@ A deck of cards consists of 52 cards; 13 diamonds, 13 spades, 13 hearts and 13 c
 ### Solution
 
 
+
+
+
+
 ::: {.cell}
 
 ```{.r .cell-code}
@@ -1093,16 +1281,23 @@ mean(N==5)
 ```
 
 ::: {.cell-output .cell-output-stdout}
+
 ```
-[1] 5e-04
+[1] 0.00051
 ```
+
+
 :::
 :::
+
+
+
+
 
 :::
 ::: -->
 <div id="exr-pollen" class="theorem exercise">
-<p><span class="theorem-title"><strong>Exercise 7 (Pollen allergy) </strong></span>&nbsp;</p>
+<p><span class="theorem-title"><strong>Exercise 7 (Pollen allergy)</strong></span> &nbsp;</p>
 <ol type="a">
 <li>30% of a large population is allergic to pollen. If you randomly select 3 people to participate in your study, what is the probability than none of them will be allergic to pollen?</li>
 </ol>
@@ -1125,11 +1320,11 @@ Solution
 <div class="cell-output cell-output-stdout">
 <pre><code>x
  0  1  2  3 
-38 42 18  2 </code></pre>
+35 43 20  2 </code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mean</span>(x<span class="sc">==</span><span class="dv">0</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] 0.38</code></pre>
+<pre><code>[1] 0.35</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Solution using 1000 replicates</span></span>
 <span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">replicate</span>(<span class="dv">1000</span>, <span class="fu">sum</span>(<span class="fu">sample</span>(<span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">1</span>), <span class="at">size=</span><span class="dv">3</span>, <span class="at">replace=</span><span class="cn">TRUE</span>)))</span>
@@ -1137,11 +1332,11 @@ Solution
 <div class="cell-output cell-output-stdout">
 <pre><code>x
   0   1   2   3 
-330 467 184  19 </code></pre>
+353 440 188  19 </code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mean</span>(x<span class="sc">==</span><span class="dv">0</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] 0.33</code></pre>
+<pre><code>[1] 0.35</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb47"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Solution using 100000 replicates</span></span>
 <span id="cb47-2"><a href="#cb47-2" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">replicate</span>(<span class="dv">100000</span>, <span class="fu">sum</span>(<span class="fu">sample</span>(<span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">1</span>), <span class="at">size=</span><span class="dv">3</span>, <span class="at">replace=</span><span class="cn">TRUE</span>)))</span>
@@ -1149,11 +1344,11 @@ Solution
 <div class="cell-output cell-output-stdout">
 <pre><code>x
     0     1     2     3 
-34549 43850 19021  2580 </code></pre>
+34439 43866 19001  2694 </code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb49"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mean</span>(x<span class="sc">==</span><span class="dv">0</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] 0.35</code></pre>
+<pre><code>[1] 0.34</code></pre>
 </div>
 </div>
 </div>
@@ -1181,7 +1376,7 @@ Solution
 <div class="cell-output cell-output-stdout">
 <pre><code>x
     0     1     2     3 
-32006 47761 18462  1771 </code></pre>
+31824 48007 18366  1803 </code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb53"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mean</span>(x<span class="sc">==</span><span class="dv">0</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
@@ -1213,7 +1408,7 @@ Solution
 <div class="cell-output cell-output-stdout">
 <pre><code>x
     0     1     2     3 
-33896 44637 18820  2647 </code></pre>
+34101 44388 18976  2535 </code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb57"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb57-1"><a href="#cb57-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mean</span>(x<span class="sc">==</span><span class="dv">0</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
@@ -1247,7 +1442,7 @@ Solution
 <section id="parametric-discrete-distribution" class="level2 unnumbered">
 <h2 class="unnumbered anchored" data-anchor-id="parametric-discrete-distribution">Parametric discrete distribution</h2>
 <div id="exr-parampollen" class="theorem exercise">
-<p><span class="theorem-title"><strong>Exercise 8 (Pollen) </strong></span>Do <a href="#exr-pollen">Exercise&nbsp;<span>7</span></a> again, but using parametric distributions. Compare your results.</p>
+<p><span class="theorem-title"><strong>Exercise 8 (Pollen)</strong></span> Do <a href="#exr-pollen" class="quarto-xref">Exercise&nbsp;<span>7</span></a> again, but using parametric distributions. Compare your results.</p>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-16-contents" aria-controls="callout-16" aria-expanded="false" aria-label="Toggle callout">
 <div class="callout-icon-container">
@@ -1282,7 +1477,7 @@ Solution
 </div>
 </div>
 <div id="exr-gsea" class="theorem exercise">
-<p><span class="theorem-title"><strong>Exercise 9 (Gene set enrichment analysis) </strong></span>You have analyzed 20000 genes and a bioinformatician you are collaborating with has sent you a list of 1000 genes that she says are important. You are interested in a particular pathway A. 200 genes in pathway A are represented among the 20000 genes, 20 of these are in the bioinformaticians important list.</p>
+<p><span class="theorem-title"><strong>Exercise 9 (Gene set enrichment analysis)</strong></span> You have analyzed 20000 genes and a bioinformatician you are collaborating with has sent you a list of 1000 genes that she says are important. You are interested in a particular pathway A. 200 genes in pathway A are represented among the 20000 genes, 20 of these are in the bioinformaticians important list.</p>
 <p>If the bioinformatician selected the 1000 genes at random, what is the probability to see 20 or more genes from pathway A in this list?</p>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-17-contents" aria-controls="callout-17" aria-expanded="false" aria-label="Toggle callout">
@@ -1307,7 +1502,7 @@ Solution
 </div>
 </div>
 <div id="exr-boss" class="theorem exercise">
-<p><span class="theorem-title"><strong>Exercise 10 (Chance of meeting boss) </strong></span>Your boss comes in to the office three days per week. You do also come in to work three days per week. If you both choose which days to come in to work at random, what is the probability that a particular week you are in the office at the same time 0, 1, 2 or 3 days, respectively?</p>
+<p><span class="theorem-title"><strong>Exercise 10 (Chance of meeting boss)</strong></span> Your boss comes in to the office three days per week. You do also come in to work three days per week. If you both choose which days to come in to work at random, what is the probability that a particular week you are in the office at the same time 0, 1, 2 or 3 days, respectively?</p>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-18-contents" aria-controls="callout-18" aria-expanded="false" aria-label="Toggle callout">
 <div class="callout-icon-container">
@@ -1326,7 +1521,7 @@ Solution
 <div class="cell-output cell-output-stdout">
 <pre><code>x
     1     2     3 
-29948 60038 10014 </code></pre>
+30028 59894 10078 </code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb69"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb69-1"><a href="#cb69-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dhyper</span>(<span class="dv">0</span><span class="sc">:</span><span class="dv">3</span>, <span class="dv">3</span>, <span class="dv">2</span>, <span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
@@ -1338,7 +1533,7 @@ Solution
 </div>
 </div>
 <div id="exr-poisson" class="theorem exercise">
-<p><span class="theorem-title"><strong>Exercise 11 (Rare disease) </strong></span>A rare disease affects 3 in 100000 in a large population. If 10000 people are randomly selected from the population, what is the probability</p>
+<p><span class="theorem-title"><strong>Exercise 11 (Rare disease)</strong></span> A rare disease affects 3 in 100000 in a large population. If 10000 people are randomly selected from the population, what is the probability</p>
 <ol type="a">
 <li>that no one in the sample is affected?</li>
 <li>that at least two in the sample are affected?</li>
@@ -1379,7 +1574,6 @@ Solution
 </div>
 </div>
 </div>
-
 <!-- ## Conditional probability {.unnumbered}
 
 ::: {#exr-diagnostic}
@@ -1455,18 +1649,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     }
     return false;
   }
-  const clipboard = new window.ClipboardJS('.code-copy-button', {
-    text: function(trigger) {
-      const codeEl = trigger.previousElementSibling.cloneNode(true);
-      for (const childEl of codeEl.children) {
-        if (isCodeAnnotation(childEl)) {
-          childEl.remove();
-        }
-      }
-      return codeEl.innerText;
-    }
-  });
-  clipboard.on('success', function(e) {
+  const onCopySuccess = function(e) {
     // button target
     const button = e.trigger;
     // don't keep focus
@@ -1498,11 +1681,50 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     }, 1000);
     // clear code selection
     e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
   });
-  function tippyHover(el, contentFn) {
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    // For code content inside modals, clipBoardJS needs to be initialized with a container option
+    // TODO: Check when it could be a function (https://github.com/zenorocha/clipboard.js/issues/860)
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
     const config = {
       allowHTML: true,
-      content: contentFn,
       maxWidth: 500,
       delay: 100,
       arrow: false,
@@ -1512,8 +1734,17 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       interactive: true,
       interactiveBorder: 10,
       theme: 'quarto',
-      placement: 'bottom-start'
+      placement: 'bottom-start',
     };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
     window.tippy(el, config); 
   }
   const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
@@ -1525,7 +1756,130 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       try { href = new URL(href).hash; } catch {}
       const id = href.replace(/^#\/?/, "");
       const note = window.document.getElementById(id);
-      return note.innerHTML;
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
     });
   }
       let selectedAnnoteEl;
@@ -1569,6 +1923,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
             }
             div.style.top = top - 2 + "px";
             div.style.height = height + 4 + "px";
+            div.style.left = 0;
             let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
             if (gutterDiv === null) {
               gutterDiv = window.document.createElement("div");
@@ -1594,6 +1949,32 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
         });
         selectedAnnoteEl = undefined;
       };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
       // Attach click handler to the DT
       const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
       for (const annoteDlNode of annoteDls) {
@@ -1655,17 +2036,18 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="./prob_02discrv.html" class="pagination-link">
+      <a href="./prob_02discrv.html" class="pagination-link" aria-label="Discrete random variables">
         <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Discrete random variables</span></span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="./prob_03contrv.html" class="pagination-link">
+      <a href="./prob_03contrv.html" class="pagination-link" aria-label="Continuous random variable">
         <span class="nav-page-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Continuous random variable</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>
 </div> <!-- /content -->
+
 
 
 
