@@ -1,6 +1,6 @@
 ---
 title: "Clustering"
-author: "Olga Dethlefsen & Mun-Gwan Hong"
+author: "Olga Dethlefsen, Mun-Gwan Hong and Eva Freyhult"
 format: 
   revealjs:
     embed-resources: true
