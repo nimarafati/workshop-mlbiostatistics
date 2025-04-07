@@ -26,6 +26,7 @@ dir_images <- "images/"
 ```
 
 # Clustering: art of finding groups
+
 ```{r}
 #| include: false
 #| eval: false
@@ -313,7 +314,8 @@ where:
 
 - A similarity measure in which joint absences $d$ are excluded from consideration, and matches $a$ are weighted double.
 - Also known as Czekanowski or Sorensen measure
-$$distance(A, B) = 2a / (2a + b + c)$$
+
+$$distance(A, B) = 1 - 2a / (2a + b + c)$$
 
 ```{r}
 #| label: fig-dice
@@ -330,7 +332,7 @@ include_graphics("images/dice.png")
 - A similarity measure in which joint absences $d$ are excluded from consideration.
 - Equal weight is given to matches and mismatches.
 
-$$distance(A, B) = a / (a + b + c)$$
+$$distance(A, B) = 1 - \frac{|A \cap B|}{|A \cup B|} = 1 - a / (a + b + c)$$
 
 
 ## Partition methods: k-means & PAM

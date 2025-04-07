@@ -190,7 +190,19 @@ kable(matrix(c("", "H0 is true", "H0 is false", "Accept H0", "", "Type II error,
 ## Probability of type I and II errors
 
 ```{r}
-#| label: fig-alphabeta
+#| label: figalpha
+#| fig-cap: "The probability density functions under H0. The probability of type I error ($\\alpha$)is indicated."
+#| fig-width: 5
+x<-seq(-3,6,0.01)
+d <- 2.5
+q=qnorm(0.975)
+df <- data.frame(x=x, h=rep(c("H0", "H1"), each=length(x))) |> mutate(m=c(H0=0, H1=d)[h], f=dnorm(x, m, 1))
+ggplot(df |> filter(h=="H0"), aes(x=x, y=f, color=h, fill=h)) + geom_line()  + geom_area(data=df %>% filter(x>q, h=="H0"), alpha=0.5) + xlab("x") + ylab("f(x)") + theme_bw() + scale_color_manual("", guide="none", values=c("black", "orange")) + scale_fill_manual("", guide="none", values=c("black", "orange")) + annotate("label", x=-1, y=dnorm(1,0,1), label="H0", color="black") + annotate("label", x=2.2, y=0.02, label="alpha", parse=TRUE) + geom_vline(xintercept=q) + annotate("text", x=q, y=0.25, label="Significance threshold", vjust=0, angle=90)
+```
+## Probability of type I and II errors
+
+```{r}
+#| label: figalphabeta
 #| fig-cap: "The probability density functions under H0 and H1, respectively. The probability  of type I error ($\\alpha$) and type II error ($\\beta$) are indicated."
 #| fig-width: 5
 x<-seq(-3,6,0.01)
