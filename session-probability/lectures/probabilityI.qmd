@@ -355,7 +355,7 @@ When rolling 10 dice, how many sixes do you get?
 - What is the expected number of sixes?
 
 :::{.fragment}
-[*Dice experiment*](dice/dice.html)
+[*Dice experiment*](dice.html)
 :::
 :::{.fragment}
 *Simulation in R!*
