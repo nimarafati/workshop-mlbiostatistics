@@ -2,12 +2,12 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.3.450">
+<meta name="generator" content="quarto-1.5.57">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Probability Theory - 2&nbsp; Discrete random variables</title>
+<title>2&nbsp; Discrete random variables – Probability Theory</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -22,7 +22,7 @@ ul.task-list li input[type="checkbox"] {
 }
 /* CSS for syntax highlighting */
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span { line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -33,7 +33,7 @@ div.sourceCode { overflow: auto; }
 }
 @media print {
 pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
 }
 pre.numberSource code
   { counter-reset: source-line 0; }
@@ -81,7 +81,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   "collapse-after": 3,
   "panel-placement": "start",
   "type": "textbox",
-  "limit": 20,
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
   "language": {
     "search-no-results-text": "No results",
     "search-matching-documents-text": "matching documents",
@@ -90,17 +96,44 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     "search-more-match-text": "more match in this document",
     "search-more-matches-text": "more matches in this document",
     "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
     "search-detached-cancel-button-title": "Cancel",
     "search-submit-button-title": "Submit",
     "search-label": "Search"
   }
 }</script>
-
 <script src="site_libs/kePrint-0.0.1/kePrint.js"></script>
 <link href="site_libs/lightable-0.0.1/lightable.css" rel="stylesheet">
 
-  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
 
 </head>
 
@@ -110,13 +143,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <header id="quarto-header" class="headroom fixed-top">
   <nav class="quarto-secondary-nav">
     <div class="container-fluid d-flex">
-      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-      <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./prob_02discrv.html"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Discrete random variables</span></a></li></ol></nav>
-      <a class="flex-grow-1" role="button" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
-      </a>
-      <button type="button" class="btn quarto-search-button" aria-label="" onclick="window.quartoOpenSearch();">
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./prob_02discrv.html"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Discrete random variables</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
         <i class="bi bi-search"></i>
       </button>
     </div>
@@ -125,7 +158,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <!-- content -->
 <div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
 <!-- sidebar -->
-  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal sidebar-navigation floating overflow-auto">
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
     <div class="pt-lg-2 mt-2 text-left sidebar-header">
     <div class="sidebar-title mb-0 py-0">
       <a href="./">Probability Theory</a> 
@@ -189,7 +222,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     </ul>
     </div>
 </nav>
-<div id="quarto-sidebar-glass" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass"></div>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
     <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
         <nav id="TOC" role="doc-toc" class="toc-active">
@@ -233,7 +266,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   </div>
   
 
+
 </header>
+
 
 <p>A categorical random variable has nominal or ordinal outcomes such as; {red, blue, green} or {tiny, small, average, large, huge}.</p>
 <p>A discrete random number is usually counts and has a countable number of outcome values, such as {1,2,3,4,5,6}; {0,2,4,6,8} or all integers.</p>
@@ -244,13 +279,17 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li><span class="math inline">\(\sum p(x) = 1\)</span>, the sum over all possible outcomes is 1.</li>
 </ol>
 <div id="exm-rolldice" class="theorem example">
-<p><span class="theorem-title"><strong>Example 2.1 (The number of dots on a dice) </strong></span>When rolling a dice the there are six possible outcomes; 1, 2, 3, 4, 5 and 6, each of which have the same probability, if the dice is fair. The outcome of one dice roll can be described by a random variable <span class="math inline">\(X\)</span>. The probability of a particular outcome <span class="math inline">\(x\)</span> is denoted <span class="math inline">\(P(X=x)\)</span> or <span class="math inline">\(p(x)\)</span>.</p>
+<p><span class="theorem-title"><strong>Example 2.1 (The number of dots on a dice)</strong></span> When rolling a dice the there are six possible outcomes; 1, 2, 3, 4, 5 and 6, each of which have the same probability, if the dice is fair. The outcome of one dice roll can be described by a random variable <span class="math inline">\(X\)</span>. The probability of a particular outcome <span class="math inline">\(x\)</span> is denoted <span class="math inline">\(P(X=x)\)</span> or <span class="math inline">\(p(x)\)</span>.</p>
 <p>The probability mass function of a fair six-sided dice can be summarized in a table;</p>
 <div class="cell">
+<div id="tbl-pmfdice" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-pmfdice-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;2.1: Probability mass function of a fair six-sided dice.
+</figcaption>
+<div aria-describedby="tbl-pmfdice-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="cell-output-display">
-<div id="tbl-pmfdice" class="anchored">
-<table class="table table-sm table-striped small" data-quarto-postprocess="true">
-<caption>Table&nbsp;2.1: Probability mass function of a fair six-sided dice.</caption>
+<table class="table do-not-create-environment cell caption-top table-sm table-striped small" data-quarto-postprocess="true">
 <thead>
 <tr class="header">
 <th style="text-align: left;" data-quarto-table-cell-role="th"></th>
@@ -283,30 +322,40 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </tr>
 </tbody>
 </table>
+
+
 </div>
-
-
+</div>
+</figure>
 </div>
 </div>
 <p>or in a barplot;</p>
 <div class="cell" data-layout-align="center">
 <div class="cell-output-display">
-<div id="fig-dicepmf" class="quarto-figure quarto-figure-center anchored">
-<figure class="figure">
-<p><img src="Rfigures/prob_fig-dicepmf-1.png" class="img-fluid figure-img" style="width:45.0%"></p>
-<figcaption class="figure-caption">Figure&nbsp;2.1: Probability mass function of a fair six-sided dice.</figcaption>
+<div id="fig-dicepmf" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-dicepmf-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="Rfigures/prob_fig-dicepmf-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:45.0%">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-dicepmf-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2.1: Probability mass function of a fair six-sided dice.
+</figcaption>
 </figure>
 </div>
 </div>
 </div>
 </div>
 <div id="exm-nuclsite" class="theorem example">
-<p><span class="theorem-title"><strong>Example 2.2 (Nucleotide in a given site) </strong></span>The nucleotide at a given genomic site can be one of the four nucleotides; {A, C, T, G}. Unlike the sides on a dice the four nucleotides are usually not equally likely. The nucleotide at the site can be described by a random variable, <span class="math inline">\(X\)</span>. The probability mass function can be summarized in a table or a bar plot.</p>
+<p><span class="theorem-title"><strong>Example 2.2 (Nucleotide in a given site)</strong></span> The nucleotide at a given genomic site can be one of the four nucleotides; {A, C, T, G}. Unlike the sides on a dice the four nucleotides are usually not equally likely. The nucleotide at the site can be described by a random variable, <span class="math inline">\(X\)</span>. The probability mass function can be summarized in a table or a bar plot.</p>
 <div class="cell">
+<div id="tbl-nucl" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-nucl-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;2.2: Probability mass function of a nucleotide site.
+</figcaption>
+<div aria-describedby="tbl-nucl-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="cell-output-display">
-<div id="tbl-nucl" class="anchored">
-<table class="table table-sm table-striped small" data-quarto-postprocess="true">
-<caption>Table&nbsp;2.2: Probability mass function of a nucleotide site.</caption>
+<table class="table do-not-create-environment cell caption-top table-sm table-striped small" data-quarto-postprocess="true">
 <thead>
 <tr class="header">
 <th style="text-align: left;" data-quarto-table-cell-role="th"></th>
@@ -333,17 +382,23 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </tr>
 </tbody>
 </table>
+
+
 </div>
-
-
+</div>
+</figure>
 </div>
 </div>
 <div class="cell" data-layout-align="center">
 <div class="cell-output-display">
-<div id="fig-nucl" class="quarto-figure quarto-figure-center anchored">
-<figure class="figure">
-<p><img src="Rfigures/prob_fig-nucl-1.png" class="img-fluid figure-img" style="width:45.0%"></p>
-<figcaption class="figure-caption">Figure&nbsp;2.2: Probability mass function of a nucleotide site.</figcaption>
+<div id="fig-nucl" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-nucl-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="Rfigures/prob_fig-nucl-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:45.0%">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-nucl-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2.2: Probability mass function of a nucleotide site.
+</figcaption>
 </figure>
 </div>
 </div>
@@ -357,13 +412,17 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <!-- ``` -->
 <!-- ::: -->
 <div id="exm-bacteria" class="theorem example">
-<p><span class="theorem-title"><strong>Example 2.3 (CFU) </strong></span>The number of bacterial colony forming units (CFU) on a plate is a random number that can be described by a pmf such as in <a href="#fig-CFU">Figure&nbsp;<span>2.3</span></a>.</p>
+<p><span class="theorem-title"><strong>Example 2.3 (CFU)</strong></span> The number of bacterial colony forming units (CFU) on a plate is a random number that can be described by a pmf such as in <a href="#fig-CFU" class="quarto-xref">Figure&nbsp;<span>2.3</span></a>.</p>
 <div class="cell">
 <div class="cell-output-display">
-<div id="fig-CFU" class="quarto-figure quarto-figure-center anchored">
-<figure class="figure">
-<p><img src="Rfigures/prob_fig-CFU-1.png" class="img-fluid figure-img" width="4200"></p>
-<figcaption class="figure-caption">Figure&nbsp;2.3: Probability mass distribution of the number of bacterial colonies on an agar plate.</figcaption>
+<div id="fig-CFU" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-CFU-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="Rfigures/prob_fig-CFU-1.png" class="img-fluid figure-img" width="4200">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-CFU-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2.3: Probability mass distribution of the number of bacterial colonies on an agar plate.
+</figcaption>
 </figure>
 </div>
 </div>
@@ -402,15 +461,19 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h2 data-number="2.2" class="anchored" data-anchor-id="simulate-distributions"><span class="header-section-number">2.2</span> Simulate distributions</h2>
 <p>Once a random variable’s probability distribution is known, probabilities, such as <span class="math inline">\(P(X=x), P(X&lt;x)\)</span> and <span class="math inline">\(P(X \geq x)\)</span>, and properties, such as expected value and variance, of the random variable can be computed. If the distribution is not known, simulation might be the solution.</p>
 <div id="exm-cointoss" class="theorem example">
-<p><span class="theorem-title"><strong>Example 2.4 (Simulate coin toss) </strong></span>In a single coin toss the probabity of heads is 0.5. In 20 coin tosses, what is the probability of at least 15 heads?</p>
+<p><span class="theorem-title"><strong>Example 2.4 (Simulate coin toss)</strong></span> In a single coin toss the probabity of heads is 0.5. In 20 coin tosses, what is the probability of at least 15 heads?</p>
 <!-- Biological example. Randomize patients into control and treatment group, 50 % In a bacterial sample, every single bacteria can either be antibiotic resistant or not. In a sample 50% of the bacteria are antibiotic resistant, grow them on an agar plat and pick 20 colonies  -->
 <p>The outcome of a single coin toss is a random variable, <span class="math inline">\(X\)</span>, with two possible outcomes <span class="math inline">\(\{H, T\}\)</span>. We know that <span class="math inline">\(P(X=H) = 0.5\)</span>. The random variable of interest is the number of heads in 20 coin tosses, <span class="math inline">\(Y\)</span>. The probability that we need to compute is <span class="math inline">\(P(Y \geq 15)\)</span>.</p>
 <div class="cell" data-layout-align="center">
 <div class="cell-output-display">
-<div id="fig-coinurn" class="quarto-figure quarto-figure-center anchored">
-<figure class="figure">
-<p><img src="figures/coinurn.png" class="img-fluid figure-img" style="width:20.0%"></p>
-<figcaption class="figure-caption">Figure&nbsp;2.4: A coin toss. Urn model with one black ball (heads) and one white ball (tails).</figcaption>
+<div id="fig-coinurn" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-coinurn-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="figures/coinurn.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:20.0%">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-coinurn-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2.4: A coin toss. Urn model with one black ball (heads) and one white ball (tails).
+</figcaption>
 </figure>
 </div>
 </div>
@@ -421,12 +484,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="do">## A single coin toss</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sample</span>(<span class="fu">c</span>(<span class="st">"H"</span>, <span class="st">"T"</span>), <span class="at">size=</span><span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] "T"</code></pre>
+<pre><code>[1] "H"</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Another coin toss</span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sample</span>(<span class="fu">c</span>(<span class="st">"H"</span>, <span class="st">"T"</span>), <span class="at">size=</span><span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] "H"</code></pre>
+<pre><code>[1] "T"</code></pre>
 </div>
 </div>
 <p>Every time you run <code>sample</code> a new coin toss is simulated.</p>
@@ -436,7 +499,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="do">## 20 independent coin tosses</span></span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>(coins <span class="ot">&lt;-</span> <span class="fu">sample</span>(<span class="fu">c</span>(<span class="st">"H"</span>, <span class="st">"T"</span>), <span class="at">size=</span><span class="dv">20</span>, <span class="at">replace=</span><span class="cn">TRUE</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code> [1] "T" "H" "T" "H" "H" "T" "H" "T" "H" "H" "H" "T" "T" "T" "T" "T" "T" "T" "T"
+<pre><code> [1] "T" "H" "T" "T" "T" "T" "H" "T" "T" "H" "T" "H" "T" "T" "T" "T" "H" "T" "H"
 [20] "H"</code></pre>
 </div>
 </div>
@@ -445,7 +508,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="do">## How many heads?</span></span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span>(coins <span class="sc">==</span> <span class="st">"H"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] 8</code></pre>
+<pre><code>[1] 7</code></pre>
 </div>
 </div>
 <p>We can repeat this experiment (toss 20 coins and count the number of heads) several times to estimate the distribution of number of heads in 20 coin tosses.</p>
@@ -461,7 +524,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="cell">
 <div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">hist</span>(Nheads, <span class="at">breaks=</span><span class="dv">0</span><span class="sc">:</span><span class="dv">20</span><span class="fl">-0.5</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<p><img src="Rfigures/prob_histNheads-1.png" class="img-fluid" style="width:70.0%"></p>
+<div>
+<figure class="figure">
+<p><img src="Rfigures/prob_histNheads-1.png" class="img-fluid figure-img" style="width:70.0%"></p>
+</figure>
+</div>
 </div>
 </div>
 <p>Now, let’s get back to the question; when tossing 20 coins, what is the probability of at least 15 heads?</p>
@@ -470,11 +537,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="cell">
 <div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span>(Nheads <span class="sc">&gt;=</span> <span class="dv">15</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] 203</code></pre>
+<pre><code>[1] 190</code></pre>
 </div>
 </div>
 <p>From this we conclude that</p>
-<p><span class="math inline">\(P(Y \geq 15) =\)</span> 203/10000 = 0.0203</p>
+<p><span class="math inline">\(P(Y \geq 15) =\)</span> 190/10000 = 0.0190</p>
 </div>
 <p>Resampling can also be used to compute other properties of a random variable, such as the expected value.</p>
 <p>The <strong>law of large numbers</strong> states that if the same experiment is performed many times the average of the result will be close to the expected value.</p>
@@ -533,7 +600,7 @@ p &amp; \mathrm{if}\,x=1\mathrm,\,success\\
 <p>The Poisson distribution describe the number of times a rare event occurs in a large number of trials. Commonly used to describe the number of events during a given time period.</p>
 <p>A rare disease has a very low probability for a single individual. The number of individuals in a large population that catch the disease in a certain time period can be modelled using the Poisson distribution.</p>
 <p>The probability mass function has a single parameter, <span class="math inline">\(\lambda\)</span>, the expected value, and can be described as;</p>
-<p><span class="math display">\[P(X=k) = \frac{\lambda}{k!}e^{-\lambda}\]</span></p>
+<p><span class="math display">\[P(X=k) = \frac{\lambda^k}{k!}e^{-\lambda}\]</span></p>
 <p>The expected value <span class="math inline">\(\lambda = n \pi\)</span>, where <span class="math inline">\(n\)</span> is the number of objects sampled from the population and <span class="math inline">\(\pi\)</span> is the probability of a single object.</p>
 <p>The variance is equal to the expected value;</p>
 <p><span class="math display">\[var(X) = E[X] = \lambda = n \pi\]</span></p>
@@ -571,10 +638,14 @@ p &amp; \mathrm{if}\,x=1\mathrm,\,success\\
 <p>The binomial, hypoergeometric, negative binomial and poisson distributions have similarities. For large N (large population) the hypergeometric and binomial distributions are very similar. The Poisson distribution has equal variance and mean, whereas the binomial has a variance less than the mean and the negative binomial has a variance greater than the mean.</p>
 <div class="cell">
 <div class="cell-output-display">
-<div id="fig-distr" class="quarto-figure quarto-figure-center anchored">
-<figure class="figure">
-<p><img src="Rfigures/prob_fig-distr-1.png" class="img-fluid figure-img" width="4200"></p>
-<figcaption class="figure-caption">Figure&nbsp;2.5: Probability mass functions for the binomial distribution (n=20, p=0.1, 0.3 or 0.5), hypergeometric distribution (N=100, n=20, p=0.1, 0.3 or 0.5), negative binomial distribution (n=20, r=n*p, p=0.1, 0.3 or 0.5) and Poisson distribution (n=20, p=0.1, 0.3 or 0.5).</figcaption>
+<div id="fig-distr" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-distr-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="Rfigures/prob_fig-distr-1.png" class="img-fluid figure-img" width="4200">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-distr-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2.5: Probability mass functions for the binomial distribution (n=20, p=0.1, 0.3 or 0.5), hypergeometric distribution (N=100, n=20, p=0.1, 0.3 or 0.5), negative binomial distribution (n=20, r=n*p, p=0.1, 0.3 or 0.5) and Poisson distribution (n=20, p=0.1, 0.3 or 0.5).
+</figcaption>
 </figure>
 </div>
 </div>
@@ -623,18 +694,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     }
     return false;
   }
-  const clipboard = new window.ClipboardJS('.code-copy-button', {
-    text: function(trigger) {
-      const codeEl = trigger.previousElementSibling.cloneNode(true);
-      for (const childEl of codeEl.children) {
-        if (isCodeAnnotation(childEl)) {
-          childEl.remove();
-        }
-      }
-      return codeEl.innerText;
-    }
-  });
-  clipboard.on('success', function(e) {
+  const onCopySuccess = function(e) {
     // button target
     const button = e.trigger;
     // don't keep focus
@@ -666,11 +726,50 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     }, 1000);
     // clear code selection
     e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
   });
-  function tippyHover(el, contentFn) {
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    // For code content inside modals, clipBoardJS needs to be initialized with a container option
+    // TODO: Check when it could be a function (https://github.com/zenorocha/clipboard.js/issues/860)
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
     const config = {
       allowHTML: true,
-      content: contentFn,
       maxWidth: 500,
       delay: 100,
       arrow: false,
@@ -680,8 +779,17 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       interactive: true,
       interactiveBorder: 10,
       theme: 'quarto',
-      placement: 'bottom-start'
+      placement: 'bottom-start',
     };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
     window.tippy(el, config); 
   }
   const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
@@ -693,7 +801,130 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       try { href = new URL(href).hash; } catch {}
       const id = href.replace(/^#\/?/, "");
       const note = window.document.getElementById(id);
-      return note.innerHTML;
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
     });
   }
       let selectedAnnoteEl;
@@ -737,6 +968,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
             }
             div.style.top = top - 2 + "px";
             div.style.height = height + 4 + "px";
+            div.style.left = 0;
             let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
             if (gutterDiv === null) {
               gutterDiv = window.document.createElement("div");
@@ -762,6 +994,32 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
         });
         selectedAnnoteEl = undefined;
       };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
       // Attach click handler to the DT
       const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
       for (const annoteDlNode of annoteDls) {
@@ -823,17 +1081,18 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="./prob_01intro.html" class="pagination-link">
+      <a href="./prob_01intro.html" class="pagination-link" aria-label="Introduction to probability">
         <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Introduction to probability</span></span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="./prob_exr1_discrv_solutions.html" class="pagination-link">
+      <a href="./prob_exr1_discrv_solutions.html" class="pagination-link" aria-label="Exercises: Discrete random variables">
         <span class="nav-page-text">Exercises: Discrete random variables</span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>
 </div> <!-- /content -->
+
 
 
 

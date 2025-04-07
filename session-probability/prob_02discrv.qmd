@@ -307,7 +307,7 @@ A rare disease has a very low probability for a single individual. The number of
 
 The probability mass function has a single parameter, $\lambda$, the expected value, and can be described as;
 
-$$P(X=k) = \frac{\lambda}{k!}e^{-\lambda}$$
+$$P(X=k) = \frac{\lambda^k}{k!}e^{-\lambda}$$
 
 The expected value $\lambda = n \pi$, where $n$ is the number of objects sampled from the population and $\pi$ is the probability of a single object.
 
