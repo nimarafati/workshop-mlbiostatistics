@@ -361,15 +361,17 @@ Bootstrap!
 ```{r fig.height=1.5, fig.width=7}
 dfboot |> ggplot(aes(x=i, y=boot, label=sprintf("%.0f",x))) + geom_label() + theme_void() 
 ```
+
 <!-- ::: -->
 
-<!-- <!-- :::{.column width="20%} --> -->
+<!-- :::{.column width="20%} -->
 <!-- ```{r} -->
 <!-- gt(dfm)  -->
 <!-- ``` -->
 
 <!-- ::: -->
 <!-- :::: -->
+
 :::::
 
 ## Bootstrap example
