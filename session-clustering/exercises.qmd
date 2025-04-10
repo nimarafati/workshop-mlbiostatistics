@@ -29,7 +29,8 @@ library(circlize)
 
 You have found some older gene expression data, based on the microarray technology. They contains measurements for 22215 genes for 189 samples, across 7 tissue (kidney, hippocampus, cerebellum, colon, liver, endometrium and placenta). 
 
-Data can be loaded and preview: 
+[Data](data/tissuesGeneExpression.rda) can be loaded and preview: 
+
 ```{r}
 #| code-fold: false
 
