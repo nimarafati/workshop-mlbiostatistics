@@ -23,24 +23,26 @@ You are a part of research team conducting a lung cancer study. You have collect
 
 Your supervisor knows you are back from the "Introduction to Biostatistics & ML" course and asks you to be in charge of writing a **data analysis** plan to be presented at the next group meeting. How can the methods discussed during the course be used to further understand molecular mechanisms of lung cancer? What analyses will you suggest?
 
-- If you are in [1] use methods from day 1
-- If you are in [2] use methods from day 2
-- If you are in [3] use methods from day 3
-- If you are in [4] use methods from day 4
-- If you are in [5] use methods from day 5
+- If you are in [group 1] use methods from day 1 and 2
+- If you are in [group 2] use methods from day 3
+- If you are in [group 3] use methods from day 4
+- If you are in [group 4] use methods from day 5
+
 
 ## Group discussion
 
 <br>
 
 - Think about all the topics we discussed this week. 
-- Discuss what you may be still finding unclear or interesting. 
+- Discuss what you still find unclear or interesting. 
 - Come up with at least **at least 2 questions** that you would like to hear answers to. 
 
 ## Materials availability
 <br>
 
-[https://uppsala.instructure.com/courses/93277](https://uppsala.instructure.com/courses/93277)
+[https://uppsala.instructure.com/courses/98820](https://uppsala.instructure.com/courses/98820)
+
+[https://nbisweden.github.io/workshop-mlbiostatistics/](https://nbisweden.github.io/workshop-mlbiostatistics/)
 
 - website will stay up forever
 - in case any of the links break, contact us
@@ -98,122 +100,61 @@ Your supervisor knows you are back from the "Introduction to Biostatistics & ML"
 :::: {.columns}
 
 ::: {.column width="50%"}
-- edu.ml-biostats@nbis.se (reaches Eva and Olga)
+- edu.ml-biostats@nbis.se (reaches Eva, Olga and Payam)
 
 - eva.freyhult@nbis.se
 - olga.dethlefsen@nbis.se
 - payam.emami@nbis.se
-- mungwan.hong@nbis.se
+- elena.dracheva@nbis.se
+- miguel.angel.redondo@nbis.se
 - julie.lorent@nbis.se
 
 :::
 
-::: {.column width="50%"}
-![](images/robot-email.png)
-:::
-
 ::::
 
 
+## NBIS Bioinformatics drop-in
 
-## Drop-in
-
-<br>
-
-
-:::: {.columns}
-
-::: {.column width="60%"}
 [https://meet.nbis.se/dropin](https://meet.nbis.se/dropin)
 
-- Tuesdays after lunch, online, 14:00 - 15:00
-- And in person in Stockholm and Lund
+- Online on Tuesdays 14:00 - 15:00 (zoom [https://meet.nbis.se/dropin](https://meet.nbis.se/dropin)) 
+- In person in Stockholm and Lund
 - For exact schedule see [https://nbis.se/get-support/talk-to-us](https://nbis.se/get-support/talk-to-us)
-:::
-
-::: {.column width="5%"}
 
 
+## NBIS consultation and support
 
-:::
+* Consultation
 
-::: {.column width="35%"}
+  - Up to 3 h for free [https://nbis.se/get-support/talk-to-us](https://nbis.se/get-support/talk-to-us)
 
-![](images/robot-drop-in.png)
+* Support [https://nbis.se/services/bioinformatics](https://nbis.se/services/bioinformatics)
+ 
+  - User fee (800 SEK/h)
+  - Peer review (Up to 500h for free)
 
-:::
-
-::::
-
-
+* PhD Bioinformatics advisory program
 
 ## AI and IO Seminar series
- 
-<br>
 
-:::: {.columns}
-
-::: {.column width="50%"}
-[https://scilifelab.atlassian.net/wiki/spaces/IJC/overview](https://scilifelab.atlassian.net/wiki/spaces/IJC/overview)
+[https://www.scilifelab.se/research/scilifelab-seminar-series/ai-seminar-series/](https://www.scilifelab.se/research/scilifelab-seminar-series/ai-seminar-series/)
 
 - invited talks in Artificial Intelligence and Integrative Omics
 - online, once a month, 1h
 - open to everyone
-:::
-
-::: {.column width="5%"}
-
-:::
-
-::: {.column width="45%"}
-![](images/robot-zoom.png)
-:::
-
-::::
 
 
 
 ## Training events
-<br>
 
 - [https://nbis.se/training](https://nbis.se/training)
-- [https://www.scilifelab.se/events/#calendar](https://www.scilifelab.se/events/#calendar)
-
-## Follow-up session
-<br>
-
-- any interest for an online follow-up session?
+- [https://www.scilifelab.se/training/events](https://www.scilifelab.se/training/events)
 
 ## Feedback
 
-<br>
+[https://forms.gle/CZ8w3cmAT3snRnJ1A](https://forms.gle/CZ8w3cmAT3snRnJ1A)
 
-:::: {.columns}
-
-::: {.column width="45%"}
-![](images/robot-feedback.png)
-:::
-
-::: {.column width="5%"}
-
-:::
-::: {.column width="45%"}
 - Your opinion matters!
 - Could you please help us and future participants by filling in the feedback form before you leave?
-
-:::
-
-::::
-
-
-
-## Well done & massive thank you! 
-
-![](images/robot-flower.png)
-
-
-<!-- ## {background-color="black" background-image="images/robot-flower.png" background-size="250px" background-repeat="repeat"} -->
-
-<!-- Well done & massive thank you!  -->
-
 
