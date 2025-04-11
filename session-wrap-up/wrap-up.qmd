@@ -149,7 +149,11 @@ Your supervisor knows you are back from the "Introduction to Biostatistics & ML"
 ## Training events
 
 - [https://nbis.se/training](https://nbis.se/training)
-- [https://www.scilifelab.se/training/events](https://www.scilifelab.se/training/events)
+- [https://training.scilifelab.se/events](https://training.scilifelab.se/events)
+
+ [Machine Learning for Life Sciences](https://uppsala.instructure.com/courses/110506)
+ 
+ 
 
 ## Feedback
 
