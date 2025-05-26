@@ -1,0 +1,371 @@
+---
+title: "Machine Learning for Life Sciences"
+author: "9th - 13th June 2025"
+format:
+  revealjs: 
+    theme: [default, custom.scss]
+    incremental: false   
+    slide-number: true
+    view-distance: 5
+editor: source
+editor_options: 
+  chunk_output_type: console
+execute: 
+  echo: false
+  cache: false
+  warning: false
+  message: false
+---
+
+```{r setup, include=FALSE}
+
+library(dplyr)
+library(ggplot2)
+library(RColorBrewer)
+library(ggpubr)
+library(scales)
+library(tidyverse)
+library(latex2exp)
+library(plot3D)
+library(ggthemes)
+library(kableExtra)
+
+```
+
+# Welcome
+
+## Machine Learning for Life Sciences
+
+<br/><br/>
+
+::::: columns
+::: {.column width="60%"}
+-   9th - 13th June 2025
+-   BMC, Husargatan 3, Uppsala
+-   Room: Trippelrummet: E10:1307/8/9
+:::
+
+::: {.column width="40%"}
+![](images/robot.png){fig-align="left"}
+:::
+:::::
+
+## About us
+
+<br/><br/>
+
+. . .
+
+::::: columns
+::: {.column width="60%"}
+-   [Payam Emami](https://nbis.se/about/staff/payam-emami/)
+-   [Olga Dethlefsen](https://nbis.se/about/staff/olga-dethlefsen/)
+-   [Eva Freyhult](https://nbis.se/about/staff/eva-freyhult/)
+-   [Mun-Gwan](https://nbis.se/staff/mun-gwan-hong/)
+-   [Miguel Redondo](https://nbis.se/staff/miguel-a-redondo-2)
+-   [Julie Lorent](https://nbis.se/about/staff/julie-lorent/)
+
+<br/><br/>
+
+-   NBIS: National Bioinformatics Infrastructure Sweden
+-   SciLifeLab Bioinformatics Platform
+-   <https://www.scilifelab.se/units/nbis/>
+-   <https://nbis.se>
+:::
+
+::: {.column width="40%"}
+![](images/nbis.png){width="391"}
+:::
+:::::
+
+## What about you?
+
+```{r}
+#| message: false
+#| warning: false
+#| echo: false
+#| fig-align: center
+#| fig-height: 8
+
+rm(list=ls())
+
+data_csv <- read_csv("background-2025.csv",  locale = locale(encoding = "UTF-8"))
+
+data_students <- data_csv |>
+  mutate(Position = factor(Position)) |>
+  mutate(University = factor(`University/Organisation`)) |>
+  mutate(`Research Area` = factor(`Research Area`)) 
+
+# bar plot: summary of position counts
+data_position <- data_students %>%
+  group_by(Position) %>% 
+  summarize(n = n()) %>%
+  mutate(total = sum(n)) %>%
+  mutate(percent = round(n * 100 / total, 1)) %>%
+  mutate(desc = paste(n, " (", percent, "%)", sep="")) %>% 
+  arrange(desc(n)) %>%
+  mutate(Position = factor(Position, levels = Position))
+
+data_position %>%
+  ggplot(aes(x = Position, y = n, group = Position, fill = Position)) +
+  geom_bar(stat = "identity", color = "black") + 
+  xlab("") + 
+  ylab("") + 
+  ggtitle("Position") +
+  scale_fill_tableau(palette = "Tableau 10") + 
+  geom_text(aes(label = desc), vjust=-0.6, hjust = 0.5) + 
+  theme_classic2() + 
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1)) +
+  theme(legend.position = "none") + 
+  theme(text = element_text(size = 18))  + 
+  theme(plot.margin = unit(c(0.5, 0.5, 0.5, 0.5), "inches")) + ylim(c(0,max(data_position$n)+0.5))
+
+
+```
+
+## What about you?
+
+```{r}
+#| message: false
+#| warning: false
+#| echo: false
+#| fig-height: 8
+#| fig-align: center
+
+data_uni <- data_students %>%
+  group_by(University) %>% 
+  summarize(n = n()) %>%
+  mutate(total = sum(n)) %>%
+  mutate(percent = round(n * 100 / total, 1)) %>%
+  mutate(desc = paste(n, " (", percent, "%)", sep="")) %>% 
+  arrange(desc(n)) %>% #print()
+  mutate(University = factor(University , levels = University))
+
+data_uni %>%
+  ggplot(aes(x = University, y = n, group = University, fill = University)) +
+  geom_bar(stat = "identity", color = "black") + 
+  xlab("") + 
+  ylab("") + 
+  ggtitle("University") +
+  scale_fill_tableau(palette = "Tableau 10") + 
+  geom_text(aes(label = desc), vjust=-0.6, hjust = 0.5) + 
+  theme_classic2() + 
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1)) +
+  theme(legend.position = "none") + 
+  theme(text = element_text(size = 18)) + 
+  theme(plot.margin = unit(c(0.5, 0.5, 0.5, 0.5), "inches"))  + ylim(c(0,max(data_uni$n)+0.5))
+
+```
+
+
+## What about you?
+
+```{r}
+#| message: false
+#| warning: false
+#| echo: false
+#| fig-height: 10
+#| fig-align: center
+
+data_ra <- data_students %>%
+  group_by(`Research Area`) %>% 
+  summarize(n = n()) %>%
+  mutate(total = sum(n)) %>%
+  mutate(percent = round(n * 100 / total, 1)) %>%
+  mutate(desc = paste(n, " (", percent, "%)", sep="")) %>% 
+  arrange(desc(n)) %>% #print()
+  mutate(University = factor(`Research Area` , levels = `Research Area`))
+
+data_ra %>%
+  ggplot(aes(x = University, y = n, group = `Research Area`, fill = `Research Area`)) +
+  geom_bar(stat = "identity", color = "black") + 
+  xlab("") + 
+  ylab("") + 
+  ggtitle("Research Area") +
+  scale_fill_tableau(palette = "Tableau 20") + 
+  geom_text(aes(label = desc), vjust=-0.6, hjust = 0.5) + 
+  theme_classic2() + 
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1)) +
+  theme(legend.position = "none") + 
+  theme(text = element_text(size = 18)) + 
+  theme(plot.margin = unit(c(0.5, 0.5, 0.5, 0.5), "inches"))  + ylim(c(0,max(data_uni$n)+0.5)) + 
+  theme(
+    plot.margin = unit(c(1, 0, 0, 3), "cm")  # top, right, bottom, left
+  )
+
+```
+
+
+## What about you?
+
+<br/><br/>
+
+:::::: columns
+::: {.column width="40%"}
+```{r}
+#| echo: false
+
+data_students %>%
+  select(`First Name`, University) %>%
+  rename(Name = `First Name`) %>%
+  slice(1:13) %>%
+  kbl() %>%
+  kable_paper("hover")
+
+```
+:::
+
+::: {.column width="10%"}
+:::
+
+::: {.column width="40%"}
+```{r}
+#| echo: false
+
+
+data_students %>%
+  select(`First Name`, University) %>%
+  rename(Name = `First Name`) %>%
+  slice(14:nrow(data_students)) %>%
+  kbl() %>% kable_paper("hover")
+
+```
+:::
+::::::
+
+# Practicalities
+
+## Room
+
+<br/><br/>
+
+. . .
+
+:::::: columns
+:::: {.column width="60%"}
+::: incremental
+-   same room entire week
+-   please drink coffee and eat snacks outside
+-   bathrooms locations
+-   no access cards to the building (apologies!)
+-   we will lock the room when going for lunch
+-   lunches: Bikupan
+-   coffee and sandwich/fika at 8.45 and 14.30
+-   breaks
+:::
+::::
+
+::: {.column width="40%"}
+![Image by Andrea de Santis](images/robot-andrea-de-santis.jpg){fig-align="left" width="291"}
+:::
+::::::
+
+## Internet
+
+<br/><br/>
+
+::::: columns
+::: {.column width="60%"}
+-   Eduroam
+-   WiFi network UU-Guest
+:::
+
+::: {.column width="40%"}
+![](images/wifi.png){fig-align="left" width="200"}
+:::
+:::::
+
+## Course website
+
+<br/><br/>
+
+::: incremental
+-   <https://uppsala.instructure.com/courses/110506>
+-   you should be now enrolled and be able to access materials incl. quizzes
+:::
+
+## Canvas Demo
+
+<br/><br/>
+
+-   Schedule
+-   Quiz
+
+<br/><br/>
+
+## Certificate requirements
+
+<br/><br/>
+
+:::::::: columns
+:::::: {.column width="60%"}
+::: {.fragment .fade-in}
+1.  presence in all sessions during the week
+    -   we may allow skipping up to 4h during the week (please talk to us)
+:::
+
+::: {.fragment .fade-in}
+2.  completing "Daily challenge" quiz
+    -   opens daily at 15.00
+    -   closes at 09:00 the following day
+:::
+
+::: {.fragment .fade-in}
+3.  active participation during the week
+:::
+::::::
+
+::: {.column width="40%"}
+![](images/certificate.png){fig-align="center" width="200"}
+:::
+::::::::
+
+. . .
+
+*Note that we are not able to provide any formal university credits (högskolepoäng). Many universities, however, recognize the attendance in our courses, and award 1.5 HPs, corresponding to 40h of studying. It is up to participants to clarify and arrange credit transfer with the relevant university department.*
+
+<br/><br/>
+
+# Course background & Aim
+
+## Course background
+
+<br/><br/>
+
+- We have been running "Introduction to Biostatistics and Machine Learning" course since 2019
+- and people were asking for a continuation course ever since
+
+##
+
+<br/><br/>
+
+*"Today, of course, we have high-speed computers and prepackaged statistical routines to perform the necessary calculations.* ***Yet, statistical software will no more make one a statistician than would a scalpel turn one into a neurosurgeon.*** *Allowing these tools to do our thinking for us is a sure recipe for disaster."*
+
+<br/>
+*from Common Errors in Statistics (and How to Avoid Them) by Philip I. Good and James W. Hardin*
+
+
+## Aim
+
+<br/><br/>
+
+- To introduce foundations of more common machine learning methods in life sciences
+- so you can apply them in your own research, 
+- and continue learning
+
+
+## Content
+<br/><br/>
+
+Let's look at the schedule.
+
+## Content
+
+<br/><br/>
+
+Presentations vs. chapters
+
+# Warm welcome to the course!
+
+## Questions?
+
