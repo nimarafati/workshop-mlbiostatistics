@@ -1,0 +1,13 @@
+# Preface {.unnumbered}
+
+**Aims**
+
+- To introduce the practical application of selected dimensionality reduction techniques for exploring and visualizing high-dimensional biological data
+
+
+
+
+
+
+
+

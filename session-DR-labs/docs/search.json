@@ -1,0 +1,352 @@
+[
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "Dimensionality Reduction",
+    "section": "",
+    "text": "Preface\nAims\n\nTo introduce the practical application of selected dimensionality reduction techniques for exploring and visualizing high-dimensional biological data",
+    "crumbs": [
+      "Preface"
+    ]
+  },
+  {
+    "objectID": "intro.html",
+    "href": "intro.html",
+    "title": "1  Introduction",
+    "section": "",
+    "text": "1.1 Introduction\nHigh-throughput biological datasets, such as transcriptomic, proteomic, or single-cell data, are often high-dimensional, noisy, and complex. Dimensionality reduction techniques help simplify this complexity by projecting data into a lower-dimensional space that preserves meaningful structure. These representations support visualization, clustering, and trajectory inference. Importantly, biological data often defies simple binary classification. Cell states may exist along a continuum, clusters may overlap, and some samples may lie in transitional states. Traditional clustering methods may miss these subtleties, motivating the use of more flexible, geometry-aware approaches.\nThis tutorial introduces a set of complementary methods:\nComparison of Dimensionality Reduction Methods",
+    "crumbs": [
+      "<span class='chapter-number'>1</span>  <span class='chapter-title'>Introduction</span>"
+    ]
+  },
+  {
+    "objectID": "intro.html#introduction",
+    "href": "intro.html#introduction",
+    "title": "1  Introduction",
+    "section": "",
+    "text": "ICA (Independent Component Analysis) isolates statistically independent signals https://payamemami.com/ica_basics/\nSOM (Self-Organizing Maps) organizes samples based on topological similarity https://payamemami.com/self_orginizating_maps_basics/\nt-SNE and UMAP focus on preserving local neighborhoods for visualizing fine structure and clustering.\nDiffusion Maps model global transitions using random walks, capturing continuous biological trajectories.\n\n\n\n\n\n\n\n\n\n\n\n\nMethod\nKey Concept\nWhen to Use\nCommon Applications\nLimitations\n\n\n\n\nICA\nDecomposes data into statistically independent components\nTo identify latent signals or sources driving variation\nGene module analysis, signal separation\nAssumes independence; sensitive to noise and scaling\n\n\nSOM\nMaps high-dimensional data onto a topologically ordered grid\nWhen you want structured clustering and visualization on a 2D map\nExpression patterns, cohort stratification\nGrid size needs tuning; interpretation can be subjective\n\n\nt-SNE\nPreserves local similarities via stochastic neighbor embedding\nFor visualizing clusters in 2D or 3D\nCell type discovery, quality control\nPoor global structure; sensitive to seed/perplexity; not suitable for downstream modeling\n\n\nUMAP\nGraph-based manifold learning balancing local and global structure\nWhen you want fast, structure-preserving embeddings\nSingle-cell analysis, cohort comparison\nSensitive to parameters; may distort distances\n\n\nDiffusion Maps\nUses a random walk process to capture manifold geometry\nTo model continuous transitions, trajectories, or diffusion-like dynamics\nCell state transitions, lineage inference\nSlower on large datasets; interpretation of components may not be intuitive",
+    "crumbs": [
+      "<span class='chapter-number'>1</span>  <span class='chapter-title'>Introduction</span>"
+    ]
+  },
+  {
+    "objectID": "ICA.html",
+    "href": "ICA.html",
+    "title": "2  ICA",
+    "section": "",
+    "text": "2.1 Introduction\nIndependent Component Analysis (ICA) is an unsupervised method that separates multivariate data into statistically independent signals, often used to uncover hidden biological processes. In this tutorial, you’ll learn how to apply ICA to gene expression data and interpret both sample structure and gene-level drivers.\nTutorial is based on https://payamemami.com/ica_basics/, a document with more detailed introduction to the methods, including its mathematical foundations.",
+    "crumbs": [
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>ICA</span>"
+    ]
+  },
+  {
+    "objectID": "ICA.html#data",
+    "href": "ICA.html#data",
+    "title": "2  ICA",
+    "section": "2.2 Data",
+    "text": "2.2 Data\n\n# adjust data simulation code to include some gene names for the main categories\n\n# Load necessary library\nlibrary(tidyverse)\nlibrary(fastICA)\n\n# Set parameters\nset.seed(123)\nn_cells &lt;- 2000\nn_sources &lt;- 3\nn_clusters &lt;- 5\ncells_per_cluster &lt;- n_cells / n_clusters\n\n# Define gene sets\nimmune_genes &lt;- c(\"CD3D\", \"CD4\", \"CD8A\", \"IFNG\", \"IL2\", \"PTPRC\", \"GZMB\", \"LCK\", \"CCR7\", \"HLA-DRA\")\nmetabolism_genes &lt;- c(\"HK2\", \"LDHA\", \"PKM\", \"G6PD\", \"ACLY\", \"IDH1\", \"PGK1\", \"CPT1A\", \"FASN\", \"ACACA\")\ncell_cycle_genes &lt;- c(\"CDK1\", \"CCNB1\", \"MKI67\", \"PCNA\", \"TOP2A\", \"BUB1\", \"CDC20\", \"PLK1\", \"AURKB\", \"CENPA\")\n\ndb_genes &lt;- data.frame(\n  gene = c(immune_genes, metabolism_genes, cell_cycle_genes),\n  category = c(rep(\"Immune\", length(immune_genes)),\n               rep(\"Metabolism\", length(metabolism_genes)),\n               rep(\"Cell Cycle\", length(cell_cycle_genes)))\n)\n\n# Fill up to 1000 genes with generic names\nother_genes &lt;- paste0(\"GENE\", 1:(1000 - length(immune_genes) - length(metabolism_genes) - length(cell_cycle_genes)))\ngene_names &lt;- c(immune_genes, metabolism_genes, cell_cycle_genes, other_genes)\nn_genes &lt;- length(gene_names)\n\n# Define cluster-specific means for latent sources (immune, metabolism)\ncluster_means &lt;- matrix(c(\n  3.0, 0.5,   # Cluster 1: High immune, low metabolism\n  0.1, 2.0,   # Cluster 2: Low immune, high metabolism\n  1.5, 1.5,   # Cluster 3: Moderate all\n  3.0, 2.5,   # Cluster 4: High in all\n  0.1, 0.1    # Cluster 5: Low in all\n), ncol = 2, byrow = TRUE)\n\n# Simulate latent sources\nlatent_sources &lt;- NULL\ncluster_labels &lt;- NULL\nfor (i in 1:n_clusters) {\n  immune &lt;- rexp(cells_per_cluster, rate = 1) + cluster_means[i, 1]\n  metabolism &lt;- rnorm(cells_per_cluster, mean = cluster_means[i, 2], sd = 0.5)\n  cell_cycle &lt;- (rbinom(cells_per_cluster, 1, 0.5) * 2 - 1)\n  sources &lt;- cbind(immune, metabolism, cell_cycle)\n  latent_sources &lt;- rbind(latent_sources, sources)\n  cluster_labels &lt;- c(cluster_labels, rep(paste0(\"Cluster_\", i), cells_per_cluster))\n}\n\n# Create gene loadings matrix\ngene_loadings &lt;- matrix(0, nrow = n_genes, ncol = n_sources)\nrownames(gene_loadings) &lt;- gene_names\n\n# Assign high loadings for known gene sets\ngene_loadings[immune_genes, 1] &lt;- abs(rnorm(length(immune_genes), mean = 2))\ngene_loadings[metabolism_genes, 2] &lt;- abs(rnorm(length(metabolism_genes), mean = 2))\ngene_loadings[cell_cycle_genes, 3] &lt;- abs(rnorm(length(cell_cycle_genes), mean = 2))\n\n# Background genes with small random loadings\nremaining &lt;- setdiff(gene_names, c(immune_genes, metabolism_genes, cell_cycle_genes))\ngene_loadings[remaining, ] &lt;- abs(matrix(rnorm(length(remaining) * n_sources, mean = 0.3, sd = 0.2),\n                                         nrow = length(remaining), ncol = n_sources))\n\n# Generate expression matrix\nexpression_matrix &lt;- latent_sources %*% t(gene_loadings)\nexpression_matrix &lt;- expression_matrix + matrix(rnorm(n_cells * n_genes, sd = 1), nrow = n_cells)\n\n# Assign row/column names\nrownames(expression_matrix) &lt;- paste0(\"Cell\", 1:n_cells)\ncolnames(expression_matrix) &lt;- gene_names\n\nx &lt;- expression_matrix",
+    "crumbs": [
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>ICA</span>"
+    ]
+  },
+  {
+    "objectID": "ICA.html#preview-data",
+    "href": "ICA.html#preview-data",
+    "title": "2  ICA",
+    "section": "2.3 Preview data",
+    "text": "2.3 Preview data\n\n# check data dimension\nx &lt;- expression_matrix\nx |&gt; dim() |&gt; print() # 2000 cells, 1000 genes (features)\n## [1] 2000 1000\ncluster_labels |&gt; as.factor() |&gt; summary() |&gt; print()\n## Cluster_1 Cluster_2 Cluster_3 Cluster_4 Cluster_5 \n##       400       400       400       400       400\n\n\n# perform PCA\nx_scaled &lt;- scale(x)\npca &lt;- prcomp(x, center=TRUE, scale.=FALSE)\neigs &lt;- pca$sdev^2\nvar_exp &lt;- eigs / sum(eigs)\n\nres_pca &lt;- data.frame(PC1=pca$x[,1], PC2=pca$x[,2], PC3=pca$x[,3], PC4=pca$x[,4], PC5=pca$x[,5]) |&gt;\n    rownames_to_column(\"sample\") |&gt; \n    as_tibble() \n\nres_pca_loadings &lt;- pca$rotation\n\n# show PCA scores plot\nres_pca |&gt;\n    ggplot(aes(x=PC1, y=PC2, color=cluster_labels)) +\n    geom_point() +\n    labs(title=\"PCA scores plot\", x=\"PC1\", y=\"PC2\") +\n    xlab(paste(\"PC1 (Var: \", round(var_exp[1] * 100, 2), \"%)\")) +\n    ylab(paste(\"PC2 (Var: \", round(var_exp[2] * 100, 2), \"%)\")) +\n    theme_minimal() +\n    theme(legend.title=element_blank())\n\n# show top 10 loadings along PC1\nres_pca_loadings |&gt; \n    as.data.frame() |&gt; \n    rownames_to_column(\"gene\") |&gt; \n    arrange(desc(abs(PC1))) |&gt; \n    head(10) |&gt; \n    ggplot(aes(x=reorder(gene, PC1), y=PC1)) +\n    geom_bar(stat=\"identity\", fill=\"steelblue\") +\n    coord_flip() +\n    labs(title=\"Top genes contributing to PC1\", x=\"gene\", y=\"Loading\") +\n    theme_minimal()\n\n# PCA has actually done quite a good job finding our clusters. The first few principal components clearly separate the major groups, showing that PCA is able to capture dominant sources of variation in the data. \n\n# However, this does not necessarily mean that PCA has recovered the original biological signals (such as immune activity, metabolism, or cell cycle) as separate components. Let’s have a look at the distribution of scores in each components\n\n# Plot densities of the first 3 PCA components\npca_scores &lt;- as.data.frame(pca$x[, 1:3])\npca_scores$Cluster &lt;- cluster_labels\n\npar(mfrow = c(1, 3), mar = c(4, 4, 2, 1))\nplot(density(pca_scores$PC1), main = \"PCA Component 1\", xlab = \"PC1\", col = \"darkred\", lwd = 2)\nplot(density(pca_scores$PC2), main = \"PCA Component 2\", xlab = \"PC2\", col = \"darkblue\", lwd = 2)\nplot(density(pca_scores$PC3), main = \"PCA Component 3\", xlab = \"PC3\", col = \"darkgreen\", lwd = 2)\n\n# The components of the PCA more or less look normal and do not really reflect the true latent factors we simulated [see chapter for details]. \n\n# We can also plot the relationship between the PCA components with all of our true latent factors:\n# Set up 3x3 plotting area: PC1–3 vs latent sources\npar(mfrow = c(3, 3), mar = c(4, 4, 2, 1))\n\nfor (pc_idx in 1:3) {\n  for (latent_idx in 1:3) {\n    plot(pca_scores[[pc_idx]], latent_sources[, latent_idx],\n         xlab = paste0(\"PC\", pc_idx),\n         ylab = c(\"Immune\", \"Metabolism\", \"Cell Cycle\")[latent_idx],\n         main = paste(\"PC\", pc_idx, \"vs\", c(\"Immune\", \"Metabolism\", \"Cell Cycle\")[latent_idx]),\n         #col = as.numeric(cluster_labels),\n         pch = 16)\n  }\n}\n\n# We see that there is some relationship between the PCA components and our latent factors but but PCs are still blended combinations of multiple underlying factors. This means that while PCA helps reveal structure, it may mix together distinct biological processes if those processes happen to contribute variance in similar directions.",
+    "crumbs": [
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>ICA</span>"
+    ]
+  },
+  {
+    "objectID": "ICA.html#run-ica",
+    "href": "ICA.html#run-ica",
+    "title": "2  ICA",
+    "section": "2.4 run ICA",
+    "text": "2.4 run ICA\n\n# Run Independent Component Analysis (ICA) on scaled data with 3 components\nica_result &lt;- fastICA(x_scaled, n.comp = 3)\n\n# fastICA: Performs Independent Component Analysis on multivariate data\n\n# Key input parameters:\n# - X: a numeric matrix or data frame with continuous values (e.g., scaled gene expression)\n# - n.comp: number of independent components to extract (must be ≤ number of variables)\n# - alg.typ: algorithm type; \"parallel\" (default, fast) or \"deflation\" (one component at a time)\n# - fun: the nonlinearity function; common choices include \"logcosh\", \"exp\", or \"cube\"\n# - alpha: only used with \"logcosh\", controls the shape of the contrast function\n# - maxit: maximum number of iterations (default: 200)\n# - tol: convergence tolerance (default: 1e-04)\n\nprint(names(ica_result))\n## [1] \"X\" \"K\" \"W\" \"A\" \"S\"\n\n# Output:\n# $S — Estimated independent components (samples × components), main output for analysis.\n# $A — Mixing matrix showing how components combine to form original data.\n# $K — Whitening matrix used to decorrelate input data before ICA.\n# $W — Unmixing matrix that transforms whitened data into independent components.\n# $X — Centered version of the original input data used in the analysis.\n\n# Extract the independent component scores (latent signals)\nica_scores &lt;- as.data.frame(ica_result$S)\n\n# Rename the columns for clarity\ncolnames(ica_scores) &lt;- c(\"ICA 1\", \"ICA 2\", \"ICA 3\")\n\n# Add cluster labels (assumed from previous clustering) for coloring the plot\nica_scores$Cluster &lt;- cluster_labels\n\n# Plot the first two ICA components, colored by cluster\nplot(ica_scores[,c(1,2)],\n     col = as.factor(pca_scores$Cluster),  # coloring by cluster (note: should likely be ica_scores$Cluster)\n     pch = 16, cex = 0.6,\n     main = \"ICA Score Plot\")\n\n# Add legend with cluster labels\nlegend(\"topleft\", legend = unique(pca_scores$Cluster),\n       col = 1:5, pch = 16, title = \"Cluster\")\n\n# The ICA scores plot shows samples colored by true clusters based on simulated biology (immune, metabolism, cell cycle).\n# ICA separates clusters more distinctly than PCA by recovering statistically independent signals.\n# ICA Component 1 appears to reflect immune activity (high in Clusters 1 & 4, low in 2 & 5).\n# ICA Component 2 likely captures metabolism (low in Clusters 1 & 5, high in 2 & 4).\n# The components show meaningful biological gradients across the samples.\n\n# Let's see if ICA could recover our original latent signals\n# Plot densities of the first 3 PCA components\npar(mfrow = c(1, 3), mar = c(4, 4, 2, 1))\nplot(density(ica_scores[,1]), main = \"ICA Component 1\", xlab = \"PC1\", col = \"darkred\", lwd = 2)\nplot(density(ica_scores[,2]), main = \"ICA Component 2\", xlab = \"PC2\", col = \"darkblue\", lwd = 2)\nplot(density(ica_scores[,3]), main = \"ICA Component 3\", xlab = \"PC3\", col = \"darkgreen\", lwd = 2)\n\n# This looks very similar to our true signal the first component is immune, the second is metabolism and the third captured cell cycle (see chapter). This is exactly what ICA is good at: recovering independent sources that were mixed across thousands of genes. It allows us to reduce the data to a few components that may correspond directly to real biological processes. This is something that PCA often fails to do when the sources overlap or have similar variance",
+    "crumbs": [
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>ICA</span>"
+    ]
+  },
+  {
+    "objectID": "ICA.html#exercise-interpret-ica",
+    "href": "ICA.html#exercise-interpret-ica",
+    "title": "2  ICA",
+    "section": "2.5 Exercise: interpret ICA",
+    "text": "2.5 Exercise: interpret ICA\nidentifying genes driving ICA components\nExplore the ICA mixing matrix (A) to determine which genes contribute most to each independent component. Your goal is to extract the top-weighted genes for each component, interpret their biological relevance using the provided db_genes annotation table, and suggest what underlying signal each component may represent (e.g., immune activity, metabolism, or cell cycle).\nHints\n\nUse ica_result$A to access the mixing matrix.\nTake the absolute value of loadings to identify the strongest contributors (positive or negative).\nUse order() or sort() to rank genes by their contribution to each component.\nMatch the top gene names to db_genes to find their annotated biological function.\nFocus on patterns: do multiple top genes belong to the same functional group?\nCompare your findings to the ICA score plots — do the gene signatures align with sample-level structure?\n\nExample answer\n\n# Extract the mixing matrix\nA &lt;- ica_result$A  # rows = components, columns = genes\ncolnames(A) &lt;- colnames(x)  # assign gene names to columns if not already\n\n# Loop over all components\ntop_genes_all &lt;- list()\n\nfor (i in 1:nrow(A)) {\n  o &lt;- order(abs(A[i, ]), decreasing = TRUE)[1:20]\n  top_genes &lt;- colnames(A)[o]\n  \n  annotated &lt;- db_genes |&gt; \n    filter(gene %in% top_genes) |&gt; \n    mutate(Component = paste0(\"ICA_\", i))\n  \n  top_genes_all[[i]] &lt;- annotated\n}\n\n# Combine all results into a single data frame\ntop_genes_df &lt;- bind_rows(top_genes_all)\n\n# View the annotated top genes by component\nprint(top_genes_df)\n##       gene   category Component\n## 1     CD3D     Immune     ICA_1\n## 2      CD4     Immune     ICA_1\n## 3     CD8A     Immune     ICA_1\n## 4     IFNG     Immune     ICA_1\n## 5      IL2     Immune     ICA_1\n## 6    PTPRC     Immune     ICA_1\n## 7     GZMB     Immune     ICA_1\n## 8      LCK     Immune     ICA_1\n## 9     CCR7     Immune     ICA_1\n## 10 HLA-DRA     Immune     ICA_1\n## 11     HK2 Metabolism     ICA_2\n## 12    LDHA Metabolism     ICA_2\n## 13     PKM Metabolism     ICA_2\n## 14    G6PD Metabolism     ICA_2\n## 15    ACLY Metabolism     ICA_2\n## 16    PGK1 Metabolism     ICA_2\n## 17   CPT1A Metabolism     ICA_2\n## 18    FASN Metabolism     ICA_2\n## 19   ACACA Metabolism     ICA_2\n## 20    CDK1 Cell Cycle     ICA_3\n## 21   CCNB1 Cell Cycle     ICA_3\n## 22   MKI67 Cell Cycle     ICA_3\n## 23    PCNA Cell Cycle     ICA_3\n## 24   TOP2A Cell Cycle     ICA_3\n## 25    BUB1 Cell Cycle     ICA_3\n## 26   CDC20 Cell Cycle     ICA_3\n## 27    PLK1 Cell Cycle     ICA_3\n## 28   AURKB Cell Cycle     ICA_3\n## 29   CENPA Cell Cycle     ICA_3\n\nIn our simulated data it is very easy to see which component corresponds to which biological signal. In real data, however, it is often not so straightforward. You may need to look at the top genes and their annotations to see if they make sense in the context of your biological question.\nAlso note, that unlike PCA, which orders components by variance explained, ICA components are unordered. The algorithm does not rank them by “importance.” This means:\n\nYou may want to sort or label components manually based on interpretation.\nYou can match ICA components to known sources (e.g. simulated immune or metabolism signals) using correlation or cluster separation.\n\n\n# Correlation with true sources\ncor(ica_result$S, latent_sources)\n##           immune  metabolism   cell_cycle\n## [1,]  0.99565648  0.20075925  0.001202599\n## [2,]  0.03306877 -0.97261234 -0.003206194\n## [3,] -0.03741380  0.00472256 -0.992583786",
+    "crumbs": [
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>ICA</span>"
+    ]
+  },
+  {
+    "objectID": "SOM.html",
+    "href": "SOM.html",
+    "title": "3  SOM",
+    "section": "",
+    "text": "3.1 Introduction\nThis tutorial introduces Self-Organizing Maps (SOMs), an unsupervised learning method for visualizing and clustering high-dimensional data. You’ll learn how to train a SOM, interpret its structure, and explore which features drive sample separation.\nBased on https://payamemami.com/self_orginizating_maps_basics/, a document that also contains more in depth information about the method.",
+    "crumbs": [
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>SOM</span>"
+    ]
+  },
+  {
+    "objectID": "SOM.html#data",
+    "href": "SOM.html#data",
+    "title": "3  SOM",
+    "section": "3.2 Data",
+    "text": "3.2 Data\nWe will use a dataset, a subset from The Cancer Genome Atlas, used with the mixOmics package. It includes mRNA, miRNA, and proteomics data for 150 breast cancer training samples (Basal, Her2, Luminal A) and 70 test samples (missing proteomics). For simplicity and more samples, we combine training and test sets and focus on the miRNA data.\n\nlibrary(mixOmics)\ndata(breast.TCGA)\n\nx &lt;- rbind(breast.TCGA$data.train$mirna,breast.TCGA$data.test$mirna)\ngroup_labels &lt;-c(breast.TCGA$data.train$subtype,breast.TCGA$data.test$subtype)\n\n\n# data dimensions\nx |&gt; dim() |&gt; print () # dimensions of the data matrix (samples x features)\n## [1] 220 184\ngroup_labels |&gt; as.factor() |&gt; summary() # samples per group\n## Basal  Her2  LumA \n##    66    44   110\n\n# box plots \npar(mfrow=c(2,1))\nboxplot(t(x), main=\"distribution per sample\", las=2, cex.axis=0.7, col=rainbow(10), outline=FALSE, cex.main=0.8)\nboxplot(x, main=\"distribution per miRNA\", las=2, cex.axis=0.7, col=rainbow(10), outline=FALSE, cex.main=0.8)\n\n\n\n\n\n\n\nFigure 3.1: Preview of the miRNA data matrix\n\n\n\n\n\n\n# perform PCA\npca &lt;- prcomp(x, center=TRUE, scale.=FALSE)\neigs &lt;- pca$sdev^2\nvar_exp &lt;- eigs / sum(eigs)\n\nres_pca &lt;- data.frame(PC1=pca$x[,1], PC2=pca$x[,2], PC3=pca$x[,3], PC4=pca$x[,4], PC5=pca$x[,5]) |&gt;\n    rownames_to_column(\"sample\") |&gt; \n    as_tibble() \n\nres_pca_loadings &lt;- pca$rotation\n\n# show PCA scores plots\nres_pca |&gt;\n    ggplot(aes(x=PC1, y=PC2, color=group_labels)) +\n    geom_point() +\n    labs(title=\"PCA of miRNA data\", x=\"PC1\", y=\"PC2\") +\n    xlab(paste(\"PC1 (Var: \", round(var_exp[1] * 100, 2), \"%)\")) +\n    ylab(paste(\"PC2 (Var: \", round(var_exp[2] * 100, 2), \"%)\")) +\n    theme_minimal() +\n    scale_color_manual(values=c(\"Basal\"=\"#FF0000\", \"Her2\"=\"#00FF00\", \"LumA\"=\"#0000FF\")) +\n    theme(legend.title=element_blank())\n\n# show top 10 loadings along PC1\nres_pca_loadings |&gt; \n    as.data.frame() |&gt; \n    rownames_to_column(\"miRNA\") |&gt; \n    arrange(desc(abs(PC1))) |&gt; \n    head(10) |&gt; \n    ggplot(aes(x=reorder(miRNA, PC1), y=PC1)) +\n    geom_bar(stat=\"identity\", fill=\"steelblue\") +\n    coord_flip() +\n    labs(title=\"Top 10 miRNAs contributing to PC1\", x=\"miRNA\", y=\"Loading\") +\n    theme_minimal()",
+    "crumbs": [
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>SOM</span>"
+    ]
+  },
+  {
+    "objectID": "SOM.html#train-som",
+    "href": "SOM.html#train-som",
+    "title": "3  SOM",
+    "section": "3.3 Train SOM",
+    "text": "3.3 Train SOM\n\n# load library\nlibrary(kohonen)\n\n# define a 5x5 hexagonal grid \nsom_grid &lt;- somgrid(xdim = 5, ydim = 5, topo = \"hexagonal\")\n# Note: you can change size depending on your data\n\n# create a fake grid\nfakesom &lt;- list(grid = som_grid)\nclass(fakesom) &lt;- \"kohonen\"\ndists &lt;- unit.distances(som_grid)\nplot(fakesom, type=\"property\", property = dists[1,],\n     main=\"Distances to unit 1\", zlim=c(0,6),\n     palette = rainbow, ncolors = 7)\n\n# Note: \n# - xdim, ydim: set the grid size (e.g., 5×5)\n# - topo: defines the grid shape: \"hexagonal\" (default, smoother transitions) or \"rectangular\" (simpler, grid-like)\n# - neighbourhood.fct: determines how updates spread during training\n# - toroidal: If TRUE, wraps the grid edges (useful for cyclic data; usually FALSE in biological contexts)\n# The choice of 'topo' affects how neurons connect and how neighborhoods form during training, with hexagonal layouts often yield more natural clusters\n\n# train SOM\nset.seed(101)\n\n# scaled_data &lt;- scale(data_input) \n# don't forget to scale your data, here we leave for demonstration purposes\n\nsom_model &lt;- som(X = x, \n                 grid = som_grid, \n                 rlen = 1000,\n                 alpha = c(0.05, 0.01), \n                 keep.data = TRUE)\n\n# The algorithm iteratively updates neuron weights based on proximity to input data\n\n# Key parameters:\n# - data: Input data (should be scaled — SOMs are sensitive to variable ranges)\n# - grid: The SOM grid created with somgrid()\n# - rlen: Number of training iterations (how many times to cycle through the data)\n# - alpha: Learning rate (e.g., from 0.05 to 0.01, decreasing over time)\n# - keep.data: If TRUE, stores original data in the SOM object for later use\n\n# After training:\n# - Neurons (codebook vectors) are organized to reflect the structure of the data\n# - Similar data points map to nearby neurons, dissimilar ones to distant neurons\n\nsom_model |&gt; names() |&gt; print() \n##  [1] \"data\"             \"unit.classif\"     \"distances\"        \"grid\"            \n##  [5] \"codes\"            \"changes\"          \"alpha\"            \"radius\"          \n##  [9] \"na.rows\"          \"user.weights\"     \"distance.weights\" \"whatmap\"         \n## [13] \"maxNA.fraction\"   \"dist.fcts\"\n\n# The resulting SOM object includes:\n# - unit.classif: Index of the winning neuron for each observation\n# - distances: Distance between each data point and its BMU (used to assess mapping quality)\n# - grid: Grid structure (size, topology, neighborhood)\n# - codes: Codebook vectors (final neuron weights)\n# - changes: Tracks how much weights changed each iteration (helps assess convergence)\n# - na.rows: Indices of excluded rows due to too many missing values\n# - Training parameters and layer weights (for reproducibility and interpretation)",
+    "crumbs": [
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>SOM</span>"
+    ]
+  },
+  {
+    "objectID": "SOM.html#evaluate-som",
+    "href": "SOM.html#evaluate-som",
+    "title": "3  SOM",
+    "section": "3.4 Evaluate SOM",
+    "text": "3.4 Evaluate SOM\n\n# SOMs are unsupervised so there is no loss function, but performance can still be evaluated, e.g. \n# - via quantization error\n# - mapping plot\n# - node count plot\n# - \"changes\" values\n# - U matrix\n\n# Quantization error\n# - Measures the distance between each data point and its best matching unit (BMU)\n# - Indicates how well the codebook vectors approximate the input data\n# - Lower values suggest better representation (acceptable range depends on data scale)\n\n# Calculate average quantization error across all samples (the lower the better)\nmean(som_model$distances) |&gt; print() # average distance to BMU (quantization error)\n## [1] 124.9259\n\n# Inspect the distribution of distances to identify poorly mapped data points\n# - if the distribution is wide or has many high values, it might indicate that the grid is too small or that the number of training iterations was insufficient.\nhist(som_model$distances, main = \"Quantization Error Distribution\", xlab = \"Distance to BMU\")\n\n# Mapping plot\nplot(som_model, type = \"mapping\")\n# Shows how input samples are distributed across the SOM grid\n# - Crowded neurons (many samples in one unit) may indicate:\n#   - Insufficient training (not enough iterations)\n#   - Learning rate too low\n#   - Grid size not appropriate (too small or too large)\n# Well-distributed samples suggest the SOM has effectively organized the data\n\n# Node count plot\nplot(som_model, type = \"count\")\n# Shows how many samples map to each neuron\n# A good SOM has most neurons occupied with some variation in density\n# Too many empty nodes → possible underfitting (short training or large grid)\n# Very few heavily occupied nodes → possible overfitting (small grid)\n\n# Changes values\nplot(som_model, type = \"changes\", main = \"Distances\")\n# Plot the changes to see how much the neuron weights change over time\n# A steadily decreasing curve means the SOM is learning\n# If it hasn’t flattened out (no plateau), consider running more iterations\n\n# U matrix (shows distances between neighboring neurons)\nplot(som_model, type = \"dis\", main = \"U-Matrix\")\n# Clear patterns (valleys/ridges) suggest meaningful clusters\n# A flat U-matrix may indicate poor learning or overly uniform data\n# If structure is unclear or quantization error is high:\n# - Try increasing iterations (rlen)\n# - Adjust learning rate (alpha), radius, or grid size\n# - Run the SOM multiple times to compare results",
+    "crumbs": [
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>SOM</span>"
+    ]
+  },
+  {
+    "objectID": "SOM.html#visualize-som-results",
+    "href": "SOM.html#visualize-som-results",
+    "title": "3  SOM",
+    "section": "3.5 Visualize SOM results",
+    "text": "3.5 Visualize SOM results\n\n# After training, SOMs help visualize high-dimensional data while preserving topology\n# - Similar samples are mapped to nearby neurons on the grid\n# - A mapping plot shows each sample's best matching unit (BMU)\n# - Adding group labels can reveal how well the SOM separates known classes\n# - Clear group separation → meaningful structure captured\n# - Overlap → data may not be separable or SOM needs tuning\n\ngroup_levels &lt;- levels(group_labels)\ncolors &lt;- setNames(c(\"tomato\", \"steelblue\",\"black\"), group_levels)  \nsample_colors &lt;- colors[group_labels]\n\nset.seed(101)\n# Plot with colored samples\nplot(som_model, type=\"map\",\n     pchs = 21,\n     main = \"SOM Mapping by Group (Basal, Her2, Luminal A)\",\n     shape = \"straight\",\n     col = sample_colors)\nlegend(x = \"top\",legend = group_levels,col = c(\"tomato\", \"steelblue\",\"black\"),pch = 21)\n\n# The mapping plot shows a left-to-right gradient of subtypes: Luminal A → Her2 → Basal\n# - Subtypes cluster in distinct regions, not randomly mixed\n# - Suggests the SOM captured meaningful biological structure in the miRNA data\n# - It projects high-dimensional data onto a 2D grid, preserving similarity and neighborhood relationships\n# - Neurons represent prototype vectors, updated iteratively to reflect the data structure",
+    "crumbs": [
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>SOM</span>"
+    ]
+  },
+  {
+    "objectID": "SOM.html#cluster-boundaries",
+    "href": "SOM.html#cluster-boundaries",
+    "title": "3  SOM",
+    "section": "3.6 Cluster boundaries",
+    "text": "3.6 Cluster boundaries\n\n# Interpreting the SOM often involves identifying meaningful clusters on the grid\nplot(som_model, type=\"dist.neighbours\",\n     pchs = 21,\n     main = \"SOM distances to all immediate neighbours\",\n     shape = \"straight\")\n\n# The U-matrix (unified distance matrix) helps visualize these potential clusters:\n# - Shows average distance between each neuron and its neighbors\n# - Dark colors (red/orange) = similar neurons (low distances)\n# - Light colors (yellow/white) = dissimilar neurons (high distances)\n\n# Key observations:\n# - Uniform dark areas = consistent groups or subtypes\n# - Bright regions = natural boundaries between clusters\n\n# High-distance zones may indicate transitions between sample groups\n\n# U-matrix is useful for:\n# - Visually identifying cluster boundaries\n# - Guiding or validating later clustering (e.g., with k-means)\n# - Exploring structure in data without predefined labels\n\ncoolBlueHotRed &lt;- function(n, alpha = 1) {\n  colors &lt;- colorRampPalette(c(\"blue\", \"white\", \"red\"))(n)\n  adjustcolor(colors, alpha.f = alpha)\n}\n\nplot(som_model, type = \"property\", \n     property = som_model$codes[[1]][, \"hsa-mir-130b\"], \n     main = \"Expression of hsa-mir-130b\",palette.name = coolBlueHotRed)",
+    "crumbs": [
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>SOM</span>"
+    ]
+  },
+  {
+    "objectID": "SOM.html#property-heatmap-plot",
+    "href": "SOM.html#property-heatmap-plot",
+    "title": "3  SOM",
+    "section": "3.7 Property (heatmap) plot",
+    "text": "3.7 Property (heatmap) plot\n\n# Property plots (component planes) show how a single variable is distributed across the SOM grid\n\n# - Each neuron has a codebook vector (prototype) with one value per input feature\n# - The plot maps one feature (e.g., a miRNA) across all neurons using color:\n#   - Warm colors = high values, cool colors = low values\n# - Helps identify which variables are associated with specific clusters or subtypes\n# - Strong patterns suggest informative features; uniform maps suggest weak/noisy features\n# - Comparing multiple component planes can reveal co-expressed features or biomarkers\n\ncoolBlueHotRed &lt;- function(n, alpha = 1) {\n  colors &lt;- colorRampPalette(c(\"blue\", \"white\", \"red\"))(n)\n  adjustcolor(colors, alpha.f = alpha)\n}\n\nplot(som_model, type = \"property\", \n     property = som_model$codes[[1]][, \"hsa-mir-130b\"], \n     main = \"Expression of hsa-mir-130b\",palette.name = coolBlueHotRed)\n\nplot\n## function (x, y, ...) \n## UseMethod(\"plot\")\n## &lt;bytecode: 0x7f88db2dd070&gt;\n## &lt;environment: namespace:base&gt;",
+    "crumbs": [
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>SOM</span>"
+    ]
+  },
+  {
+    "objectID": "SOM.html#clustering-som",
+    "href": "SOM.html#clustering-som",
+    "title": "3  SOM",
+    "section": "3.8 Clustering SOM",
+    "text": "3.8 Clustering SOM\n\nlibrary(NbClust)\n\n# SOM organizes samples on a grid but doesn’t assign explicit cluster labels\n# - To define clusters, apply k-means (or similar) to the codebook vectors\n# - Codebook vectors represent learned patterns and are suitable for clustering\n# - we can use NBClust to help choose the optimal number of clusters:\n#   - it compares multiple validity indices to suggest the best k\n\n# Extract codebook vectors\ncodes &lt;- som_model$codes[[1]]\n\n# Use NBClust to determine the optimal number of clusters\nset.seed(123)\nnb &lt;- NbClust(data = codes, distance = \"euclidean\", min.nc = 2, max.nc = 10, method = \"kmeans\",index = \"gap\")\noptimal_k &lt;- nb$Best.nc[1]\n\n# Perform k-means with the optimal number of clusters\nset.seed(123)\nkm &lt;- kmeans(codes, centers = optimal_k, nstart = 25)\n\n# Assign a color to each cluster\ncluster_colors &lt;- rainbow(optimal_k)[km$cluster]\n\n# Plot SOM with background colored by cluster\nplot(som_model, type = \"mapping\", \n     bgcol = cluster_colors,pch=sample_colors,shape = \"straight\",\n     main = paste(\"SOM Clustering with\", optimal_k, \"Clusters\"))\n\n# Add boundaries around clusters\nadd.cluster.boundaries(som_model, km$cluster)",
+    "crumbs": [
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>SOM</span>"
+    ]
+  },
+  {
+    "objectID": "SOM.html#exercise-i-training-som",
+    "href": "SOM.html#exercise-i-training-som",
+    "title": "3  SOM",
+    "section": "3.9 Exercise I (training SOM)",
+    "text": "3.9 Exercise I (training SOM)\nTask\nTry out three different combinations of SOM training parameters and decide which one best organizes the data.\n\nModify:\n\nGrid size (xdim, ydim)\nNumber of iterations (rlen)\nLearning rate (alpha)\n\n\nSuggested Configurations\n\nSmall grid + short training\nxdim = 4, ydim = 4, rlen = 500, alpha = c(0.05, 0.01)\nMedium grid + moderate training\nxdim = 6, ydim = 6, rlen = 1000, alpha = c(0.05, 0.01)\nLarge grid + longer training\nxdim = 8, ydim = 8, rlen = 1500, alpha = c(0.1, 0.01)\n\nFor each model, evaluate:\n\nQuantization error (mean(som_model$distances))\nNode count plot (plot(..., type = \"count\"))\nChanges over time (plot(..., type = \"changes\"))\nMapping plot to see sample distribution\n\nWhich SMO model is best for this dataset?\n\nWhich configuration gives the lowest quantization error?\nWhich model results in a well-utilized grid (few empty nodes)?\nDoes one setup show clearer group separation on the map?\n\nExample code\n\nlibrary(kohonen)\n\n# Define parameter sets\nconfigs &lt;- list(\n  small  = list(xdim = 4, ydim = 4, rlen = 500,  alpha = c(0.05, 0.01)),\n  medium = list(xdim = 6, ydim = 6, rlen = 1000, alpha = c(0.05, 0.01)),\n  large  = list(xdim = 8, ydim = 8, rlen = 1500, alpha = c(0.1, 0.01))\n)\n\n# Train SOMs\nresults &lt;- list()\nfor (name in names(configs)) {\n  cfg &lt;- configs[[name]]\n  grid &lt;- somgrid(xdim = cfg$xdim, ydim = cfg$ydim, topo = \"hexagonal\")\n  model &lt;- som(X = x, grid = grid, rlen = cfg$rlen, alpha = cfg$alpha, keep.data = TRUE)\n  results[[name]] &lt;- list(model = model, config = cfg)\n}\n\n\n# Quantization errors\ncat(\"Quantization error:\\n\")\n## Quantization error:\nsapply(results, function(r) mean(r$model$distances)) |&gt; print()\n##     small    medium     large \n## 138.09869 114.06922  89.36413\n\n# Plot node counts\npar(mfrow = c(1, 3))\nfor (name in names(results)) {\n  plot(results[[name]]$model, type = \"count\", main = paste(name, \"Node Count\"))\n}\n\n# Plot training changes\npar(mfrow = c(1, 3))\nfor (name in names(results)) {\n  plot(results[[name]]$model, type = \"changes\", main = paste(name, \"Changes\"))\n}\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nInterpretation\nChanges Plot (Training Convergence):\n\nAll models show a clear downward trend — the SOM is learning in each case.\nlarge has the lowest final error and smoothest convergence, indicating effective training.\nIt continues to improve throughout all 1500 iterations, with a clear plateau toward the end.\n\nNode Count Plot (Grid Utilization)\n\nsmall: Most nodes are heavily loaded (some with &gt;25 samples), suggesting over-compression.\nmedium: Shows better balance, but a few nodes still dominate.\nlarge: Most evenly used — no overcrowded or empty neurons, suggesting high resolution and effective organization.\n\nConclusion\n\nThe large configuration (8×8 grid, 1500 iterations, alpha = c(0.1, 0.01)) performs best overall — offering stable training, good resolution, and balanced use of the grid.",
+    "crumbs": [
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>SOM</span>"
+    ]
+  },
+  {
+    "objectID": "SOM.html#exercise-ii-features",
+    "href": "SOM.html#exercise-ii-features",
+    "title": "3  SOM",
+    "section": "3.10 Exercise II (features)",
+    "text": "3.10 Exercise II (features)\nTask\nWhich Features Drive the Organization of the SOM?\nIdentify which top 10 variables (miRNAs) vary most across the SOM grid. Are they the same variables that drive separation along PC1 in the PCA model?\nHints:\n\nExtract the codebook matrix from the trained SOM using som_model$codes[[1]]. Each row represents a neuron, and each column a feature.\nFor each feature (e.g., miRNA), calculate the standard deviation across all neurons.\nIdentify the top 10 most variable features\nUse plot(..., type = \"property\") to visualize the distribution of each top feature across the grid.\n\nExample code\n\n# Extract codebook matrix\ncodes &lt;- som_model$codes[[1]]\n\n# Calculate variability for each feature\nfeature_sd &lt;- apply(codes, 2, sd)\n\n# Identify top 10 most variable features\ntop_features &lt;- sort(feature_sd, decreasing = TRUE)[1:10]\nprint(top_features)\n## hsa-mir-9-1 hsa-mir-9-2 hsa-mir-203 hsa-mir-205 hsa-mir-375 hsa-mir-452 \n##    1.844150    1.840325    1.720440    1.554938    1.540482    1.452109 \n## hsa-mir-210 hsa-mir-505  hsa-mir-17 hsa-mir-150 \n##    1.334261    1.266085    1.247510    1.225252\n\n# Custom color palette\ncoolBlueHotRed &lt;- function(n, alpha = 1) {\n  colors &lt;- colorRampPalette(c(\"blue\", \"white\", \"red\"))(n)\n  adjustcolor(colors, alpha.f = alpha)\n}\n\n# Plot top features as component planes\npar(mfrow = c(5, 2))  # grid layout for plotting\nfor (feature in names(top_features)) {\n  plot(som_model, type = \"property\",\n       property = codes[, feature],\n       main = feature,\n       palette.name = coolBlueHotRed)\n}\n\n# top features (along PC1)\ntop_loadings &lt;- res_pca_loadings |&gt; \n    as.data.frame() |&gt; \n    rownames_to_column(\"miRNA\") |&gt; \n    arrange(desc(abs(PC1))) |&gt; \n    head(10) |&gt; \n  dplyr::select(miRNA, PC1) \n\n# Compare the top features from SOM and PCA\nprint(top_features)\n## hsa-mir-9-1 hsa-mir-9-2 hsa-mir-203 hsa-mir-205 hsa-mir-375 hsa-mir-452 \n##    1.844150    1.840325    1.720440    1.554938    1.540482    1.452109 \n## hsa-mir-210 hsa-mir-505  hsa-mir-17 hsa-mir-150 \n##    1.334261    1.266085    1.247510    1.225252\nprint(top_loadings)\n##            miRNA        PC1\n## 1    hsa-mir-9-2 -0.2238220\n## 2    hsa-mir-9-1 -0.2232821\n## 3     hsa-mir-17 -0.1665614\n## 4    hsa-mir-505 -0.1629681\n## 5    hsa-mir-452 -0.1589423\n## 6  hsa-mir-19b-2 -0.1490989\n## 7    hsa-mir-20a -0.1478199\n## 8   hsa-mir-106a -0.1473630\n## 9    hsa-mir-210 -0.1456352\n## 10   hsa-mir-455 -0.1407413\nprint(intersect(names(top_features), top_loadings$miRNA))\n## [1] \"hsa-mir-9-1\" \"hsa-mir-9-2\" \"hsa-mir-452\" \"hsa-mir-210\" \"hsa-mir-505\"\n## [6] \"hsa-mir-17\"",
+    "crumbs": [
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>SOM</span>"
+    ]
+  },
+  {
+    "objectID": "SOM.html#what-to-explore-next",
+    "href": "SOM.html#what-to-explore-next",
+    "title": "3  SOM",
+    "section": "3.11 What to explore next",
+    "text": "3.11 What to explore next\nLatest advances in SOMs\nSupervised variants such as generalized SOMs now incorporate label information to guide map layout for classification tasks, while supervised Kohonen networks combine clustering with prediction, useful in clinical contexts like cancer prognosis. Multi-omics and multi-view extensions, including layered SOMs, allow integration of diverse data types (e.g., mRNA, miRNA, proteomics) by aligning SOM layers through shared topology. Time-aware models like SOMTimeS apply dynamic time warping to cluster biological time series such as longitudinal gene expression. In single-cell biology, FlowSOM efficiently handles millions of cytometry events and is widely adopted in platforms like Bioconductor. Visualization has improved with tools like U-Matrix++ and projection-based SOMs that embed t-SNE or UMAP to retain global data structure. Finally, scalable implementations using TensorFlow, PyTorch, or Julia have enabled SOMs to process large-scale omics and clinical datasets using GPU acceleration",
+    "crumbs": [
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>SOM</span>"
+    ]
+  },
+  {
+    "objectID": "tSNE-UMAP.html",
+    "href": "tSNE-UMAP.html",
+    "title": "4  t-SNE and UMAP",
+    "section": "",
+    "text": "4.1 Introduction\nIn this tutorial, we explore two popular nonlinear methods: t-SNE (t-distributed Stochastic Neighbor Embedding) and UMAP (Uniform Manifold Approximation and Projection).",
+    "crumbs": [
+      "<span class='chapter-number'>4</span>  <span class='chapter-title'>t-SNE and UMAP</span>"
+    ]
+  },
+  {
+    "objectID": "tSNE-UMAP.html#t-sne",
+    "href": "tSNE-UMAP.html#t-sne",
+    "title": "4  t-SNE and UMAP",
+    "section": "4.2 t-SNE",
+    "text": "4.2 t-SNE\nt-SNE works by computing pairwise similarities between points in high-dimensional space, then finding a low-dimensional embedding that preserves those similarities. It minimizes the divergence between probability distributions using gradient descent. It is particularly good at keeping similar points close together.\nSteps in t-SNE\n\nCompute pairwise distances between all data points in high-dimensional space.\nConvert distances to conditional probabilities representing similarities.\nInitialize points randomly in 2D or 3D space.\nCompute low-dimensional similarities using a t-distribution.\nMinimize the Kullback-Leibler divergence between the two distributions using gradient descent.\nUpdate points iteratively to reduce divergence.",
+    "crumbs": [
+      "<span class='chapter-number'>4</span>  <span class='chapter-title'>t-SNE and UMAP</span>"
+    ]
+  },
+  {
+    "objectID": "tSNE-UMAP.html#umap",
+    "href": "tSNE-UMAP.html#umap",
+    "title": "4  t-SNE and UMAP",
+    "section": "4.3 UMAP",
+    "text": "4.3 UMAP\nUMAP constructs a high-dimensional graph representing the data and then optimizes a low-dimensional projection that preserves both local neighborhoods and some global relationships. It is built on manifold learning and is generally faster than t-SNE, scaling better to large datasets.\nSteps in UMAP\n\nCompute k-nearest neighbors for each data point.\nEstimate the probability graph based on local distances.\nConstruct a fuzzy topological representation of the data.\nInitialize low-dimensional embedding randomly.\nOptimize layout to preserve high-dimensional graph structure in low dimensions using stochastic gradient descent.",
+    "crumbs": [
+      "<span class='chapter-number'>4</span>  <span class='chapter-title'>t-SNE and UMAP</span>"
+    ]
+  },
+  {
+    "objectID": "tSNE-UMAP.html#data",
+    "href": "tSNE-UMAP.html#data",
+    "title": "4  t-SNE and UMAP",
+    "section": "4.4 Data",
+    "text": "4.4 Data\n\nlibrary(tidyverse)\nlibrary(mixOmics)\ndata(breast.TCGA)\n\n# Combine training and test sets\nx &lt;- rbind(breast.TCGA$data.train$mirna, breast.TCGA$data.test$mirna)\nlabels &lt;- factor(c(breast.TCGA$data.train$subtype, breast.TCGA$data.test$subtype))\n\n# Scale the data\nx_scaled &lt;- scale(x)\n\n\nlibrary(mixOmics)\ndata(breast.TCGA)\n\nx &lt;- rbind(breast.TCGA$data.train$mirna,breast.TCGA$data.test$mirna)\ngroup_labels &lt;-c(breast.TCGA$data.train$subtype,breast.TCGA$data.test$subtype)\n\n\n# data dimensions\nx |&gt; dim() |&gt; print () # dimensions of the data matrix (samples x features)\n## [1] 220 184\ngroup_labels |&gt; as.factor() |&gt; summary() # samples per group\n## Basal  Her2  LumA \n##    66    44   110\n\n# box plots \npar(mfrow=c(2,1))\nboxplot(t(x), main=\"distribution per sample\", las=2, cex.axis=0.7, col=rainbow(10), outline=FALSE, cex.main=0.8)\nboxplot(x, main=\"distribution per miRNA\", las=2, cex.axis=0.7, col=rainbow(10), outline=FALSE, cex.main=0.8)\n\n\n\n\n\n\n\nFigure 4.1: Preview of the miRNA data matrix\n\n\n\n\n\n\n# perform PCA\npca &lt;- prcomp(x, center=TRUE, scale.=FALSE)\neigs &lt;- pca$sdev^2\nvar_exp &lt;- eigs / sum(eigs)\n\nres_pca &lt;- data.frame(PC1=pca$x[,1], PC2=pca$x[,2], PC3=pca$x[,3], PC4=pca$x[,4], PC5=pca$x[,5]) |&gt;\n    rownames_to_column(\"sample\") |&gt; \n    as_tibble() \n\nres_pca_loadings &lt;- pca$rotation\n\n# show PCA scores plots\np_pca &lt;- res_pca |&gt;\n    ggplot(aes(x=PC1, y=PC2, color=group_labels)) +\n    geom_point() +\n    labs(title=\"PCA of miRNA data\", x=\"PC1\", y=\"PC2\") +\n    xlab(paste(\"PC1 (Var: \", round(var_exp[1] * 100, 2), \"%)\")) +\n    ylab(paste(\"PC2 (Var: \", round(var_exp[2] * 100, 2), \"%)\")) +\n    theme_minimal() +\n    scale_color_manual(values=c(\"Basal\"=\"#FF0000\", \"Her2\"=\"#00FF00\", \"LumA\"=\"#0000FF\")) +\n    theme(legend.title=element_blank())\n\n# show top 10 loadings along PC1\nres_pca_loadings |&gt; \n    as.data.frame() |&gt; \n    rownames_to_column(\"miRNA\") |&gt; \n    arrange(desc(abs(PC1))) |&gt; \n    head(10) |&gt; \n    ggplot(aes(x=reorder(miRNA, PC1), y=PC1)) +\n    geom_bar(stat=\"identity\", fill=\"steelblue\") +\n    coord_flip() +\n    labs(title=\"Top 10 miRNAs contributing to PC1\", x=\"miRNA\", y=\"Loading\") +\n    theme_minimal()",
+    "crumbs": [
+      "<span class='chapter-number'>4</span>  <span class='chapter-title'>t-SNE and UMAP</span>"
+    ]
+  },
+  {
+    "objectID": "tSNE-UMAP.html#run-t-sne",
+    "href": "tSNE-UMAP.html#run-t-sne",
+    "title": "4  t-SNE and UMAP",
+    "section": "4.5 Run t-SNE",
+    "text": "4.5 Run t-SNE\n\nlibrary(Rtsne)\n\nx_scaled &lt;- scale(x) # scale data\n\nset.seed(42)\ntsne_out &lt;- Rtsne(x_scaled, dims = 2, perplexity = 30, verbose = TRUE)\n## Performing PCA\n## Read the 220 x 50 data matrix successfully!\n## Using no_dims = 2, perplexity = 30.000000, and theta = 0.500000\n## Computing input similarities...\n## Building tree...\n## Done in 0.02 seconds (sparsity = 0.563058)!\n## Learning embedding...\n## Iteration 50: error is 57.401944 (50 iterations in 0.02 seconds)\n## Iteration 100: error is 55.085976 (50 iterations in 0.02 seconds)\n## Iteration 150: error is 59.625533 (50 iterations in 0.02 seconds)\n## Iteration 200: error is 58.073568 (50 iterations in 0.02 seconds)\n## Iteration 250: error is 59.120896 (50 iterations in 0.03 seconds)\n## Iteration 300: error is 1.614186 (50 iterations in 0.02 seconds)\n## Iteration 350: error is 1.157171 (50 iterations in 0.02 seconds)\n## Iteration 400: error is 0.940524 (50 iterations in 0.01 seconds)\n## Iteration 450: error is 0.858315 (50 iterations in 0.01 seconds)\n## Iteration 500: error is 0.822199 (50 iterations in 0.01 seconds)\n## Iteration 550: error is 0.783186 (50 iterations in 0.02 seconds)\n## Iteration 600: error is 0.777544 (50 iterations in 0.02 seconds)\n## Iteration 650: error is 0.775445 (50 iterations in 0.02 seconds)\n## Iteration 700: error is 0.775674 (50 iterations in 0.01 seconds)\n## Iteration 750: error is 0.775880 (50 iterations in 0.02 seconds)\n## Iteration 800: error is 0.776062 (50 iterations in 0.01 seconds)\n## Iteration 850: error is 0.776889 (50 iterations in 0.01 seconds)\n## Iteration 900: error is 0.776736 (50 iterations in 0.01 seconds)\n## Iteration 950: error is 0.777065 (50 iterations in 0.01 seconds)\n## Iteration 1000: error is 0.776988 (50 iterations in 0.01 seconds)\n## Fitting performed in 0.34 seconds.\n\n# Key parameters\n# - perplexity: Balances local/global structure (recommended: 5–50)\n# - dims: Output dimensions (2D or 3D)\n# - theta: Speed/accuracy tradeoff\n# - max_iter: Iteration count\n\ntsne_df &lt;- data.frame(\n  X = tsne_out$Y[, 1],\n  Y = tsne_out$Y[, 2],\n  Subtype = labels\n)\n\np_tsne &lt;- ggplot(tsne_df, aes(x = X, y = Y, color = Subtype)) +\n  geom_point(size = 2) +\n  theme_minimal() +\n  labs(title = \"t-SNE on miRNA data\") + \n  scale_color_manual(values = c(\"Basal\" = \"#FF0000\", \"Her2\" = \"#00FF00\", \"LumA\" = \"#0000FF\"))\n\nplot(p_tsne)",
+    "crumbs": [
+      "<span class='chapter-number'>4</span>  <span class='chapter-title'>t-SNE and UMAP</span>"
+    ]
+  },
+  {
+    "objectID": "tSNE-UMAP.html#run-umap",
+    "href": "tSNE-UMAP.html#run-umap",
+    "title": "4  t-SNE and UMAP",
+    "section": "4.6 Run UMAP",
+    "text": "4.6 Run UMAP\n\nlibrary(umap)\n\nset.seed(42)\numap_out &lt;- umap(x_scaled)\n\n# Key parameters\n# - n_neighbors: Higher = more global structure\n# - min_dist: Smaller = tighter clusters\n# - metric: Distance measure (e.g., \"euclidean\")\n\numap_df &lt;- data.frame(\n  X = umap_out$layout[, 1],\n  Y = umap_out$layout[, 2],\n  Subtype = labels\n)\n\np_umap &lt;- ggplot(umap_df, aes(x = X, y = Y, color = Subtype)) +\n  geom_point(size = 2) +\n  theme_minimal() +\n  labs(title = \"UMAP on miRNA data\") + \n  scale_color_manual(values = c(\"Basal\" = \"#FF0000\", \"Her2\" = \"#00FF00\", \"LumA\" = \"#0000FF\"))\n\nplot(p_umap)",
+    "crumbs": [
+      "<span class='chapter-number'>4</span>  <span class='chapter-title'>t-SNE and UMAP</span>"
+    ]
+  },
+  {
+    "objectID": "tSNE-UMAP.html#compare-pca-t-sne-and-umap",
+    "href": "tSNE-UMAP.html#compare-pca-t-sne-and-umap",
+    "title": "4  t-SNE and UMAP",
+    "section": "4.7 Compare PCA, t-SNE, and UMAP",
+    "text": "4.7 Compare PCA, t-SNE, and UMAP\n\nlibrary(patchwork)\np_pca + p_tsne + p_umap + plot_layout(ncol = 2)",
+    "crumbs": [
+      "<span class='chapter-number'>4</span>  <span class='chapter-title'>t-SNE and UMAP</span>"
+    ]
+  },
+  {
+    "objectID": "tSNE-UMAP.html#exercise-parameters-exploration",
+    "href": "tSNE-UMAP.html#exercise-parameters-exploration",
+    "title": "4  t-SNE and UMAP",
+    "section": "4.8 Exercise (parameters exploration)",
+    "text": "4.8 Exercise (parameters exploration)\nTry changing perplexity = 5, 50 in t-SNE. Try n_neighbors = 5, 30 in UMAP. Do you see different patterns? Why? Repeat the exercise with different random seed. Are t-SNE and UMAP sensitive to random initialization?\nExample code\n\n# t-SNE with perplexity = 10\nset.seed(42)\ntsne_5 &lt;- Rtsne(x_scaled, dims = 2, perplexity = 5)\ndf_tsne5 &lt;- data.frame(X = tsne_5$Y[,1], Y = tsne_5$Y[,2], Subtype = labels)\n\n# t-SNE with perplexity = 50\nset.seed(42)\ntsne_50 &lt;- Rtsne(x_scaled, dims = 2, perplexity = 50)\ndf_tsne50 &lt;- data.frame(X = tsne_50$Y[,1], Y = tsne_50$Y[,2], Subtype = labels)\n\nset.seed(42)\n# UMAP with n_neighbors = 5\numap_5 &lt;- umap(x_scaled, config = modifyList(umap.defaults, list(n_neighbors = 5)))\ndf_umap5 &lt;- data.frame(X = umap_5$layout[,1], Y = umap_5$layout[,2], Subtype = labels)\n\nset.seed(42)\n# UMAP with n_neighbors = 30\numap_30 &lt;- umap(x_scaled, config = modifyList(umap.defaults, list(n_neighbors = 30)))\ndf_umap30 &lt;- data.frame(X = umap_30$layout[,1], Y = umap_30$layout[,2], Subtype = labels)\n\n# Plot\nlibrary(patchwork)\np1 &lt;- ggplot(df_tsne5, aes(X, Y, color = Subtype)) + geom_point() +\n  ggtitle(\"t-SNE (perplexity = 5)\") + theme_minimal()\n\np2 &lt;- ggplot(df_tsne50, aes(X, Y, color = Subtype)) + geom_point() +\n  ggtitle(\"t-SNE (perplexity = 50)\") + theme_minimal()\n\np3 &lt;- ggplot(df_umap5, aes(X, Y, color = Subtype)) + geom_point() +\n  ggtitle(\"UMAP (n_neighbors = 5)\") + theme_minimal()\n\np4 &lt;- ggplot(df_umap30, aes(X, Y, color = Subtype)) + geom_point() +\n  ggtitle(\"UMAP (n_neighbors = 30)\") + theme_minimal()\n\np1 + p2 + p3 + p4\n\n# Comments: \n\n# The comparison across parameter settings highlights how both t-SNE and UMAP balance local versus global structure depending on configuration:\n# t-SNE (perplexity = 10):\n# Shows very tight, localized groupings. Clusters are more fragmented, suggesting a strong focus on very close neighbors.\n# t-SNE (perplexity = 50):\n# Produces more continuous global structure. Classes are generally separated, but the fine local detail is smoothed out.\n# UMAP (n_neighbors = 5):\n# Strong emphasis on local clusters, resulting in a scattered, detailed structure with visible subgrouping. This may help detect subtypes or sub-clusters.\n# UMAP (n_neighbors = 30):\n# Prioritizes global structure. The major subtypes (Basal, Her2, LumA) appear as smoother, larger clusters, giving a clearer big-picture overview.\n\n# Both t-SNE and UMAP are sensitive to the random seed because they rely on random initialization and stochastic optimization to construct the low-dimensional embedding. t-SNE is generally more sensitive because its cost function is non-convex and it places stronger emphasis on preserving local structure, making it more prone to variability in point arrangement across runs",
+    "crumbs": [
+      "<span class='chapter-number'>4</span>  <span class='chapter-title'>t-SNE and UMAP</span>"
+    ]
+  },
+  {
+    "objectID": "tSNE-UMAP.html#exercise-features-variability",
+    "href": "tSNE-UMAP.html#exercise-features-variability",
+    "title": "4  t-SNE and UMAP",
+    "section": "4.9 Exercise (features variability)",
+    "text": "4.9 Exercise (features variability)\nInvestigate which miRNA features vary the most across the dataset. Features with high variance are more likely to influence clustering in dimensionality reduction. Identify top variable features in orginal (unscaled) data and visualize sample distribution colored by expression of top feature on the selected t-SNE and UMAP plots.\nExample code\n\nlibrary(viridis)\n\n# Compute variance for each feature (column-wise)\nfeature_variance &lt;- apply(x, 2, var)\ntop_features &lt;- sort(feature_variance, decreasing = TRUE)[1:5]\nprint(top_features)\n##    hsa-mir-9-1    hsa-mir-9-2    hsa-mir-205    hsa-mir-375 hsa-mir-196a-1 \n##       5.911005       5.898993       5.859463       4.549581       4.480415\n\n# Visualize first top feature\ntop_feature &lt;- names(top_features)[1]\n\n# t-SNE (perplexity = 5)\ntsne_5 &lt;- Rtsne(x_scaled, dims = 2, perplexity = 5)\ndf_tsne5 &lt;- data.frame(X = tsne_5$Y[,1], Y = tsne_5$Y[,2], Subtype = labels, TopFeature =  x[, top_feature])\n\n# UMAP (n_neighbors = 5)\numap_5 &lt;- umap(x_scaled, config = modifyList(umap.defaults, list(n_neighbors = 5)))\ndf_umap5 &lt;- data.frame(X = umap_5$layout[,1], Y = umap_5$layout[,2], Subtype = labels, TopFeature =  x[, top_feature])\n\np1 &lt;- ggplot(df_tsne5, aes(x = X, y = Y, color = TopFeature, size = TopFeature)) +\n  geom_point() +\n  scale_color_viridis_c(option = \"C\") +\n  theme_minimal() +\n  labs(title = paste(\"t-SNE colored by expression of\", top_feature),\n       color = top_feature)\n\np2 &lt;- ggplot(df_umap5, aes(x = X, y = Y, color = TopFeature, size = TopFeature)) +\n  geom_point() +\n  scale_color_viridis_c(option = \"C\") +\n  theme_minimal() +\n  labs(title = paste(\"UMAP colored by expression of\", top_feature),\n       color = top_feature)\n\np1 + p2",
+    "crumbs": [
+      "<span class='chapter-number'>4</span>  <span class='chapter-title'>t-SNE and UMAP</span>"
+    ]
+  },
+  {
+    "objectID": "tSNE-UMAP.html#additional-resources",
+    "href": "tSNE-UMAP.html#additional-resources",
+    "title": "4  t-SNE and UMAP",
+    "section": "4.10 Additional resources",
+    "text": "4.10 Additional resources\n\nHow to use t-SNE effectively\nUnderstanding UMAP",
+    "crumbs": [
+      "<span class='chapter-number'>4</span>  <span class='chapter-title'>t-SNE and UMAP</span>"
+    ]
+  },
+  {
+    "objectID": "diffusionMaps.html",
+    "href": "diffusionMaps.html",
+    "title": "5  diffusionMaps",
+    "section": "",
+    "text": "5.1 Introduction\nIn this tutorial, we explore Diffusion Maps and PHATE, two powerful nonlinear dimensionality reduction techniques that excel in capturing the geometric structure of complex datasets, particularly in life sciences. They are especially useful for continuous processes, such as cell development or biological trajectories.",
+    "crumbs": [
+      "<span class='chapter-number'>5</span>  <span class='chapter-title'>diffusionMaps</span>"
+    ]
+  },
+  {
+    "objectID": "diffusionMaps.html#diffusion-maps",
+    "href": "diffusionMaps.html#diffusion-maps",
+    "title": "5  diffusionMaps",
+    "section": "5.2 Diffusion Maps",
+    "text": "5.2 Diffusion Maps\n\nDiffusion maps leverage the relationship between heat diffusion and a random walk Markov chain on the dataset. The basic idea is that in a random walk, you’re more likely to step to a nearby point than one farther away.\nThe connectivity between two points is defined as the probability of transitioning from one to the other in one step, typically via a kernel function. This defines the local geometry and leads to construction of a transition matrix (M) for the Markov chain.\nRaising M to higher powers simulates a diffusion process over time, revealing the geometric structure at increasing scales. The parameter t acts as both a time and scale parameter.\nThe diffusion distance between two points at time t reflects their similarity based on how many short paths connect them. It is robust to noise and integrates all indirect connections—making it suitable for inference tasks.\nThis distance can be computed from the eigenvectors and eigenvalues of the diffusion matrix.\nBy keeping only the first k eigenvectors and their eigenvalues (due to spectral decay), the data is embedded in a k-dimensional space. The resulting diffusion map is a nonlinear embedding where Euclidean distances approximate diffusion distances, capturing the intrinsic geometry of the original data.",
+    "crumbs": [
+      "<span class='chapter-number'>5</span>  <span class='chapter-title'>diffusionMaps</span>"
+    ]
+  },
+  {
+    "objectID": "diffusionMaps.html#data",
+    "href": "diffusionMaps.html#data",
+    "title": "5  diffusionMaps",
+    "section": "5.3 Data",
+    "text": "5.3 Data\n\nlibrary(tidyverse)\nlibrary(mixOmics)\n\n# load data\ndata(breast.TCGA)\nx &lt;- rbind(breast.TCGA$data.train$mirna,breast.TCGA$data.test$mirna)\nlabels &lt;-c(breast.TCGA$data.train$subtype,breast.TCGA$data.test$subtype)\n\n# scale data\nx_scaled &lt;- scale(x)\n\n# preview data\n# data dimensions\nx |&gt; dim() |&gt; print () # dimensions of the data matrix (samples x features)\n## [1] 220 184\nlabels |&gt; as.factor() |&gt; summary() # samples per group\n## Basal  Her2  LumA \n##    66    44   110\n\n# box plots \npar(mfrow=c(2,1))\nboxplot(t(x), main=\"distribution per sample\", las=2, cex.axis=0.7, col=rainbow(10), outline=FALSE, cex.main=0.8)\nboxplot(x, main=\"distribution per miRNA\", las=2, cex.axis=0.7, col=rainbow(10), outline=FALSE, cex.main=0.8)\n\n\n\n\n\n\n\n\n\n# perform PCA\n# perform PCA\npca &lt;- prcomp(x, center=TRUE, scale.=FALSE)\neigs &lt;- pca$sdev^2\nvar_exp &lt;- eigs / sum(eigs)\n\nres_pca &lt;- data.frame(PC1=pca$x[,1], PC2=pca$x[,2], PC3=pca$x[,3], PC4=pca$x[,4], PC5=pca$x[,5]) |&gt;\n    rownames_to_column(\"sample\") |&gt; \n    as_tibble() \n\nres_pca_loadings &lt;- pca$rotation\n\n# show PCA scores plots\nres_pca |&gt;\n    ggplot(aes(x=PC1, y=PC2, color=labels)) +\n    geom_point() +\n    labs(title=\"PCA of miRNA data\", x=\"PC1\", y=\"PC2\") +\n    xlab(paste(\"PC1 (Var: \", round(var_exp[1] * 100, 2), \"%)\")) +\n    ylab(paste(\"PC2 (Var: \", round(var_exp[2] * 100, 2), \"%)\")) +\n    theme_minimal() +\n    scale_color_manual(values=c(\"Basal\"=\"#FF0000\", \"Her2\"=\"#00FF00\", \"LumA\"=\"#0000FF\")) +\n    theme(legend.title=element_blank())\n\n# show top 10 loadings along PC1\nres_pca_loadings |&gt; \n    as.data.frame() |&gt; \n    rownames_to_column(\"miRNA\") |&gt; \n    arrange(desc(abs(PC1))) |&gt; \n    head(10) |&gt; \n    ggplot(aes(x=reorder(miRNA, PC1), y=PC1)) +\n    geom_bar(stat=\"identity\", fill=\"steelblue\") +\n    coord_flip() +\n    labs(title=\"Top 10 miRNAs contributing to PC1\", x=\"miRNA\", y=\"Loading\") +\n    theme_minimal()",
+    "crumbs": [
+      "<span class='chapter-number'>5</span>  <span class='chapter-title'>diffusionMaps</span>"
+    ]
+  },
+  {
+    "objectID": "diffusionMaps.html#run-diffusionmap",
+    "href": "diffusionMaps.html#run-diffusionmap",
+    "title": "5  diffusionMaps",
+    "section": "5.4 Run diffusionMap",
+    "text": "5.4 Run diffusionMap\n\nlibrary(destiny) # main package for diffusion maps\n\ndm &lt;- DiffusionMap(data = x_scaled, sigma = \"local\")  # adaptive kernel width\n\n# Key parameters\n# - sigma:  Diffusion scale parameter of the Gaussian kernel\n# - k:  Number of neighbors\n# - n_eigs: Number of diffusion components to calculate\n# - density.norm: Density normalization (helps manifold discovery)\n\ndf_dm &lt;- data.frame(\n  DC1 = eigenvectors(dm)[, 1],\n  DC2 = eigenvectors(dm)[, 2],\n  Subtype = labels\n)\n\n# Visualize First Two Diffusion Components\nggplot(df_dm, aes(x = DC1, y = DC2, color = Subtype)) +\n  geom_point(size = 2) +\n  theme_minimal() +\n  labs(title = \"Diffusion Map of miRNA Data\")\n\n#  Explore Diffusion Pseudotime (Optional)\ndf_dm$Pseudotime &lt;- eigenvectors(dm)[, 1]\n\nggplot(df_dm, aes(x = DC1, y = DC2, color = Pseudotime)) +\n  geom_point(size = 2) +\n  scale_color_viridis_c() +\n  theme_minimal() +\n  labs(title = \"Diffusion Pseudotime\", color = \"Pseudotime\")",
+    "crumbs": [
+      "<span class='chapter-number'>5</span>  <span class='chapter-title'>diffusionMaps</span>"
+    ]
+  },
+  {
+    "objectID": "diffusionMaps.html#exercise",
+    "href": "diffusionMaps.html#exercise",
+    "title": "5  diffusionMaps",
+    "section": "5.5 Exercise",
+    "text": "5.5 Exercise\nWe have simulated a dataset with 100 cells and 20 genes, where 3 genes have a signal related to pseudotime. Load the data diffmap-sim-gene-expr.csv and run a diffusion map analysis. Could you identify the genes that correlate with the first diffusion component?\nHint:\n\nthere should be one gene highly positively correlated with the first diffusion component and one negatively correlated.\n\nExample code\n\nlibrary(tidyverse)\nlibrary(destiny)\nlibrary(viridis)\n\n# Load the simulated data\nexpr_data &lt;- read_csv(\"data/diffmap-sim-gene-expr.csv\")\n\n# scale data\nx &lt;- scale(expr_data)\n\n# Run Diffusion Map\ndm &lt;- DiffusionMap(data = x, sigma = \"local\")  # adaptive kernel width\n\ndf_dm &lt;- data.frame(\n  DC1 = eigenvectors(dm)[, 1],\n  DC2 = eigenvectors(dm)[, 2]\n)\n\n# Visualize First Two Diffusion Components\nggplot(df_dm, aes(x = DC1, y = DC2)) +\n  geom_point(size = 2) +\n  theme_minimal() +\n  labs(title = \"Diffusion Map of miRNA Data\")\n\n#  Explore Diffusion Pseudotime (Optional)\ndf_dm$Pseudotime &lt;- eigenvectors(dm)[, 1]\n\nggplot(df_dm, aes(x = DC1, y = DC2, color = Pseudotime)) +\n  geom_point(size = 2) +\n  scale_color_viridis_c() +\n  theme_minimal() +\n  labs(title = \"Diffusion Pseudotime\", color = \"Pseudotime\")\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n# find genes positively and negatively correlated with DC1\ndc1 &lt;- eigenvectors(dm)[, 1]\n\n# Correlate each gene with DC1\ncor_with_dc1 &lt;- apply(x, 2, function(g) cor(g, dc1))\n\n# top genes positively correlated with DC1\ncor_with_dc1_sorted &lt;- sort(cor_with_dc1, decreasing = TRUE)\nhead(cor_with_dc1_sorted, 5)\n##     Gene18     Gene15      Gene9      Gene1     Gene20 \n## 0.91409842 0.31069956 0.18258365 0.09695313 0.08421495\n\n# color code UMAP by the expression of the correlated genes\nlibrary(viridis)\n\nggplot(df_dm, aes(x = DC1, y = DC2, color = expr_data$Gene5, size = expr_data$Gene5)) +\n  geom_point(alpha = 0.9) +\n  scale_color_viridis_c(option = \"plasma\", name = \"Expression\") +\n  scale_size(range = c(1, 4), guide = \"none\") +\n  theme_minimal() +\n  labs(\n    title = \"Diffusion Map Colored by Gene Expression\",\n    x = \"DC1\", y = \"DC2\"\n  )\n\n# top genes negatively correlated with DC1\ncor_with_dc1_sorted &lt;- sort(cor_with_dc1, decreasing = FALSE)\nhead(cor_with_dc1_sorted, 5)\n##      Gene7     Gene12     Gene19      Gene2      Gene8 \n## -0.9155005 -0.2076297 -0.1958369 -0.1670577 -0.1650107\n\n# color code UMAP by the expression of the correlated genes\nggplot(df_dm, aes(x = DC1, y = DC2, color = expr_data$Gene18, size = expr_data$Gene18)) +\n  geom_point(alpha = 0.9) +\n  scale_color_viridis_c(option = \"plasma\", name = \"Expression\") +\n  scale_size(range = c(1, 4), guide = \"none\") +\n  theme_minimal() +\n  labs(\n    title = \"Diffusion Map Colored by Gene Expression\",\n    x = \"DC1\", y = \"DC2\"\n  )",
+    "crumbs": [
+      "<span class='chapter-number'>5</span>  <span class='chapter-title'>diffusionMaps</span>"
+    ]
+  },
+  {
+    "objectID": "diffusionMaps.html#additional-resources",
+    "href": "diffusionMaps.html#additional-resources",
+    "title": "5  diffusionMaps",
+    "section": "5.6 Additional resources",
+    "text": "5.6 Additional resources\nPHATE (Potential of Heat-diffusion for Affinity-based Transition Embedding) aims to capture both local and global nonlinear structure by using an information-geometric distance derived from a heat-diffusion process. PHATE builds on diffusion maps by modeling data as a diffusion process but introduces key innovations like automatic selection of diffusion time and a log-transformed “potential distance” to better preserve both local and global structure. Unlike diffusion maps, which use eigenvectors for embedding, PHATE applies non-metric multidimensional scaling for improved visualization of trajectories and branching structures\n\nPHATE R Bone Marrow Tutorial R\nPHATE Python Tutorial",
+    "crumbs": [
+      "<span class='chapter-number'>5</span>  <span class='chapter-title'>diffusionMaps</span>"
+    ]
+  }
+]

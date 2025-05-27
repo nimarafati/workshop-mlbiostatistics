@@ -1,0 +1,311 @@
+---
+title: "t-SNE and UMAP"
+format:
+  html:
+    toc: true
+    toc-location: right
+    number-sections: true
+    code-fold: false
+    sidebar: true
+editor: visual
+editor_options: 
+  chunk_output_type: console
+knitr:
+  opts_chunk: 
+    message: false
+    warning: false
+    code-fold: false
+    include: true
+    collapse: true
+    eval: true
+    fig.show: hold
+---
+
+## Introduction
+
+In this tutorial, we explore two popular nonlinear methods: **t-SNE** (t-distributed Stochastic Neighbor Embedding) and **UMAP** (Uniform Manifold Approximation and Projection).
+
+## t-SNE
+
+**t-SNE** works by computing pairwise similarities between points in high-dimensional space, then finding a low-dimensional embedding that preserves those similarities. It minimizes the divergence between probability distributions using gradient descent. It is particularly good at keeping similar points close together.
+
+**Steps in t-SNE**
+
+1.  Compute pairwise distances between all data points in high-dimensional space.
+2.  Convert distances to conditional probabilities representing similarities.
+3.  Initialize points randomly in 2D or 3D space.
+4.  Compute low-dimensional similarities using a t-distribution.
+5.  Minimize the Kullback-Leibler divergence between the two distributions using gradient descent.
+6.  Update points iteratively to reduce divergence.
+
+## UMAP
+
+UMAP constructs a high-dimensional graph representing the data and then optimizes a low-dimensional projection that preserves both local neighborhoods and some global relationships. It is built on manifold learning and is generally faster than t-SNE, scaling better to large datasets.
+
+**Steps in UMAP**
+
+1.  Compute k-nearest neighbors for each data point.
+2.  Estimate the probability graph based on local distances.
+3.  Construct a fuzzy topological representation of the data.
+4.  Initialize low-dimensional embedding randomly.
+5.  Optimize layout to preserve high-dimensional graph structure in low dimensions using stochastic gradient descent.
+
+## Data
+
+```{r}
+library(tidyverse)
+library(mixOmics)
+data(breast.TCGA)
+
+# Combine training and test sets
+x <- rbind(breast.TCGA$data.train$mirna, breast.TCGA$data.test$mirna)
+labels <- factor(c(breast.TCGA$data.train$subtype, breast.TCGA$data.test$subtype))
+
+# Scale the data
+x_scaled <- scale(x)
+```
+
+```{r}
+#| label: load-data
+
+library(mixOmics)
+data(breast.TCGA)
+
+x <- rbind(breast.TCGA$data.train$mirna,breast.TCGA$data.test$mirna)
+group_labels <-c(breast.TCGA$data.train$subtype,breast.TCGA$data.test$subtype)
+
+```
+
+```{r}
+#| label: fig-data-preview
+#| fig.cap: "Preview of the miRNA data matrix"
+#| fig.width: 12
+#| fig.height: 10
+
+# data dimensions
+x |> dim() |> print () # dimensions of the data matrix (samples x features)
+group_labels |> as.factor() |> summary() # samples per group
+
+# box plots 
+par(mfrow=c(2,1))
+boxplot(t(x), main="distribution per sample", las=2, cex.axis=0.7, col=rainbow(10), outline=FALSE, cex.main=0.8)
+boxplot(x, main="distribution per miRNA", las=2, cex.axis=0.7, col=rainbow(10), outline=FALSE, cex.main=0.8)
+
+```
+
+```{r}
+#| label: pca
+#| fig.keep: all
+
+# perform PCA
+pca <- prcomp(x, center=TRUE, scale.=FALSE)
+eigs <- pca$sdev^2
+var_exp <- eigs / sum(eigs)
+
+res_pca <- data.frame(PC1=pca$x[,1], PC2=pca$x[,2], PC3=pca$x[,3], PC4=pca$x[,4], PC5=pca$x[,5]) |>
+    rownames_to_column("sample") |> 
+    as_tibble() 
+
+res_pca_loadings <- pca$rotation
+
+# show PCA scores plots
+p_pca <- res_pca |>
+    ggplot(aes(x=PC1, y=PC2, color=group_labels)) +
+    geom_point() +
+    labs(title="PCA of miRNA data", x="PC1", y="PC2") +
+    xlab(paste("PC1 (Var: ", round(var_exp[1] * 100, 2), "%)")) +
+    ylab(paste("PC2 (Var: ", round(var_exp[2] * 100, 2), "%)")) +
+    theme_minimal() +
+    scale_color_manual(values=c("Basal"="#FF0000", "Her2"="#00FF00", "LumA"="#0000FF")) +
+    theme(legend.title=element_blank())
+
+# show top 10 loadings along PC1
+res_pca_loadings |> 
+    as.data.frame() |> 
+    rownames_to_column("miRNA") |> 
+    arrange(desc(abs(PC1))) |> 
+    head(10) |> 
+    ggplot(aes(x=reorder(miRNA, PC1), y=PC1)) +
+    geom_bar(stat="identity", fill="steelblue") +
+    coord_flip() +
+    labs(title="Top 10 miRNAs contributing to PC1", x="miRNA", y="Loading") +
+    theme_minimal()
+
+```
+
+## Run t-SNE
+
+```{r}
+library(Rtsne)
+
+x_scaled <- scale(x) # scale data
+
+set.seed(42)
+tsne_out <- Rtsne(x_scaled, dims = 2, perplexity = 30, verbose = TRUE)
+
+# Key parameters
+# - perplexity: Balances local/global structure (recommended: 5–50)
+# - dims: Output dimensions (2D or 3D)
+# - theta: Speed/accuracy tradeoff
+# - max_iter: Iteration count
+
+tsne_df <- data.frame(
+  X = tsne_out$Y[, 1],
+  Y = tsne_out$Y[, 2],
+  Subtype = labels
+)
+
+p_tsne <- ggplot(tsne_df, aes(x = X, y = Y, color = Subtype)) +
+  geom_point(size = 2) +
+  theme_minimal() +
+  labs(title = "t-SNE on miRNA data") + 
+  scale_color_manual(values = c("Basal" = "#FF0000", "Her2" = "#00FF00", "LumA" = "#0000FF"))
+
+plot(p_tsne)
+
+```
+
+## Run UMAP
+
+```{r}
+library(umap)
+
+set.seed(42)
+umap_out <- umap(x_scaled)
+
+# Key parameters
+# - n_neighbors: Higher = more global structure
+# - min_dist: Smaller = tighter clusters
+# - metric: Distance measure (e.g., "euclidean")
+
+umap_df <- data.frame(
+  X = umap_out$layout[, 1],
+  Y = umap_out$layout[, 2],
+  Subtype = labels
+)
+
+p_umap <- ggplot(umap_df, aes(x = X, y = Y, color = Subtype)) +
+  geom_point(size = 2) +
+  theme_minimal() +
+  labs(title = "UMAP on miRNA data") + 
+  scale_color_manual(values = c("Basal" = "#FF0000", "Her2" = "#00FF00", "LumA" = "#0000FF"))
+
+plot(p_umap)
+```
+
+## Compare PCA, t-SNE, and UMAP
+
+```{r}
+#| fig.width: 12
+#| fig.height: 12
+
+library(patchwork)
+p_pca + p_tsne + p_umap + plot_layout(ncol = 2)
+```
+
+## Exercise (parameters exploration)
+
+Try changing perplexity = 5, 50 in t-SNE. Try n_neighbors = 5, 30 in UMAP. Do you see different patterns? Why? Repeat the exercise with different random seed. Are t-SNE and UMAP sensitive to random initialization?
+
+**Example code**
+
+```{r}
+# t-SNE with perplexity = 10
+set.seed(42)
+tsne_5 <- Rtsne(x_scaled, dims = 2, perplexity = 5)
+df_tsne5 <- data.frame(X = tsne_5$Y[,1], Y = tsne_5$Y[,2], Subtype = labels)
+
+# t-SNE with perplexity = 50
+set.seed(42)
+tsne_50 <- Rtsne(x_scaled, dims = 2, perplexity = 50)
+df_tsne50 <- data.frame(X = tsne_50$Y[,1], Y = tsne_50$Y[,2], Subtype = labels)
+
+set.seed(42)
+# UMAP with n_neighbors = 5
+umap_5 <- umap(x_scaled, config = modifyList(umap.defaults, list(n_neighbors = 5)))
+df_umap5 <- data.frame(X = umap_5$layout[,1], Y = umap_5$layout[,2], Subtype = labels)
+
+set.seed(42)
+# UMAP with n_neighbors = 30
+umap_30 <- umap(x_scaled, config = modifyList(umap.defaults, list(n_neighbors = 30)))
+df_umap30 <- data.frame(X = umap_30$layout[,1], Y = umap_30$layout[,2], Subtype = labels)
+
+# Plot
+library(patchwork)
+p1 <- ggplot(df_tsne5, aes(X, Y, color = Subtype)) + geom_point() +
+  ggtitle("t-SNE (perplexity = 5)") + theme_minimal()
+
+p2 <- ggplot(df_tsne50, aes(X, Y, color = Subtype)) + geom_point() +
+  ggtitle("t-SNE (perplexity = 50)") + theme_minimal()
+
+p3 <- ggplot(df_umap5, aes(X, Y, color = Subtype)) + geom_point() +
+  ggtitle("UMAP (n_neighbors = 5)") + theme_minimal()
+
+p4 <- ggplot(df_umap30, aes(X, Y, color = Subtype)) + geom_point() +
+  ggtitle("UMAP (n_neighbors = 30)") + theme_minimal()
+
+p1 + p2 + p3 + p4
+
+# Comments: 
+
+# The comparison across parameter settings highlights how both t-SNE and UMAP balance local versus global structure depending on configuration:
+# t-SNE (perplexity = 10):
+# Shows very tight, localized groupings. Clusters are more fragmented, suggesting a strong focus on very close neighbors.
+# t-SNE (perplexity = 50):
+# Produces more continuous global structure. Classes are generally separated, but the fine local detail is smoothed out.
+# UMAP (n_neighbors = 5):
+# Strong emphasis on local clusters, resulting in a scattered, detailed structure with visible subgrouping. This may help detect subtypes or sub-clusters.
+# UMAP (n_neighbors = 30):
+# Prioritizes global structure. The major subtypes (Basal, Her2, LumA) appear as smoother, larger clusters, giving a clearer big-picture overview.
+
+# Both t-SNE and UMAP are sensitive to the random seed because they rely on random initialization and stochastic optimization to construct the low-dimensional embedding. t-SNE is generally more sensitive because its cost function is non-convex and it places stronger emphasis on preserving local structure, making it more prone to variability in point arrangement across runs
+
+```
+
+## Exercise (features variability)
+
+Investigate which miRNA features vary the most across the dataset. Features with high variance are more likely to influence clustering in dimensionality reduction. Identify top variable features in orginal (unscaled) data and visualize sample distribution colored by expression of top feature on the selected t-SNE and UMAP plots.
+
+**Example code**
+
+```{r}
+library(viridis)
+
+# Compute variance for each feature (column-wise)
+feature_variance <- apply(x, 2, var)
+top_features <- sort(feature_variance, decreasing = TRUE)[1:5]
+print(top_features)
+
+# Visualize first top feature
+top_feature <- names(top_features)[1]
+
+# t-SNE (perplexity = 5)
+tsne_5 <- Rtsne(x_scaled, dims = 2, perplexity = 5)
+df_tsne5 <- data.frame(X = tsne_5$Y[,1], Y = tsne_5$Y[,2], Subtype = labels, TopFeature =  x[, top_feature])
+
+# UMAP (n_neighbors = 5)
+umap_5 <- umap(x_scaled, config = modifyList(umap.defaults, list(n_neighbors = 5)))
+df_umap5 <- data.frame(X = umap_5$layout[,1], Y = umap_5$layout[,2], Subtype = labels, TopFeature =  x[, top_feature])
+
+p1 <- ggplot(df_tsne5, aes(x = X, y = Y, color = TopFeature, size = TopFeature)) +
+  geom_point() +
+  scale_color_viridis_c(option = "C") +
+  theme_minimal() +
+  labs(title = paste("t-SNE colored by expression of", top_feature),
+       color = top_feature)
+
+p2 <- ggplot(df_umap5, aes(x = X, y = Y, color = TopFeature, size = TopFeature)) +
+  geom_point() +
+  scale_color_viridis_c(option = "C") +
+  theme_minimal() +
+  labs(title = paste("UMAP colored by expression of", top_feature),
+       color = top_feature)
+
+p1 + p2
+
+```
+
+## Additional resources
+
+-   [How to use t-SNE effectively](https://distill.pub/2016/misread-tsne/)
+-   [Understanding UMAP](https://pair-code.github.io/understanding-umap/)

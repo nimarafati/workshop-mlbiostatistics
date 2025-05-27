@@ -1,0 +1,20 @@
+{
+  "index.qmd": {
+    "index.html": "5efbfa57"
+  },
+  "intro.qmd": {
+    "intro.html": "ef3d01f1"
+  },
+  "ICA.qmd": {
+    "ICA.html": "5f44069c"
+  },
+  "SOM.qmd": {
+    "SOM.html": "2197be0a"
+  },
+  "tSNE-UMAP.qmd": {
+    "tSNE-UMAP.html": "9bcaa1e1"
+  },
+  "diffusionMaps.qmd": {
+    "diffusionMaps.html": "fc389750"
+  }
+}

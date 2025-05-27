@@ -1,0 +1,28 @@
+---
+title: "Introduction"
+format: html
+editor: source
+---
+
+## Introduction
+
+High-throughput biological datasets, such as transcriptomic, proteomic, or single-cell data, are often high-dimensional, noisy, and complex. Dimensionality reduction techniques help simplify this complexity by projecting data into a lower-dimensional space that preserves meaningful structure. These representations support visualization, clustering, and trajectory inference.
+Importantly, biological data often defies simple binary classification. Cell states may exist along a continuum, clusters may overlap, and some samples may lie in transitional states. Traditional clustering methods may miss these subtleties, motivating the use of more flexible, geometry-aware approaches.
+
+This tutorial introduces a set of complementary methods:
+
+- ICA (Independent Component Analysis) isolates statistically independent signals [https://payamemami.com/ica_basics/](https://payamemami.com/ica_basics/)
+- SOM (Self-Organizing Maps) organizes samples based on topological similarity [https://payamemami.com/self_orginizating_maps_basics/](https://payamemami.com/self_orginizating_maps_basics/)
+- t-SNE and UMAP focus on preserving local neighborhoods for visualizing fine structure and clustering.
+- Diffusion Maps model global transitions using random walks, capturing continuous biological trajectories.
+
+
+**Comparison of Dimensionality Reduction Methods**
+
+| Method         | Key Concept                                                       | When to Use                                                                 | Common Applications                                 | Limitations                                                                             |
+|----------------|-------------------------------------------------------------------|------------------------------------------------------------------------------|----------------------------------------------------|------------------------------------------------------------------------------------------|
+| **ICA**        | Decomposes data into statistically **independent** components     | To identify latent signals or sources driving variation                     | Gene module analysis, signal separation             | Assumes independence; sensitive to noise and scaling                                     |
+| **SOM**        | Maps high-dimensional data onto a **topologically ordered grid**  | When you want structured clustering and visualization on a 2D map           | Expression patterns, cohort stratification         | Grid size needs tuning; interpretation can be subjective                                 |
+| **t-SNE**      | Preserves **local similarities** via stochastic neighbor embedding | For **visualizing clusters** in 2D or 3D                                      | Cell type discovery, quality control               | Poor global structure; sensitive to seed/perplexity; not suitable for downstream modeling |
+| **UMAP**       | Graph-based manifold learning balancing **local and global structure** | When you want fast, structure-preserving embeddings                         | Single-cell analysis, cohort comparison            | Sensitive to parameters; may distort distances                                           |
+| **Diffusion Maps** | Uses a **random walk process** to capture manifold geometry      | To model **continuous transitions**, trajectories, or diffusion-like dynamics | Cell state transitions, lineage inference           | Slower on large datasets; interpretation of components may not be intuitive               |
