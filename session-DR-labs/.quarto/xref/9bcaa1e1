@@ -1,0 +1,1 @@
+{"entries":[{"caption":"Preview of the miRNA data matrix","key":"fig-data-preview","order":{"number":1,"section":[4,4,0,0,0,0,0]}}],"headings":["introduction","t-sne","umap","data","run-t-sne","run-umap","compare-pca-t-sne-and-umap","exercise-parameters-exploration","exercise-features-variability","additional-resources"],"options":{"chapters":true}}
