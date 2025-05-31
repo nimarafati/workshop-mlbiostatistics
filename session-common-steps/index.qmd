@@ -1,0 +1,18 @@
+# Preface {.unnumbered}
+
+This tutorial is intended as a refresher of the common data analysis steps, such as exploratory data analysis, statistical testing, as well as building and evaluating predictive models. 
+
+**Learning outcomes**
+
+- Perform exploratory data analysis (EDA) to summarize, visualize, and interpret trends in clinical and gene expression data.
+- Identify and handle missing data appropriately, using basic imputation strategies where needed.
+- Conduct association tests (e.g., logistic regression with multiple testing correction) to identify genes linked to obesity status.
+- Apply Principal Component Analysis (PCA) to explore the structure of high-dimensional gene expression data and detect patterns such as clustering or outliers.
+- Fit and interpret logistic regression models using both clinical variables and high-dimensional molecular predictors.
+- Understand and apply Lasso regularization to perform variable selection and reduce model complexity in the presence of many predictors.
+- Interpret key model evaluation metrics, including accuracy, precision, recall, F1 score, and AUC.
+- Fit and evaluate Random Forest models for classification tasks, and interpret variable importance.
+- Tune Random Forest hyperparameters using grid search to optimize model performance.
+- Compare different modeling approaches (logistic regression, Lasso, Random Forest) in terms of both predictive accuracy and interpretability in the context of biomedical data.
+
+
