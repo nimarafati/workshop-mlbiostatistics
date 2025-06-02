@@ -1,0 +1,1086 @@
+---
+title: "Common data analysis steps in life science projects"
+format: 
+  revealjs:
+    slide-number: true
+    view-distance: 10
+    theme: [default, custom.scss]
+    chalkboard: 
+      buttons: true
+  html:
+    code-fold: false
+editor_options: 
+  chunk_output_type: console
+bibliography: references.bib
+---
+
+```{r}
+#| message: false
+#| warning: false
+
+# load libraries
+library(tidyverse)
+library(magrittr)
+library(kableExtra)
+library(ggplot2)
+library(rmarkdown)
+library(ggbeeswarm)
+library(gridExtra)
+library(ggmosaic)
+library(scales)
+library(ggthemes)
+```
+
+## Introduction
+
+<br>
+
+👋 Welcome to the warm-up session!
+
+<br>
+
+. . .
+
+We will
+
+::: incremental
+-   broadly review common data analysis steps in life science projects
+-   refresh key concepts that we’ll be building on throughout the week
+-   introduce the example dataset
+:::
+
+## Lifecycle of data science
+
+*Simple overview*
+
+<br>
+
+```{mermaid}
+flowchart LR
+  A(Define problem) --> B(Collect data)
+  B --> C(Clean & preprocess data)
+  C --> E(Explore data)
+  E --> F1(Var. Transformations)
+  F1 -->F2(Inferential statistics)
+  E --> H1(Feature engineering)
+  H1 --> H2(Predictive modelling)
+  F2 --> I(Communicate results)
+  H2 --> I(Communicate results)
+```
+
+## Lifecycle of data science
+
+*More realistic case*
+
+<br>
+
+```{mermaid}
+flowchart LR
+  A(Define problem) --> B(Collect data)
+  B --> C(Clean & preprocess data)
+  C --> E(Explore data)
+  E --> F1(Var. Transformations)
+  F1 -->F2(Inferential statistics)
+  E --> H1(Feature engineering)
+  H1 --> H2(Predictive modelling)
+  F2 --> I(Communicate results)
+  H2 --> I(Communicate results)
+  
+  I --> A
+  F2 --> E       
+  F2 --> F1      
+  H2 --> E       
+  H2 --> H1      
+  H1 --> E       
+  F1 --> C       
+  E --> C        
+  C --> B        
+  B --> A        
+  H1 --> F1      
+  F1 --> H1      
+
+```
+
+. . .
+
+Looping back examples:
+
+::: incremental
+
+-   Exploration uncovers data issues
+-   Data limitations question original design
+-   Revisit exploration after inferential analysis
+-   Model performance leads back to EDA
+-   Feature engineering prompts new transformations
+:::
+
+## Example data
+
+*Diabetes data to study obesity*
+
+<br>
+
+::::: columns
+::: {.column width="50%"}
+-   403 participants were interviewed in a study to understand the prevalence of obesity, diabetes, and other cardiovascular risk factors in central Virginia
+-   The data is available as part of `faraway` package.
+:::
+
+::: {.column width="50%"}
+```{r}
+#| echo: false
+#| warning: false
+#| message: false
+#| include: true
+
+library(tidyverse)
+library(kableExtra)
+library(faraway)
+
+# Diabetes data from faraway() package
+df <- diabetes
+
+c1 <- colnames(df)
+c2 <- c("Subject ID", "Total Cholesterol [mg/dL]", "Stabilize Glucose [mg/dL]", 
+        "High Density Lipoprotein [mg/dL]", "Cholesterol / HDL Ratio", "Glycosolated Hemoglobin [%]", 
+        "County: Buckingham or Louisa", "age [years]", "gender", 
+        "height [in]", "weight [lb]", "frame: small, medium or large", 
+        "First Systolic Blood Pressure", "First Diastolic Blood Pressure", 
+        "Second Systolic Blood Pressure", "Second Diastolic Blood Pressure", 
+        "waist [in]", "hip [in]", 
+        "Postprandial Time [min] when labs were drawn")
+
+tbl <- data.frame(Abbreviation = c1, Description = c2)
+
+kbl_font_size <- 14
+
+tbl %>% 
+  kbl(align = "c") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_styling(font_size = kbl_font_size)
+
+```
+:::
+:::::
+
+## Example data
+
+*Diabetes data to study obesity*
+
+<br>
+
+:::::: columns
+::: {.column width="45%"}
+-   We can calculate BMI as $BMI = 703 \times (weight \; [lb] \; / (height \;[in])^2)$ and define obesity as $BMI \ge 30$ storing this information in `obese` variable (yes/no).
+-   First few observations are shown on the right.
+:::
+
+::: {.column width="5%"}
+:::
+
+::: {.column width="50%"}
+```{r}
+
+# add obesity variables
+inch2m <- 2.54/100
+pound2kg <- 0.45
+data_diabetes <- diabetes %>%
+  mutate(height  = height * inch2m, height = round(height, 2)) %>% 
+  mutate(waist = waist * inch2m) %>%  
+  mutate(weight = weight * pound2kg, weight = round(weight, 2)) %>%
+  mutate(BMI = weight / height^2, BMI = round(BMI, 2)) %>% 
+  mutate(obese= cut(BMI, breaks = c(0, 29.9, 100), labels = c("No", "Yes"))) %>% 
+  relocate(BMI, .after = id) %>%
+  relocate(obese, .after = BMI) #%>%
+  #na.omit()
+  
+# preview data
+glimpse(head(data_diabetes))
+```
+:::
+::::::
+
+## Example data
+
+*Diabetes data to study obesity*
+
+<br>
+
+In addition we simulated gene expression for 1000 genes, with some known genes associated with obesity being up-regulated.
+
+```{r}
+#| fig-align: center
+
+# Load clinical data
+data_obesity_genes <- read_csv("data/data-obesity.csv")
+
+# Load gene expression data
+data_exprs <- read_csv("data/data-obesity-genes.csv")
+
+# Join data
+data <- data_obesity_genes %>%
+  left_join(data_exprs, by = "id") %>% 
+  mutate(obese = factor(obese, levels = c("No", "Yes")))
+
+# show distribution of random 3 genes by obesity
+data %>%
+  select("obese", 31:33) %>% 
+  na.omit() %>%
+  pivot_longer(-obese, names_to = "gene", values_to = "expression") %>% 
+  mutate(gene = factor(gene)) %>% 
+  ggplot(aes(x = expression, fill = obese)) +
+  geom_histogram(position = "identity", alpha = 0.5, bins = 30) + 
+  facet_wrap(~gene, scales = "free") +
+  theme_minimal() + 
+  scale_fill_tableau(name = "Obesity Status",  palette = "Classic Blue-Red 6") + 
+  theme(legend.position = "top")
+  
+```
+
+# Data Preparation
+
+## Data Preparation {.smaller}
+
+<br>
+
+```{mermaid}
+flowchart LR
+  A(Define problem) --> B(Collect data)
+  B --> C(Clean & preprocess data)
+  C --> E(Explore data)
+  E --> F1(Var. Transformations)
+  F1 -->F2(Inferential statistics)
+  E --> H1(Feature engineering)
+  H1 --> H2(Predictive modelling)
+  F2 --> I(Communicate results)
+  H2 --> I(Communicate results)
+  
+style C fill:#FFCC66,stroke:#333,stroke-width:4px
+style F1 fill:#FFCC66,stroke:#333,stroke-width:4px
+style H1 fill:#FFCC66,stroke:#333,stroke-width:4px
+
+```
+
+<br> <br>
+
+. . .
+
+|   | Step | What it's about | What to think about |
+|----------------|----------------|----------------------|--------------------|
+| 🧼 | **Data Cleaning** | Fixing errors, missing values, and inconsistencies | Is the data valid, complete, and reliable? |
+| ⚙️ | **Data Pre-processing** | Preparing clean data for modeling | Is the data in a model-friendly format? |
+| 🔢 | **Var. Transformations** | Changing variable scale or structure | Does the variable fit the model assumptions? |
+| 🛠️ | **Feature Engineering** | Creating new informative variables from existing ones | Can we build variables that improve signal and interpretability? |
+
+## Data Preparation
+
+*Where Does This Step Belong?*
+
+🧼 Data Cleaning • ⚙️ Pre-processing • 🔢 Variable Transformation • 🛠️ Feature Engineering
+
+<br>
+
+::: incremental
+-   Convert height from inches to meters [(🧼 🔢)]{.fragment}\
+-   Encode gender as binary (0 = Female, 1 = Male) [(⚙️)]{.fragment}\
+-   Create BMI from height and weight [(🛠️ 🔢)]{.fragment}\
+-   Log-transform (normalize) gene expression values [(🔢 ⚙️)]{.fragment}\
+-   Remove irrelevant genes with no variation across individuals [(⚙️ 🧼)]{.fragment}\
+-   Impute missing age values [(🧼 ⚙️)]{.fragment}\
+-   Create a BMI × gender interaction variable [(🛠️)]{.fragment}\
+-   Write and apply validation rules: flag heights \< 50 or \> 90 inches [(🧼)]{.fragment}\
+-   Detect inconsistent category labels: “male” vs “Male” [(🧼)]{.fragment}\
+-   Create an average inflammation score from 5 genes [(🛠)]{.fragment}
+-   Scale gene expression features to mean = 0, SD = 1 [(⚙️ 🔢)]{.fragment}\
+-   Keep one of a highly correlated features, e.g. keep `weight` but drop `waist` [(⚙️)]{.fragment}
+:::
+
+## Data Preparation {.smaller}
+
+```{r}
+#| label: data
+#| echo: false
+#| warning: false
+#| message: false
+
+# load libraries
+library(tidyverse)
+library(splitTools)
+library(kableExtra)
+
+# input data
+input_diabetes <- read_csv("data/data-diabetes.csv")
+
+# clean data
+inch2cm <- 2.54
+pound2kg <- 0.45
+data_diabetes <- input_diabetes %>%
+  mutate(height  = height * inch2cm / 100, height = round(height, 2)) %>% 
+  mutate(waist = waist * inch2cm) %>% 
+  mutate(weight = weight * pound2kg, weight = round(weight, 2)) %>%
+  mutate(BMI = weight / height^2, BMI = round(BMI, 2)) %>%
+  mutate(obese= cut(BMI, breaks = c(0, 29.9, 100), labels = c("No", "Yes"))) %>%
+  mutate(diabetic = ifelse(glyhb > 7, "Yes", "No"), diabetic = factor(diabetic, levels = c("No", "Yes"))) %>%
+  mutate(location = factor(location)) %>%
+  mutate(frame = factor(frame)) %>%
+  mutate(gender = factor(gender))
+  
+```
+
+*scaling & normalization* <br>
+
+-   **Scaling** of numerical features
+    -   Changing the range (scale) of the data to prevent features with larger scales dominating the model.
+-   **Normalization**
+    -   Changing observations so that they can be described by a normal distribution.
+    -   e.g. going from **positive skew**: mode \< median \< mean
+    -   or going from **negative skew**: mode \> median \> mean
+
+![](images/skew.png){width="80%"}
+
+*Source: https://www.biologyforlife.com/skew.html*
+
+## Data Preparation
+
+*common transformations* <br>
+
+**square-root for moderate skew**
+
+-   sqrt(x) for positively skewed data,
+-   sqrt(max(x+1) - x) for negatively skewed data
+
+**log for greater skew**
+
+-   log10(x) for positively skewed data,
+-   log10(max(x+1) - x) for negatively skewed data
+
+**inverse for severe skew**
+
+-   1/x for positively skewed data
+-   1/(max(x+1) - x) for negatively skewed data
+
+## Data Preparation
+
+*dummy variables* <br>
+
+::::: columns
+::: {.column width="40%"}
+-   Representing categorical variables with **dummy variables** or **one-hot encoding** to create numerical features.
+    -   For instance a categorical variable `obese` with three possible vales (underweight, healthy, overweight) can be transformed into two binary variables: "is_healthy", and "is_overweight", where the value of each variable is 1 if the observation belongs to that category and 0 otherwise. Only $k-1$ binary variables to encode $k$ categories.
+-   In **one-hot encoding** $k$ binary variables are created.
+:::
+
+::: {.column width="60%"}
+```{r}
+#| label: dummys
+#| tbl-cap-location: margin
+#| echo: false
+
+# make up some unbalanced obese categories to demonstrate when upsampling etc. may be needed
+data_obese_makeup <- data_diabetes %>%
+  na.omit() %>%
+  mutate(obese = cut(BMI, breaks = c(0, 24, 30, 100), labels = c("Underweight", "Healthy", "Overweight"), include.lowest = TRUE)) %>%
+  dplyr::select(id, obese)
+
+data_dummy <- data_obese_makeup %>%
+  mutate(is_healthy = ifelse(obese == "Healthy", 1, 0)) %>%
+  mutate(is_overweight = ifelse(obese == "Overweight", 1, 0)) %>%
+  mutate(id = id - 100) %>%
+  slice(c(1, 2, 3, 9, 10))
+
+data_dummy %>%
+  kbl(caption = "Example of obese variable with three categories (underweight/healthy/overweight) encoded as dummy variables", align = "cccc") %>%
+  column_spec(2, border_right="2px solid black") %>%
+  kable_styling()
+
+```
+:::
+:::::
+
+## Data Preparation
+
+*missing data* <br>
+
+-   **handling missing data** via
+    -   imputations (mean, median, KNN-based)
+    -   deleting strategies such as list-wise deletion (complete-case analysis) or pair-wise deletion (available-case analysis)
+    -   choosing algorithms that can handle some extent of missing data, e.g. Random Forest, Naive Bayes
+
+## Data Preparation
+
+*Rubin's (1976) missing data classification system* <br>
+
+::::: columns
+::: {.column width="50%"}
+### MCAR
+
+-   missing completely at random
+
+### MAR
+
+-   missing at random
+-   two observations for Test 2 deleted where Test 1 $<17$
+-   missing data on a variable is related to some other measured variable in the model, but not to the value of the variable with missing values itself
+
+### MNAR
+
+-   missing not at random
+-   omitting two highest values for Test 2
+-   when the missing values on a variable are related to the values of that variable itself
+:::
+
+::: {.column width="50%"}
+![](figures/missing-data.jpg) @missing2008
+:::
+:::::
+
+## Data Preparation
+
+*handling imbalanced data* <br>
+
+::::: columns
+::: {.column width="50%"}
+-   **handling imbalanced data**
+    -   down-sampling
+    -   up-sampling
+    -   generating synthetic instances
+        -   e.g. with SMOTE [@fernandez2018smote]
+        -   or ADASYN [@4633969]
+:::
+
+::: {.column width="50%"}
+```{r}
+
+# make up some unbalanced obese categories to demonstrate when up-sampling etc. may be needed
+inch2cm <- 2.54
+pound2kg <- 0.45
+data_diabetes <- input_diabetes %>%
+  mutate(height  = height * inch2cm / 100, height = round(height, 2)) %>% 
+  mutate(waist = waist * inch2cm) %>% 
+  mutate(weight = weight * pound2kg, weight = round(weight, 2)) %>%
+  mutate(BMI = weight / height^2, BMI = round(BMI, 2)) %>%
+  na.omit() %>% 
+  mutate(obese = cut(BMI, breaks = c(0, 24, 30, 100), labels = c("Underweight", "Healthy", "Overweight"), include.lowest = TRUE)) 
+
+font_size <- 20
+data_diabetes %>%
+  ggplot(aes(x = obese, y = "", fill = obese)) + 
+  geom_col(width = 0.6) +
+  scale_fill_brewer(palette = "Set1") +
+  ylab("number of samples") + 
+  xlab("") + 
+  theme_bw() +
+  theme(legend.title = element_blank(), legend.position = "none", legend.text = element_text(size=font_size)) +
+  theme(axis.title = element_text(size = font_size), axis.text = element_text(size = font_size))
+  
+
+```
+:::
+:::::
+
+# Exploratory Data Analysis (EDA)
+
+## Exploratory Data Analysis (EDA)
+
+<br>
+
+```{mermaid}
+flowchart LR
+  A(Define problem) --> B(Collect data)
+  B --> C(Clean & preprocess data)
+  C --> E(Explore data)
+  E --> F1(Var. Transformations)
+  F1 -->F2(Inferential statistics)
+  E --> H1(Feature engineering)
+  H1 --> H2(Predictive modelling)
+  F2 --> I(Communicate results)
+  H2 --> I(Communicate results)
+  
+style E fill:#FFCC66,stroke:#333,stroke-width:4px
+
+```
+
+<br>
+
+. . .
+
+EDA is the process of visually and statistically exploring data to:
+
+::: incremental
+-   Understand distributions and variable relationships
+-   Detect outliers, missing data, or batch effects
+-   Identify patterns and guide modeling decisions
+:::
+
+. . .
+
+<br>
+
+> 📌 EDA is essential for choosing the right methods and avoiding incorrect assumptions.
+
+## Exploratory Data Analysis (EDA) {.smaller}
+
+<br>
+<br>
+
+
+:::: {.columns}
+
+::: {.column width="35%"}
+
+Using our dataset, we can:
+
+-   📊 Visualize gene expression by obesity status (e.g., histograms, boxplots)
+-   🧮 Explore relationships among clinical variables (e.g., age, BMI, gender)
+-   📉 Detect skewness or low-variance genes
+-   🔎 Use PCA to check for sample clusters or outliers
+
+:::
+
+::: {.column width="5%"}
+
+:::
+
+::: {.column width="60%"}
+
+
+```{r}
+#| label: eda
+#| fig-width: 10
+#| fig-height: 10
+
+library(GGally)
+data_obesity <- read_csv("data/data-obesity.csv")
+data_exprs <- read_csv("data/data-obesity-genes.csv")
+data <- data_obesity %>%
+  left_join(data_exprs, by = "id") %>%
+  mutate(obese = factor(obese, levels = c("Yes", "No")))
+
+data %>%
+  select(obese, age, height, FTO) %>%
+  ggpairs(mapping = aes(color = obese)) + 
+  scale_fill_brewer(palette = "Set1") + 
+  scale_color_brewer(palette = "Set1") +
+  theme_minimal() 
+
+```
+:::
+
+::::
+
+# Inferential Statistics
+
+## Inferential Statistics {.smaller}
+
+```{mermaid}
+flowchart LR
+  A(Define problem) --> B(Collect data)
+  B --> C(Clean & preprocess data)
+  C --> E(Explore data)
+  E --> F1(Var. Transformations)
+  F1 -->F2(Inferential statistics)
+  E --> H1(Feature engineering)
+  H1 --> H2(Predictive modelling)
+  F2 --> I(Communicate results)
+  H2 --> I(Communicate results)
+  
+style F2 fill:#FFCC66,stroke:#333,stroke-width:4px
+
+```
+
+<br>
+
+. . .
+
+Inferential statistics allow us to draw conclusions about a population based on a sample, and to test associations between variables.
+
+Common Association Tests:
+
+::: incremental
+-   🧮 **t-test / ANOVA**: Compare means between groups (e.g., age in obese vs. non-obese)
+-   📈 **Correlation tests**: Assess linear associations between continuous variables (e.g., age vs. gene expression)
+-   📊 **Chi-squared / Fisher's test**: Check association between categorical variables (e.g., gene mutation vs. obesity status)
+-   🔍 **Regression models**: Model the relationship between variables while adjusting for covariates (e.g. logistic regression to assess whether gene expression is associated with obesity, controlling for age and gender)
+-   🧩 **Mixed-effects models**: Model repeated measurements or hierarchical data while accounting for both fixed effects (e.g., treatment, time) and random effects (e.g., individual variability) e.g., modeling gene expression changes over time in individuals taking a drug vs. controls
+-   ⏱️ **Survival analysis**: Model time-to-event outcomes and censoring (e.g., time to disease onset in relation to gene expression and clinical predictors)
+:::
+
+. . .
+
+> 📌 These tests help answer:\
+> **“Is the observed relationship likely to exist beyond our data?”**
+
+## Inferential Statistics
+
+*linear expression example I*
+
+<br>
+
+:::::: columns
+::: {.column width="45%"}
+```{r}
+#| label: linear-regression
+
+# linear regression example
+# BMI vs. age, gender and FTO
+
+# Ensure gender is a factor
+data$gender <- factor(data$gender)
+
+# Fit linear regression model
+lm_model <- lm(BMI ~ FTO, data = data)
+
+# View the summary of the model
+summary(lm_model)
+
+```
+:::
+
+::: {.column width="10%"}
+:::
+
+::: {.column width="45%"}
+
+<br>
+
+```{r}
+#| fig-height: 8
+
+library(RColorBrewer)
+mycols <- brewer.pal(6, "Set1")
+
+# Base scatterplot with regression line
+ggplot(data, aes(x = FTO, y = BMI)) +
+  geom_point(alpha = 0.8, color = mycols[2], size = 3) +                      # scatterplot
+  geom_smooth(method = "lm", se = FALSE, color = mycols[1], linetype = "solid") +  # regression line + CI
+  labs(
+    x = "FTO Gene Expression",
+    y = "Body Mass Index (BMI)"
+  ) +
+  theme_bw() +
+  theme(
+    text = element_text(size = 20),
+    plot.title = element_text(hjust = 0.5, size = 20)
+  )
+
+```
+:::
+::::::
+
+## Inferential Statistics
+
+*linear expression example II*
+
+<br>
+
+```{r}
+#| fig-height: 9
+#| fig-width: 8
+
+# linear regression example
+# BMI vs. age, gender and FTO
+
+# Ensure gender is a factor
+data$gender <- factor(data$gender)
+
+# Fit linear regression model
+lm_model <- lm(BMI ~ FTO + age + gender, data = data)
+
+# View the summary of the model
+summary(lm_model)
+
+```
+
+## Inferential Statistics
+
+*logistic regression example I*
+
+:::::: columns
+::: {.column width="45%"}
+```{r}
+# Fit logistic regression model
+data_obesity <- read_csv("data/data-obesity.csv")
+data_expr <- read_csv("data/data-obesity-genes.csv")
+
+data <- data_obesity %>%
+  select(-bp.1s, -bp.2s, -bp.1d, -bp.2d) %>%
+  na.omit() %>%
+  left_join(data_expr, by = "id") %>%
+  mutate(obese = factor(obese, levels = c("No", "Yes"))) %>%
+  mutate(obeseStatus = as.numeric(obese) - 1)  # Convert factor to numeric (0 = No, 1 = Yes))
+
+#data$obeseStatus <- as.numeric(data$obese) - 1  # Convert factor to numeric (0 = No, 1 = Yes)
+logit_model <- glm(obese ~ FTO, data = data, family = binomial)
+
+# View model summary
+summary(logit_model)
+
+```
+:::
+
+::: {.column width="10%"}
+:::
+
+::: {.column width="45%"}
+
+<br>
+
+```{r}
+#| fig-height: 8
+#| fig-width: 8
+
+# Predict probabilities from the fitted model
+data$predicted_prob <- predict(logit_model, type = "response")
+
+# Plot
+ggplot(data, aes(x = FTO, y = obeseStatus)) +
+  geom_jitter(size = 3, height = 0.05, width = 0, alpha = 0.8, color = mycols[2]) +  # Actual 0/1 values
+  geom_line(aes(y = predicted_prob), color = mycols[1], size = 1.2) +        # Fitted logistic curve
+  labs(
+    x = "FTO Gene Expression",
+    y = "Probability of Being Obese"
+  ) +
+  theme_bw() + 
+    theme(
+    text = element_text(size = 20),
+    plot.title = element_text(hjust = 0.5, size = 20)
+  )
+
+```
+:::
+::::::
+
+## Inferential Statistics
+
+*logistic regression example II*
+
+<br>
+
+```{r}
+# Fit logistic regression model
+logit_model <- glm(obese ~ age + gender + FTO, data = data, family = binomial)
+
+# View model summary
+summary(logit_model)
+```
+
+# Predictive Modelling
+
+## Predictive Modelling 
+
+*classification and regression*
+
+-   Focuses on building models that **predict outcomes** based on input features\
+    *e.g., predicting obesity status from clinical and gene expression data*
+
+. . .
+
+![](images/supervised-02.png){height="80%" width="80%" align="center"}
+
+## Predictive Modelling
+
+## Predictive Modelling
+
+*Many algorithms out there*
+
+<br>
+
+Common algorithms:
+
+-   KNN, k-Nearest Neighbors
+-   Random forest
+-   Support vector machines
+-   Regularized models
+-   PLS-based methods
+-   Neural networks
+-   Naive Bayes
+-   Gaussian Processes
+-   Ensemble Methods
+
+## Predictive Modelling
+
+*Many algorithms out there*
+
+<br>
+
+Common algorithms:
+
+-   KNN, k-Nearest Neighbors
+-   **Random forest**
+-   **Support vector machines**
+-   **Regularized models**
+-   **PLS-based methods**
+-   **Neural networks**
+-   Naive Bayes
+-   Gaussian Processes
+-   **Ensemble Methods**
+
+## Predictive Modelling {.smaller}
+
+*Lasso regularization*
+
+<br>
+
+:::::: columns
+::: {.column width="45%"}
+**Linear regression** fits a line by minimizing squared errors
+
+-   ⚠️ with many predictors, especially correlated ones,\
+    the model can **overfit** and become **hard to interpret**
+
+<br>
+
+**Lasso (Least Absolute Shrinkage and Selection Operator)**\
+adds a **penalty on the absolute size** of coefficients:
+
+$$ \text{Minimize: } \text{RSS} + \lambda \sum_{j=1}^{p}|\beta_j|$$
+
+<br>
+
+**λ (lambda)** is the regularization parameter:
+
+-   Controls the strength of the penalty\
+-   Large λ → more shrinkage → more coefficients set to **zero** (feature selection)
+-   Small λ → less shrinkage → behaves more like ordinary regression
+:::
+
+::: {.column width="10%"}
+:::
+
+::: {.column width="45%"}
+```{r}
+#| fig-height: 6
+
+y <- data$BMI[1:30]
+x <- data$FTO[1:30]
+
+# RSS
+plot(x, y, pch=19, xlab="FTO", ylab="BMI", main = "RSS", cex.main = 1.5, cex.lab = 1.5, cex.axis = 1.5)
+abline(lm(y ~ x), col=mycols[1], lwd = 2)
+model <- lm(y ~ x)
+
+for (i in 1:length(x)){
+  segments(x[i], y[i], x[i], model$fitted.values[i], col = mycols[2], lwd = 2, lty = 2)
+}
+
+```
+
+
+```{r}
+#| fig-height: 6
+
+library(glmnet)
+library(latex2exp)
+
+set.seed(123)
+data_obesity <- read_csv("data/data-obesity.csv")
+data_expr <- read_csv("data/data-obesity-genes.csv")
+data <- data_obesity %>%
+  select(-bp.1s, -bp.2s, -bp.1d, -bp.2d, -obese) %>%
+  na.omit() %>%
+  left_join(data_expr, by = "id")
+
+x <- data %>%
+  select(-id, -BMI) 
+
+ft <- c("waist", "age", "FTO", colnames(data_expr)[2:10])
+
+x <- x %>%
+  select(all_of(ft)) %>% 
+  as.matrix() %>%
+  scale()
+
+y <- data$BMI
+
+# Lasso model
+# model <- cv.glmnet(x, y, alpha = 1, standardize = FALSE)
+model <- glmnet(x, y, alpha=1, lambda = seq(0, 1.5, 0.1))
+
+# plot beta estimates vs. lambda
+df_betas <- model$beta %>% 
+  as.matrix() %>% 
+  as_tibble(rownames = "var") %>% 
+  pivot_longer(-var, names_to = "lambda_name", values_to = "beta") 
+  
+df_lambda <- data_frame(lambda_name = colnames(model$beta), lambda= model$lambda) %>%
+  as_tibble()
+
+data_plot <- df_betas %>%
+  left_join(df_lambda, by = "lambda_name") 
+
+font_size = 18
+data_plot %>%
+  ggplot(aes(x = lambda, y = beta, color = var)) +
+  geom_line(linewidth = 2, alpha = 0.7) + 
+  theme_bw() +
+  xlab(TeX("$\\lambda$")) + 
+  ylab(TeX("Standardized coefficients")) + 
+  scale_color_manual(values = colorRampPalette(brewer.pal(12, "Set1"))(nrow(model$beta))) +
+  theme(legend.title = element_blank(), legend.position = "top", legend.text = element_text(size=font_size)) + 
+  theme(axis.title = element_text(size = font_size), axis.text = element_text(size = font_size)) + 
+  theme(title = element_text(size = font_size)) + 
+  ylim(c(-1, 1.5))
+
+```
+:::
+::::::
+
+## Data splitting 
+
+*data splitting strategies*
+
+<br>
+
+:::: {.columns}
+
+::: {.column width="45%"}
+
+🧪 **Train / Validation / Test**
+
+Split data once:
+
+- [Train ][Validation ][Test ]
+- [60–70% data ][15–20% data][15–20% data]
+- Train model, tune on validation, evaluate on test
+
+<br>
+
+🔁 **k-Fold Cross-Validation (e.g. k = 5)**
+
+Rotate test set across folds:
+
+- [Fold1][Fold2][Fold3][Fold4][Fold5]
+- Test Train Train Train Train
+- Every sample is tested once
+:::
+
+
+::: {.column width="10%"}
+
+:::
+
+::: {.column width="45%"}
+🔁🔁 **Repeated k-Fold Cross-Validation**
+
+- Repeat k-fold multiple times
+
+<br>
+<br>
+<br>
+
+
+🧍 **Leave-One-Out CV (LOOCV)**
+
+Each sample is its own test set:
+
+- [Train: n-1 samples] → [Test: 1 sample]
+
+:::
+
+::::
+
+
+## Model Evaluation Metrics {.smaller}
+
+<br>
+
+|               | Predicted: Yes | Predicted: No |
+|---------------|----------------|---------------|
+| **Actual: Yes** | True Positive (TP) | False Negative (FN) |
+| **Actual: No**  | False Positive (FP)| True Negative (TN)  |
+
+<br>
+
+:::: {.columns}
+
+::: {.column width="45%"}
+
+**Classification Metrics**
+
+- **Accuracy**
+  - Overall proportion of correct predictions  
+- **Precision** TP / (TP + FP)  
+  - Of all the samples the model predicted as positive (e.g. obese), how many were actually correct?
+- **Specificity** TN / (TN + FP)
+  - The proportion of actual negatives (e.g. non-obese individuals) that are correctly predicted as negative
+- **Recall (Sensitivity)** TP / (TP + FN)  
+  - Of all the actual positives (true obese cases), how many did the model catch?
+- **F1 Score** Harmonic mean of precision and recall  
+  - F1 balances both precision and recall
+- **AUC** – Measures overall discrimination
+
+:::
+
+::: {.column width="10%"}
+
+:::
+
+::: {.column width="45%"}
+
+**Regression Metrics**
+
+- **RMSE** – Root Mean Squared Error  
+- **MAE** – Mean Absolute Error  
+- **R²** – Proportion of variance explained
+
+:::
+
+::::
+
+
+
+## Bias & Ethical Issues in the Data Analysis Lifecycle
+
+<br>
+
+Bias and fairness concerns can appear at **many stages** of a typical data science workflow:
+
+::: incremental
+
+- 🧩 **Problem definition**  
+  - Is the question framed fairly? Who benefits from the results?
+
+- 📥 **Data collection**  
+  - Underrepresentation of certain groups, Historical or measurement bias
+
+- 🧼 **Data cleaning / preprocessing**  
+  - Imputation choices may favor dominant groups. Inconsistent category labels can skew analysis
+
+- 🔍 **Exploration & modeling**  
+  - Spurious associations misinterpreted as causal. Feature selection may reflect biased patterns.
+
+- 🧠 **Predictive modeling**  
+  - Algorithms may **amplify existing inequalities**. Biased training data → biased predictions
+
+- 📢 **Communication & use**  
+  - Misleading visualizations or overclaims. Lack of transparency in methods or assumptions
+
+:::
+
+# Finally
+
+## Summary
+
+<br>
+
+::: incremental
+
+- We reviewed common data analysis steps in life science projects.
+- Even though we all work on different projects and across various types of omics data, many of the core steps in data analysis are shared.
+- Don’t worry if some concepts felt too easy or too advanced — we’ll build and explore them together throughout the week.
+
+:::
+
+. . .
+
+And speaking of practice, let's dive into the tutorial.
+
+
+## Thank you
+
+questions?
+
+## References
+
+
+

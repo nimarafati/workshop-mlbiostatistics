@@ -542,11 +542,9 @@ As a reminder, Lasso logistic regression is a form of *penalized logistic regres
 
 In standard logistic regression, we model the log-odds of a binary outcome as a linear combination of predictors. However, when the number of predictors is large, or when predictors are correlated, the model can become unstable or overfit.
 
-To address this, **Lasso** (Least Absolute Shrinkage and Selection Operator) adds a penalty term to the likelihood function:
+To address this, **Lasso** (Least Absolute Shrinkage and Selection Operator) adds a penalty term to the likelihood function and we minimize the following loss function:
 
-$$
-\text{Loss} = - \text{Log Likelihood} + \lambda \sum_{j=1}^p |\beta_j|
-$$
+$$ \text{Minimize: } \text{RSS} + \lambda \sum_{j=1}^{p}|\beta_j|$$
 
 - The *log-likelihood* measures how well the model fits the data.
 - The *L1 penalty* shrinks some coefficients exactly to **zero**, effectively selecting a subset of predictors.
