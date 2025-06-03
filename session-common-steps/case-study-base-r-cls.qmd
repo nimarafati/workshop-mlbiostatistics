@@ -21,7 +21,6 @@ knitr:
     collapse: true
     eval: true
     fig.show: hold
-    
 ---
 
 # A case study: understanding obesity
@@ -31,7 +30,6 @@ Let's go through a case study to illustrate the common steps in a life science d
 Our goal is to better understand obesity, particularly whether there are any genes associated with obesity status ("Yes").
 
 This tutorial serves as a refresher on key concepts from our foundation course, Introduction to Biostatistics and Machine Learning. Please make sure you follow and understand each step, as we will build on these methods throughout the week.
-
 
 ```{r}
 #| label: simulate-data
@@ -104,7 +102,6 @@ for (gene in obesity_genes) {
   sim_matrix[data$obese == "No", idx]  <- rnorm(sum(data$obese == "No"), mean = 0, sd = 1)
 }
 
-
 # Convert to data frame and combine with original data
 gene_df <- as.data.frame(sim_matrix)
 gene_df <- gene_df %>%
@@ -126,6 +123,7 @@ write_csv(gene_df, "data/data-obesity-genes.csv")
 ```
 
 ## Load packages
+
 ```{r}
 #| label: load-packages
 
@@ -140,6 +138,7 @@ library(ranger) # for random forest
 ```
 
 ## Load Data
+
 ```{r}
 #| label: load-data
 
@@ -172,6 +171,7 @@ print(data_expr[1:5, 1:5])
 ```
 
 ## Perform EDA
+
 ```{r}
 #| label: explore-data
 
@@ -274,10 +274,10 @@ ggcorrplot(data_cor, hc.order = TRUE, lab = FALSE)
 
 ### Task I: PCA
 
-Write your own code to perform PCA on the gene expression data. 
+Write your own code to perform PCA on the gene expression data.
 
-1. Make a scores plot and color by obesity status. Would you say that the groups separate well?
-2. Which genes contribute the most to the first principal component (PC1)?
+1.  Make a scores plot and color by obesity status. Would you say that the groups separate well?
+2.  Which genes contribute the most to the first principal component (PC1)?
 
 ```{r}
 #| label: pca
@@ -376,11 +376,11 @@ print(summary(model))
 
 Are there any other genes associated with obesity status?
 
-- Write your own code to fit logistic regression models, including age, height and gender as covariates (known confounders from prior studies).
-- Adjust your p-values for multiple testing using the Benjamini-Hochberg method.
+-   Write your own code to fit logistic regression models, including age, height and gender as covariates (known confounders from prior studies).
+-   Adjust your p-values for multiple testing using the Benjamini-Hochberg method.
 
-1. What are the top 5 genes associated with obesity status after FDR adjustment?
-2. How many genes show statistically significant association with obesity status at a false discovery rate (FDR) threshold of 0.05?
+1.  What are the top 5 genes associated with obesity status after FDR adjustment?
+2.  How many genes show statistically significant association with obesity status at a false discovery rate (FDR) threshold of 0.05?
 
 ```{r}
 #| label: logistic-regression
@@ -434,6 +434,7 @@ cat("Number of significant genes after FDR adjustment:", significant_genes, "\n"
 If instead of testing for associations we want to build a predictive model to predict obesity status based on gene expression data, we could use machine learning methods such as Lasso regression or Random Forest. Let's do just that, and see which method will results in a better prediction performance.
 
 ### Split Data
+
 ```{r}
 #| label: split-data
 #| eval: true
@@ -454,6 +455,7 @@ data_train <- data[-test_index, ]
 ```
 
 ### Feature Engineering and Scaling
+
 ```{r}
 #| label: feature-eng
 #| eval: true
@@ -501,6 +503,7 @@ train_sds <- attr(x_train_scaled, "scaled:scale")
 ```
 
 ### Prepare Test Data with Same Processing
+
 ```{r}
 #| label: process-test-data
 #| eval: true
@@ -546,13 +549,12 @@ To address this, **Lasso** (Least Absolute Shrinkage and Selection Operator) add
 
 $$ \text{Minimize: } \text{RSS} + \lambda \sum_{j=1}^{p}|\beta_j|$$
 
-- The *log-likelihood* measures how well the model fits the data.
-- The *L1 penalty* shrinks some coefficients exactly to **zero**, effectively selecting a subset of predictors.
-- The tuning parameter **λ** (lambda) controls the strength of regularization:
-  - When λ = 0 → standard logistic regression
-  - As λ increases → more coefficients shrink to zero
+-   The *L1 penalty* shrinks some coefficients exactly to **zero**, effectively selecting a subset of predictors.
+-   The tuning parameter **λ** (lambda) controls the strength of regularization:
+    -   When λ = 0 → standard logistic regression
+    -   As λ increases → more coefficients shrink to zero
 
-Lasso automatically excludes irrelevant predictors and results in a spare model, easy to interpret. 
+Lasso automatically excludes irrelevant predictors and results in a spare model, easy to interpret.
 
 ```{r}
 #| label: fit-lassso
@@ -574,6 +576,7 @@ cat("Best lambda:", best_lambda)
 ```
 
 ### Evaluate Model on Test Data
+
 ```{r}
 #| label: evaluate-model
 #| eval: true
@@ -625,6 +628,7 @@ cat("AUC:", round(auc_val, 3), "\n")
 ```
 
 ### Variable Importance Plot
+
 ```{r}
 #| label: vip
 #| eval: true
@@ -661,14 +665,14 @@ The Variable Importance plot shows that several well-known obesity-related genes
 
 A **decision tree** is a simple, rule-based model used for classification or regression.
 
-- It splits the data into **branches** based on predictor variables.
-- Each split is chosen to **maximize separation** between outcomes (e.g., using Gini impurity or information gain for classification).
-- The tree continues splitting until a stopping rule is met (e.g., minimum node size or depth).
+-   It splits the data into **branches** based on predictor variables.
+-   Each split is chosen to **maximize separation** between outcomes (e.g., using Gini impurity or information gain for classification).
+-   The tree continues splitting until a stopping rule is met (e.g., minimum node size or depth).
 
 A tree predicting obesity status might learn rules like:
 
-- If FTO expression > 1.5 → predict "obese"
-- Else if height < 165 cm → predict "not obese"
+-   If FTO expression \> 1.5 → predict "obese"
+-   Else if height \< 165 cm → predict "not obese"
 
 Decisions tree are easy to interpret, handles both numerical and categorical data and aptures non-linear relationships. However, a single tree is unstable and often overfit the training data.
 
@@ -676,18 +680,18 @@ A **Random Forest** solves the overfitting problem by building an **ensemble of 
 
 The *"forest"* part:
 
-- It trains **hundreds of decision trees**.
-- Each tree makes its own prediction.
-- The forest combines these:
-  - For classification: majority vote
-  - For regression: average of predictions
+-   It trains **hundreds of decision trees**.
+-   Each tree makes its own prediction.
+-   The forest combines these:
+    -   For classification: majority vote
+    -   For regression: average of predictions
 
 The *"random"* part:
 
 Randomness is introduced in two ways to make each tree different:
 
-1. Bootstrap sampling: each tree is trained on a **random sample** (with replacement) of the data.
-2. Random feature selection:  At each split, the tree considers a **random subset of predictors**, not all of them.
+1.  Bootstrap sampling: each tree is trained on a **random sample** (with replacement) of the data.
+2.  Random feature selection: At each split, the tree considers a **random subset of predictors**, not all of them.
 
 These random elements help diversify the trees, reduce overfitting, and improve generalization.
 
@@ -772,7 +776,7 @@ ggplot(importance_df[1:20, ], aes(x = reorder(feature, importance), y = importan
 
 The Random Forest model achieved an accuracy of 72.6% and an AUC of 0.87, which is notably lower than the Lasso model's accuracy (87.7%) and AUC (0.97). While RF achieved a very low false positive rate (only 1 false positive), it struggled to correctly identify obese individuals, with only 7 true positives and 19 false negatives, indicating low recall.
 
-The Random Forest model highlights POMC, PCSK1, FTO, LEP, MC4R, and LEPR as the top features contributing to classification accuracy, consistent with the Lasso model, where the same genes were also selected with large coefficients, suggesting strong and reproducible signals across methods. However, it does not identify height nor frame size as important features, which were retained in the Lasso model, instead it is reporting hdl. 
+The Random Forest model highlights POMC, PCSK1, FTO, LEP, MC4R, and LEPR as the top features contributing to classification accuracy, consistent with the Lasso model, where the same genes were also selected with large coefficients, suggesting strong and reproducible signals across methods. However, it does not identify height nor frame size as important features, which were retained in the Lasso model, instead it is reporting hdl.
 
 We have however only run Random Forest with default parameters, and it is most likely it is not optimally tuned for this dataset. Random Forests are powerful but can be sensitive to hyperparameters, such as the number of trees, the number of features considered at each split (`mtry`), and the minimum size of terminal nodes (`min.node.size`).
 
@@ -782,13 +786,13 @@ To improve the Random Forest model's performance, tune its hyperparameters using
 
 To keep it simple, you can try the below values of mtry and min.node.size
 
-- mtry = c(5, 10, 20, 50),
-- min.node.size = c(1, 5, 10)
+-   mtry = c(5, 10, 20, 50),
+-   min.node.size = c(1, 5, 10)
 
 After finding the best combination of hyperparameters, compare the tuned Random Forest model's performance to the default Random Forest model and the Lasso model.
 
-1. Which combination of `mtry` and `min.node.size` resulted in the highest AUC? 
-2. How does the tuned model’s performance compare to the default Random Forest model? How does it compare to the Lasso model?
+1.  Which combination of `mtry` and `min.node.size` resulted in the highest AUC?
+2.  How does the tuned model’s performance compare to the default Random Forest model? How does it compare to the Lasso model?
 
 ```{r}
 #| code-fold: true
@@ -853,5 +857,3 @@ cat("Tuned RF Accuracy:", round(accuracy, 3), "\n")
 cat("Tuned RF AUC:", round(auc_val, 3), "\n")
 
 ```
-
-
