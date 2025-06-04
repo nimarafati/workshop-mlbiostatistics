@@ -1,0 +1,3 @@
+# Introduction
+
+This tutorial is intended as a refresher of the common data analysis steps, such as exploratory data analysis, statistical testing, as well as building and evaluating predictive models. 

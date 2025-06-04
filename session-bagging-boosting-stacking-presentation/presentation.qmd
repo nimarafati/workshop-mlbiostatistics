@@ -1,0 +1,90 @@
+---
+title: "Bagging, boosting, and stacking"
+format: 
+  revealjs:
+    slide-number: true
+    view-distance: 10
+    theme: [default, custom.scss]
+    chalkboard: 
+      buttons: true
+  html:
+    code-fold: false
+editor_options: 
+  chunk_output_type: console
+bibliography: references.bib
+---
+
+```{r}
+#| message: false
+#| warning: false
+
+# load libraries
+library(tidyverse)
+library(magrittr)
+library(kableExtra)
+library(ggplot2)
+library(rmarkdown)
+library(ggbeeswarm)
+library(gridExtra)
+library(ggmosaic)
+library(scales)
+library(ggthemes)
+```
+
+## Introduction
+
+<br>
+
+## Methods {.smaller}
+
+<br>
+
+| **Family**         | Method Examples                                                                                             | **Strength**                                                         |
+| ------------------ | ----------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------- |
+| **Linear**         | Regularized regression: LASSO, Ridge, Elastic Net,                       | Interpretability, fast, works well with high-dimensional sparse data |
+| **Tree-Based**     | Decision Trees, Random Forest, XGBoost                                      | Non-linear modeling, handles mixed data types, robust to outliers    |
+| **Distance-Based** | KNN, Radius Neighbors, Mahalanobis classifier                           | Simple, non-parametric, no training phase                            |
+| **Margin-Based**   | Support Vector Machines (SVM), Max-Margin Markov Networks, Large Margin Nearest Neighbor (LMNN) | Effective in high dimensions, especially with kernels                |
+| **Neural Nets**    | CNN, RNN, Autoencoders                                                              | Highly flexible, works with unstructured data (images, sequences)    |
+    |
+. . .
+
+<br>
+<br>
+
+💬 
+
+- Does it make sense to combine different modeling approaches? 
+- Why might we use multiple models instead of relying on a single one? 
+- What are the potential benefits or trade-offs?
+
+
+# Methods
+
+## KNN
+
+## SVM
+
+## Random Forest
+
+# Bagging
+
+# Boosting
+
+XGBoost
+
+# Stacking
+
+## Beyond bagging, boosting, and stacking
+
+## More of each family
+
+## Summary 
+
+## Lab
+
+## Thank you
+
+Questions?
+
+## References
