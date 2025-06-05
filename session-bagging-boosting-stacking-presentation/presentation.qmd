@@ -702,7 +702,116 @@ rpart.plot(fit, extra = 104)
 The parameters balance **tree complexity** and **generalization**  
 
 
-## Random Forest 🌳 🌳 🌳 {.smaller}
+## Random Forest 🌳 🌳 🌳 🌳 🌳 {.smaller}
+
+<br>
+
+**Ensemble of decision trees:**  
+
+- Each tree is trained on a **bootstrap sample** of the data  
+- At each split, only a **random subset of features** is considered
+
+<br>
+
+. . .
+
+**Why this works:**  
+
+- Trees become **de-correlated**  
+- Averaging their predictions reduces **variance**  
+- More stable and accurate than a single decision tree
+
+## Random Forest 🌳 🌳 🌳 🌳 🌳 {.smaller}
+
+<br>
+
+:::: {.columns}
+
+::: {.column width="45%"}
+
+**Key Parameters:**  
+
+- `ntree`: Number of trees (more = better, up to a point)  
+- `mtry`: Number of features to consider at each split  
+- `nodesize`: Minimum size of terminal nodes
+
+<br>
+
+**Variable importance**  
+
+- Since each tree sees a bootstrap sample, 
+- and at each split only a random subset of features is considered (fair competition)
+- we can estimate how important each feature is. 
+- Variable importance is calculated as:
+  - total decrease in Gini or entropy from splits using a feature, summed across all trees
+  - or the drop in accuracy when a feature is randomly permuted (permutation importance)
+
+:::
+
+::: {.column width="10%"}
+:::
+
+::: {.column width="45%"}
+
+```{r}
+#| fig-height: 6
+
+library(randomForest)
+rf_model <- randomForest(Species ~ ., data = iris, ntree = 200, mtry = 2)
+
+# Extract and prepare importance as a data frame
+importance_df <- as.data.frame(importance(rf_model))
+importance_df$Variable <- rownames(importance_df)
+
+# Choose importance metric (MeanDecreaseGini or MeanDecreaseAccuracy)
+ggplot(importance_df, aes(x = reorder(Variable, MeanDecreaseGini), y = MeanDecreaseGini)) +
+  geom_col(fill = "#0072B2") +
+  coord_flip() +
+  labs(title = "Variable Importance (Random Forest)",
+       x = "",
+       y = "Mean Decrease in Gini") +
+  theme_minimal() + 
+  theme(axis.text.y = element_text(size = 20),
+        axis.title.x = element_text(size = 20),
+        axis.title.y = element_text(size = 20), 
+        title = element_text(size = 20), 
+        axis.text.x = element_text(size = 20)) 
+```
+
+:::
+
+::::
+
+
+
+## Random Forest 🌳 🌳 🌳 🌳 🌳 {.smaller}
+
+<br>
+
+**🔑 Key points:**
+
+- Ensemble of decision trees trained on bootstrap samples  
+- Each split considers a random subset of features
+- Improves stability and accuracy by averaging predictions across trees
+
+<br>
+
+. . .
+
+**✅ Pros:**
+
+- Robust to overfitting and noise  
+- Handles high-dimensional and mixed-type data  
+- No need for feature scaling
+- Provides built-in variable importance measures
+
+<br>
+
+. . .
+
+**❌ Cons:**
+
+- Less interpretable than a single decision tree  
 
 # Bagging, boosting, and stacking
 

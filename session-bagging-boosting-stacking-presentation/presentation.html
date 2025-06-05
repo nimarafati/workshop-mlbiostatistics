@@ -509,8 +509,100 @@
 </div>
 </section>
 <section id="random-forest" class="slide level2 smaller">
-<h2>Random Forest 🌳 🌳 🌳</h2>
+<h2>Random Forest 🌳 🌳 🌳 🌳 🌳</h2>
+<p><br></p>
+<p><strong>Ensemble of decision trees:</strong></p>
+<ul>
+<li>Each tree is trained on a <strong>bootstrap sample</strong> of the data<br>
+</li>
+<li>At each split, only a <strong>random subset of features</strong> is considered</li>
+</ul>
+<p><br></p>
+<div class="fragment">
+<p><strong>Why this works:</strong></p>
+<ul>
+<li>Trees become <strong>de-correlated</strong><br>
+</li>
+<li>Averaging their predictions reduces <strong>variance</strong><br>
+</li>
+<li>More stable and accurate than a single decision tree</li>
+</ul>
+</div>
+</section>
+<section id="random-forest-1" class="slide level2 smaller">
+<h2>Random Forest 🌳 🌳 🌳 🌳 🌳</h2>
+<p><br></p>
+<div class="columns">
+<div class="column" style="width:45%;">
+<p><strong>Key Parameters:</strong></p>
+<ul>
+<li><code>ntree</code>: Number of trees (more = better, up to a point)<br>
+</li>
+<li><code>mtry</code>: Number of features to consider at each split<br>
+</li>
+<li><code>nodesize</code>: Minimum size of terminal nodes</li>
+</ul>
+<p><br></p>
+<p><strong>Variable importance</strong></p>
+<ul>
+<li>Since each tree sees a bootstrap sample,</li>
+<li>and at each split only a random subset of features is considered (fair competition)</li>
+<li>we can estimate how important each feature is.</li>
+<li>Variable importance is calculated as:
+<ul>
+<li>total decrease in Gini or entropy from splits using a feature, summed across all trees</li>
+<li>or the drop in accuracy when a feature is randomly permuted (permutation importance)</li>
+</ul></li>
+</ul>
+</div><div class="column" style="width:10%;">
+
+</div><div class="column" style="width:45%;">
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure>
+<p><img data-src="presentation_files/figure-revealjs/unnamed-chunk-8-1.png" width="960"></p>
+</figure>
+</div>
+</div>
+</div>
+</div></div>
+</section>
+<section id="random-forest-2" class="slide level2 smaller">
+<h2>Random Forest 🌳 🌳 🌳 🌳 🌳</h2>
+<p><br></p>
+<p><strong>🔑 Key points:</strong></p>
+<ul>
+<li>Ensemble of decision trees trained on bootstrap samples<br>
+</li>
+<li>Each split considers a random subset of features</li>
+<li>Improves stability and accuracy by averaging predictions across trees</li>
+</ul>
+<p><br></p>
+<div class="fragment">
+<p><strong>✅ Pros:</strong></p>
+<ul>
+<li>Robust to overfitting and noise<br>
+</li>
+<li>Handles high-dimensional and mixed-type data<br>
+</li>
+<li>No need for feature scaling</li>
+<li>Provides built-in variable importance measures</li>
+</ul>
+<p><br></p>
+</div>
+<div class="fragment">
+<p><strong>❌ Cons:</strong></p>
+<ul>
+<li>Less interpretable than a single decision tree</li>
+</ul>
+</div>
 </section></section>
+<section id="bagging-boosting-and-stacking" class="title-slide slide level1 center">
+<h1>Bagging, boosting, and stacking</h1>
+
+</section>
+
 <section id="bagging" class="title-slide slide level1 center">
 <h1>Bagging</h1>
 
