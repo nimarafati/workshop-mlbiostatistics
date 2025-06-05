@@ -5,6 +5,8 @@ format:
     slide-number: true
     view-distance: 10
     theme: [default, custom.scss]
+    mermaid: 
+      theme: forest
     chalkboard: 
       buttons: true
   html:
@@ -815,13 +817,66 @@ ggplot(importance_df, aes(x = reorder(Variable, MeanDecreaseGini), y = MeanDecre
 
 # Bagging, boosting, and stacking
 
-# Bagging
+## Bagging
 
-# Boosting
+```{mermaid}
+
+flowchart LR
+  D[Original Data]
+  D --> B1[Bootstrap Sample 1]
+  D --> B2[Bootstrap Sample 2]
+  D --> B3[Bootstrap Sample 3]
+
+  B1 --> M1[Model 1]
+  B2 --> M2[Model 2]
+  B3 --> M3[Model 3]
+
+  M1 --> A[Aggregate Output]
+  M2 --> A
+  M3 --> A
+
+```
+
+
+## Boosting
+
+```{mermaid}
+
+flowchart LR
+  D[Original Data]
+  D --> M1[Model 1]
+  M1 --> R1[Residuals]
+  R1 --> M2[Model 2]
+  M2 --> R2[Residuals]
+  R2 --> M3[Model 3]
+
+  M3 --> A[Final Output]
+
+```
+
 
 XGBoost
 
-# Stacking
+## Stacking
+
+```{mermaid}
+flowchart LR
+  D[Training Data]
+  D --> M1[Model 1, e.g. KNN]
+  D --> M2[Model 2, e.g. SVM]
+  D --> M3[Model 3, e.g. RF]
+
+  M1 --> P1[Pred 1]
+  M2 --> P2[Pred 2]
+  M3 --> P3[Pred 3]
+
+  P1 --> ML[Meta-Learner]
+  P2 --> ML
+  P3 --> ML
+
+  ML --> Final[Final Prediction]
+```
+
 
 ## Beyond bagging, boosting, and stacking
 

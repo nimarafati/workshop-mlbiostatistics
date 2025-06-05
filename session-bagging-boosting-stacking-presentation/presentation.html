@@ -122,6 +122,10 @@
       margin-right: 0; 
     }
   </style>
+  <meta name="mermaid-theme" content="forest">
+  <script src="presentation_files/libs/quarto-diagram/mermaid.min.js"></script>
+  <script src="presentation_files/libs/quarto-diagram/mermaid-init.js"></script>
+  <link href="presentation_files/libs/quarto-diagram/mermaid.css" rel="stylesheet">
 </head>
 <body class="quarto-light">
   <div class="reveal">
@@ -598,25 +602,92 @@
 </ul>
 </div>
 </section></section>
+<section>
 <section id="bagging-boosting-and-stacking" class="title-slide slide level1 center">
 <h1>Bagging, boosting, and stacking</h1>
 
 </section>
+<section id="bagging" class="slide level2">
+<h2>Bagging</h2>
+<div class="cell" data-reveal="true" data-layout-align="default">
+<div class="cell-output-display">
+<div>
+<p></p><figure class=""><p></p>
+<div>
+<pre class="mermaid mermaid-js">flowchart LR
+  D[Original Data]
+  D --&gt; B1[Bootstrap Sample 1]
+  D --&gt; B2[Bootstrap Sample 2]
+  D --&gt; B3[Bootstrap Sample 3]
 
-<section id="bagging" class="title-slide slide level1 center">
-<h1>Bagging</h1>
+  B1 --&gt; M1[Model 1]
+  B2 --&gt; M2[Model 2]
+  B3 --&gt; M3[Model 3]
 
+  M1 --&gt; A[Aggregate Output]
+  M2 --&gt; A
+  M3 --&gt; A
+
+</pre>
+</div>
+<p></p></figure><p></p>
+</div>
+</div>
+</div>
 </section>
+<section id="boosting" class="slide level2">
+<h2>Boosting</h2>
+<div class="cell" data-reveal="true" data-layout-align="default">
+<div class="cell-output-display">
+<div>
+<p></p><figure class=""><p></p>
+<div>
+<pre class="mermaid mermaid-js">flowchart LR
+  D[Original Data]
+  D --&gt; M1[Model 1]
+  M1 --&gt; R1[Residuals]
+  R1 --&gt; M2[Model 2]
+  M2 --&gt; R2[Residuals]
+  R2 --&gt; M3[Model 3]
 
-<section id="boosting" class="title-slide slide level1 center">
-<h1>Boosting</h1>
+  M3 --&gt; A[Final Output]
+
+</pre>
+</div>
+<p></p></figure><p></p>
+</div>
+</div>
+</div>
 <p>XGBoost</p>
 </section>
+<section id="stacking" class="slide level2">
+<h2>Stacking</h2>
+<div class="cell" data-reveal="true" data-layout-align="default">
+<div class="cell-output-display">
+<div>
+<p></p><figure class=""><p></p>
+<div>
+<pre class="mermaid mermaid-js">flowchart LR
+  D[Training Data]
+  D --&gt; M1[Model 1, e.g. KNN]
+  D --&gt; M2[Model 2, e.g. SVM]
+  D --&gt; M3[Model 3, e.g. RF]
 
-<section>
-<section id="stacking" class="title-slide slide level1 center">
-<h1>Stacking</h1>
+  M1 --&gt; P1[Pred 1]
+  M2 --&gt; P2[Pred 2]
+  M3 --&gt; P3[Pred 3]
 
+  P1 --&gt; ML[Meta-Learner]
+  P2 --&gt; ML
+  P3 --&gt; ML
+
+  ML --&gt; Final[Final Prediction]
+</pre>
+</div>
+<p></p></figure><p></p>
+</div>
+</div>
+</div>
 </section>
 <section id="beyond-bagging-boosting-and-stacking" class="slide level2">
 <h2>Beyond bagging, boosting, and stacking</h2>
