@@ -1,5 +1,5 @@
 ---
-title: "Common steps"
+title: "Bagging, boosting and stacking"
 format:
   html:
     toc: true
@@ -16,7 +16,7 @@ knitr:
   opts_chunk: 
     message: false
     warning: false
-    code-fold: false
+    code-fold: show
     include: true
     collapse: true
     eval: true
@@ -25,12 +25,15 @@ knitr:
 
 # Introduction
 
-We are still working to better understand obesity. Previous studies have shown that the expression of several genes FTO, MC4R, LEP, LEPR, POMC, and PCSK1 is associated with the condition. However, it remains unclear whether these are the only genes involved. We are thus interested in exploring whether a predictive model can be built using less well-known genes along with clinical data.
+We are still working to better understand the biology of obesity. Previous studies have shown that the expression of several genes (FTO, MC4R, LEP) is associated with this condition. In this exercise, we are interested in building a predictive model for obesity based on gene expression data, focusing on less well-known genes.
 
-We will revisit Random Forest as an example of a bagging approach. Next, we will apply boosting using XGBoost. Finally, we will combine the predictions from multiple models using a stacking ensemble.
+We will explore three ensemble learning strategies:
+
+- Bagging, using Random Forest;
+- Boosting, using XGBoost;
+- Stacking, combining the predictions from KNN, SVM, and Random Forest, with logistic regression as a meta-learner.
 
 ## Load packages
-
 ```{r}
 #| label: load-packages
 
@@ -51,17 +54,11 @@ data_obesity <- read_csv("data/data-obesity.csv")
 
 # Load gene expression data
 data_expr <- read_csv("data/data-obesity-genes.csv")
+genes_all <- colnames(data_expr)[-1]  # Exclude the 'id' column
 
-# Known obesity genes
-genes_obesity <- c("FTO", "MC4R", "LEP", "LEPR", "POMC", "PCSK1")
-genes_all <- colnames(data_expr)[-1]
-genes_other <- setdiff(genes_all, genes_obesity)
-
-# Based on the number of missing data, let's delete bp.2s, bp.2d
-# and use complete-cases analysis 
-data_obesity <- data_obesity %>%
-  dplyr::select(-bp.2s, -bp.2d, -BMI, -hip) %>%
-  na.omit()
+# Genes
+gens_known <- c("FTO", "MC4R", "LEP")
+genes_other <- setdiff(genes_all, gens_known)
 
 ```
 
@@ -77,15 +74,8 @@ data_obesity <- data_obesity %>%
 # join gene expression data with clinical data
 data <- data_obesity %>%
   left_join(data_expr, by = "id") %>%
-  dplyr::select("obese", all_of(genes_other))
-
-data <- data_obesity %>%
-  left_join(data_expr, by = "id") %>%
-  dplyr::select("obese", all_of(genes_all))
-
-data <- data_obesity %>%
-  left_join(data_expr, by = "id") %>%
-  dplyr::select("obese", all_of(genes_all[1:100]))
+  dplyr::select("obese", all_of(genes_other)) %>%
+  na.omit()
 
 # three-way split: train (60%), validation (20%), test (20%)
 set.seed(123)
@@ -129,7 +119,6 @@ y_test <- ifelse(y_test == "Yes", 1, 0)
 ```
 
 ## Bagging: Random Forest
-
 ```{r}
 
 # Combine predictors and target into a single data frame for ranger
@@ -143,7 +132,6 @@ results <- expand.grid(
   mtry = c(5, 10, 20, 50),
   min.node.size = c(1, 5, 10)
 )
-
 
 # Create a function to evaluate AUC for a set of parameters
 tune_rf <- function(mtry_val, min_node) {
@@ -201,6 +189,9 @@ rf_acc <- accuracy
 rf_auc <- auc_val
 
 rf_best_parm <- best_params
+
+cat(sprintf("Random Forest Test Accuracy: %.3f\n", rf_acc))
+cat(sprintf("Random Forest Test AUC: %.3f\n", rf_auc))
 ```
 
 ```{r}
@@ -333,9 +324,7 @@ best_cost <- svm_results$cost[which.max(svm_results$AUC)]
 # Fit the final SVM model with the best cost
 svm_model <- svm(obese ~ ., data = data_train_svm, cost = best_cost, probability = TRUE)
 
-# Predict on validation and test sets
-#svm_valid_pred <- predict(svm_model, newdata = data_valid_svm, probability = TRUE)
-#svm_valid_probs <- attr(svm_valid_pred, "probabilities")[, "Yes"]
+# Predict on test sets
 svm_test_pred <- predict(svm_model, newdata = data_test, probability = TRUE)
 svm_test_probs <- attr(svm_test_pred, "probabilities")[, "Yes"]
 
@@ -345,6 +334,9 @@ svm_acc <- mean(svm_preds == data_test$obese)
 svm_auc <- auc(roc(data_test$obese, svm_test_probs, quiet = TRUE))
 
 svm_best_cost <- best_cost
+
+cat(sprintf("SVM Test Accuracy: %.3f\n", svm_acc))
+cat(sprintf("SVM Test AUC: %.3f\n", svm_auc))
 
 ```
 
@@ -364,8 +356,7 @@ for (i in seq_along(k_values)) {
 
 best_k <- knn_results$k[which.max(knn_results$AUC)]
 
-
-
+# Fit the final KNN model with the best k
 knn_test <- knn(train = x_train, test = x_test,
                 cl = data_train$obese, k = best_k, prob = TRUE)
 knn_test_probs <- ifelse(knn_test == "Yes", attr(knn_test, "prob"), 1 - attr(knn_test, "prob"))
@@ -374,13 +365,18 @@ knn_test_probs <- ifelse(knn_test == "Yes", attr(knn_test, "prob"), 1 - attr(knn
 knn_preds <- ifelse(knn_test_probs > 0.5, "Yes", "No")
 knn_acc <- mean(knn_preds == data_test$obese)
 knn_auc <- auc(roc(data_test$obese, knn_test_probs, quiet = TRUE))
+
+cat(sprintf("KNN Test Accuracy: %.3f\n", knn_acc))
+cat(sprintf("KNN Test AUC: %.3f\n", knn_auc))
 ```
 
 ### Stacking base models
 
-Meta-learner is trained on validation-set predicted probabilities from each base model (RF, SVM, KNN)
+The meta-learner is trained using the predicted probabilities from each base model (RF, SVM, KNN) on the validation set, learning how to best combine them.
 
 ```{r}
+# Meta-learner is trained on validation-set predicted probabilities from each base model (RF, SVM, KNN)
+
 # get validation probabilities for each tuned base model
 rf_valid_probs <- predict(rf_model, data = df_valid)$predictions[, "Yes"]
 svm_valid_probs <- predict(svm_model, newdata = data_valid_svm, probability = TRUE)
@@ -400,39 +396,34 @@ stack_valid <- data.frame(
 x_meta <- model.matrix(obese ~ . - 1, data = stack_valid)
 y_meta <- as.numeric(stack_valid$obese) - 1
 
-# Combine validation predictions for meta-model
+# Combine test predictions for meta-model
 stack_test <- data.frame(
   rf = predict(rf_model, data = df_test)$predictions[, "Yes"],
   svm = svm_test_probs,
   knn = knn_test_probs
 )
-
 x_stack_test <- model.matrix(~ . - 1, data = stack_test)
 
-```
-
-```{r}
 # Tune meta-model using Lasso regression
 meta_model <- cv.glmnet(x_meta, y_meta, family = "binomial", alpha = 1)
-
 best_lambda <- meta_model$lambda.min
 cat("Best lambda:", best_lambda)
 
+# Predict on test set using the meta-model
 stack_probs <- predict(meta_model, newx = x_stack_test, s = "lambda.min", type = "response")
 stack_preds <- ifelse(stack_probs > 0.5, "Yes", "No") |> factor(levels = c("No", "Yes"))
 
 # Accuracy and AUC for stacked ensemble
 stack_acc <- mean(stack_preds == data_test$obese)
 stack_auc <- auc(roc(data_test$obese, as.numeric(stack_preds == "Yes"), quiet = TRUE))
-
 ```
 
-## Results
+### Results
 
 ```{r}
-
+# Create a results table
 results_table <- data.frame(
-  Model = c("Random Forest", "XGBoost", "SVM", "KNN", "Stacked Ensemble"),
+  Model = c("Random Forest", "XGBoost", "SVM", "KNN", "Stacked"),
   Accuracy = c(rf_acc, xgb_acc, svm_acc, knn_acc, stack_acc),
   AUC = c(rf_auc, xgb_auc, svm_auc, knn_auc, stack_auc)
 )
@@ -441,7 +432,30 @@ results_table <- results_table %>%
   mutate(Accuracy = round(Accuracy, 2),
          AUC = round(AUC, 2)) 
 
-
 print(results_table)
 ```
 
+
+**Comments:** 
+
+- GBoost is clearly the best performer, with the highest accuracy (0.74) and AUC (0.82), indicating strong predictive power and probability calibration.
+- Random Forest performs moderately, with decent AUC (0.70) but lower accuracy than XGBoost.
+- SVM and KNN underperform both in accuracy and AUC, suggesting they may not be well-suited for the structure of the gene expression data.
+- Stacked Ensemble improves upon Random Forest and the weaker base models, but does not outperform XGBoost, showing accuracy of 0.68 and AUC of 0.66.
+- This suggests stacking helped stabilize performance, but couldn’t exceed the strongest individual learner, possibly due to weak or correlated base model predictions.
+
+To improve the stacking model, we could consider: 
+
+- Adding more diverse models, e.g. including XGBoost, or LASSO logistic regression, to reduce redundancy among base learners.
+- Tuning the meta-learner more carefully by trying both lambda.min and lambda.1se for LASSO; or trying different meta-learner
+- Including raw features in the meta-learner, e.g by combining predicted probabilities with a few key original features (e.g., top gene expressions) to provide richer inputs.
+- Checking for prediction correlation: High correlation between base model outputs reduces the benefit of stacking—replace or drop highly redundant learners.
+- Trying alternative performance metrics, e.g. if our main main goal is identifying obese individuals, we could consider optimizing for recall, F1-score, instead of accuracy or AUC.
+
+## Task I
+
+Experiment with the above suggestions, to see if you can improve the stacking model performance.
+
+## Task II
+
+Modify the above code for a regression task, predicting BMI instead of obesity. 
