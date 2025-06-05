@@ -35,6 +35,12 @@ library(ggthemes)
 
 <br>
 
+1. Why do we need multiple models?
+2. Review of KNN, SVM, and Random Forest
+3. Bagging
+4. Boosting
+5. Stacking
+
 ## Methods {.smaller}
 
 <br>
@@ -58,14 +64,647 @@ library(ggthemes)
 - Why might we use multiple models instead of relying on a single one? 
 - What are the potential benefits or trade-offs?
 
+. . .
+
+Some answers: 
+
+- Combining diverse models can capture different patterns and reduce error.
+- Multiple models can improve accuracy, reduce overfitting, and balance out individual model weaknesses.
+- There are trade-offs, such as increased complexity, lower interpretability, and higher computational cost.
 
 # Methods
 
+**KNN**, SVM and Random Forest
+
+
+## KNN 
+*example of a classification algorithm*
+```{r}
+#| label: fig-knn-create-points
+#| fig-cap: An example of k-nearest neighbours algorithm with k=3; in the top new observation (blue) is closest to three red triangales and thus classified as a red triangle; in the bottom, a new observation (blue) is closest to 2 black dots and 1 red triangle thus classified as a black dot (majority vote)
+
+# Example data
+n1 <- 10
+n2 <- 10
+set.seed(1)
+x <- c(rnorm(n1, mean=0, sd=1), rnorm(n2, mean=0.5, sd=1))
+y <- rnorm(n1+n2, mean=0, sd=1)
+
+group <- rep(1, (n1+n2))
+group[1:n1] <- 0
+idx.1 <- which(group==0)
+idx.2 <- which(group==1)
+
+# new points
+p1 <- c(1.5, 0.5)
+p2 <- c(0, 0.6)
+
+# distance 
+dist.1 <- c()
+dist.2 <- c()
+for (i in 1:length(x))
+{
+  dist.1[i] <- round(sqrt((p1[1]-x[i])^2 + (p1[2]-y[i])^2),2)
+  dist.2[i] <- round(sqrt((p2[1]-x[i])^2 + (p2[2]-y[i])^2),2)
+}
+
+# find nearest friends
+n.idx1 <- order(dist.1)
+n.idx2 <- order(dist.2)
+
+```
+
+```{r}
+#| label: fig-knn-00
+#| fig-width: 4
+#| fig-height: 5
+#| include: false
+
+# a) 
+par(mar=(c(3, 3, 1, 1)))
+plot(x[idx.1],y[idx.1], pch=0, las=1, xlim=c(min(x), max(x)), ylim=c(min(y), max(y)), xlab="x", ylab="y")
+points(x[idx.2], y[idx.2], pch=2, col="red")
+#points(p1[1], p1[2], pch=13, col="blue", cex=2)
+
+```
+
+```{r}
+#| label: fig-knn-01
+#| fig-width: 4
+#| fig-height: 5
+#| include: false
+
+# b) 
+par(mar=(c(3, 3, 1, 1)))
+plot(x[idx.1],y[idx.1], pch=0, las=1, xlim=c(min(x), max(x)), ylim=c(min(y), max(y)), xlab="x", ylab="y")
+points(x[idx.2], y[idx.2], pch=2, col="red")
+points(p1[1], p1[2], pch=13, col="blue", cex=2)
+
+```
+
+```{r}
+#| label: fig-knn-02
+#| fig-width: 4
+#| fig-height: 5
+#| include: false
+
+# c) 
+par(mar=(c(3, 3, 1, 1)))
+plot(x[idx.1],y[idx.1], pch=0, las=1, xlim=c(min(x), max(x)), ylim=c(min(y), max(y)), xlab="x", ylab="y")
+points(x[idx.2], y[idx.2], pch=2, col="red")
+points(p1[1], p1[2], pch=13, col="blue", cex=2)
+points(x[n.idx1[1:3]], y[n.idx1[1:3]], pch=17, col="red")
+
+```
+
+```{r}
+#| label: fig-knn-03
+#| fig-width: 4
+#| fig-height: 5
+#| include: false
+
+# d) 
+par(mar=(c(3, 3, 1, 1)))
+plot(x[idx.1],y[idx.1], pch=0, las=1, xlim=c(min(x), max(x)), ylim=c(min(y), max(y)), xlab="x", ylab="y")
+points(x[idx.2], y[idx.2], pch=2, col="red")
+points(p1[1], p1[2], pch=17, col="red", cex=3)
+points(x[n.idx1[1:3]], y[n.idx1[1:3]], pch=17, col="red")
+
+```
+
+:::{.r-stack}
+![](presentation_files/figure-revealjs/fig-knn-00-1.png){.fragment width="700" height="600"}
+
+![](presentation_files/figure-revealjs/fig-knn-01-1.png){.fragment width="700" height="600"}
+
+![](presentation_files/figure-revealjs/fig-knn-02-1.png){.fragment width="700" height="600"}
+
+![](presentation_files/figure-revealjs/fig-knn-03-1.png){.fragment width="700" height="600"}
+:::
+
+
 ## KNN
+*example of a classification algorithm*
+
+```{r}
+#| label: fig-knn-10
+#| fig-width: 4
+#| fig-height: 5
+#| include: false
+
+par(mar=(c(3, 3, 1, 1)))
+plot(x[idx.1],y[idx.1], pch=0, las=1, xlim=c(min(x), max(x)), ylim=c(min(y), max(y)), xlab="x", ylab="y")
+points(x[idx.2], y[idx.2], pch=2, col="red")
+```
+
+```{r}
+#| label: fig-knn-20
+#| fig-width: 4
+#| fig-height: 5
+#| include: false
+
+par(mar=(c(3, 3, 1, 1)))
+plot(x[idx.1],y[idx.1], pch=0, las=1, xlim=c(min(x), max(x)), ylim=c(min(y), max(y)), xlab="x", ylab="y")
+points(x[idx.2], y[idx.2], pch=2, col="red")
+points(p2[1], p2[2], pch=13, col="blue", cex=2)
+
+```
+
+```{r}
+#| label: fig-knn-30
+#| fig-width: 4
+#| fig-height: 5
+#| include: false
+
+par(mar=(c(3, 3, 1, 1)))
+plot(x[idx.1],y[idx.1], pch=0, las=1, xlim=c(min(x), max(x)), ylim=c(min(y), max(y)), xlab="x", ylab="y")
+
+points(x[idx.2], y[idx.2], pch=2, col="red")
+points(p2[1], p2[2], pch=13, col="blue", cex=2)
+points(x[n.idx2[1]], y[n.idx2[1]], pch=17, col="red")
+points(x[n.idx2[2:3]], y[n.idx2[2:3]], pch=19, col="black")
+
+```
+
+```{r}
+#| label: fig-knn-40
+#| fig-width: 4
+#| fig-height: 5
+#| include: false
+
+
+par(mar=(c(3, 3, 1, 1)))
+plot(x[idx.1],y[idx.1], pch=0, las=1, xlim=c(min(x), max(x)), ylim=c(min(y), max(y)), xlab="x", ylab="y")
+points(x[idx.2], y[idx.2], pch=2, col="red")
+points(p2[1], p2[2], pch=15, col="black", cex=2)
+points(x[n.idx2[1]], y[n.idx2[1]], pch=17, col="red")
+points(x[n.idx2[2:3]], y[n.idx2[2:3]], pch=19, col="black")
+
+```
+
+:::{.r-stack}
+![](presentation_files/figure-revealjs/fig-knn-10-1.png){.fragment width="700" height="600"}
+
+![](presentation_files/figure-revealjs/fig-knn-20-1.png){.fragment width="700" height="600"}
+
+![](presentation_files/figure-revealjs/fig-knn-30-1.png){.fragment width="700" height="600"}
+
+![](presentation_files/figure-revealjs/fig-knn-40-1.png){.fragment width="700" height="600"}
+:::
+
+## KNN {.smaller}
+
+*K-Nearest Neighbors (KNN)*
+
+- **Family:** Distance-based, non-parametric classification or regression
+- **Idea:** To classify a new observation, find the *k* closest points in the training data and let them "vote" on the outcome.
+
+
+. . .
+
+<br>
+<br>
+
+**How it works**
+
+::: incremental
+
+1. Choose a value of **k** (e.g., 3 or 5)
+2. Compute distance (e.g., Euclidean) from the new point to all training points
+3. Select the k nearest neighbors
+4. Predict:
+   - **Classification:** majority class among neighbors
+   - **Regression:** average of neighbors’ values
+
+:::
+
+## KNN {.smaller}
+
+<br>
+
+**🔑 Key points:**
+
+- No training phase: KNN just stores the data
+- Sensitive to scaling: Features must be normalized
+- Choice of distance metric matters: Euclidean, Manhattan, or Mahalanobis
+
+<br>
+
+. . . 
+
+**✅ Pros:**
+
+- Simple and intuitive
+- Works well with local structure
+
+<br>
+
+. . .
+
+**❌ Cons:**
+
+- Slow on large datasets
+- Sensitive to irrelevant features
+- Doesn’t work well in high dimensions (curse of dimensionality)
+
+# Methods
+
+KNN, **SVM** and Random Forest
 
 ## SVM
 
-## Random Forest
+*Support Vector Machine classifier*
+
+:::: {.columns}
+
+::: {.column width="45%"}
+
+SVM
+
+- based on fitting a linear class boundary between 2 classes in explanatory variable space
+- points on one side are predicted to belong to one class, points on the other side to another class
+- classes ($g_i$) are coded as -1 and 1
+- the boundary is defined by a hyperplane $\mathbf{w}^T \mathbf{x} + b = 0$, where $\mathbf{x}$ is the weight vector and $b$ is a scalar
+- and in 2D, the hyperplane is a line
+
+:::
+
+::: {.column width="5%"}
+
+:::
+
+::: {.column width="50%"}
+```{r}
+#| fig-width: 6
+#| fig-height: 7
+
+# Load required packages
+library(e1071)
+library(tidyverse)
+library(ggthemes)
+
+# Generate clearly separable data
+set.seed(42)
+n <- 100
+x1 <- c(rnorm(n, mean = -2.5), rnorm(n, mean = 2.5))
+x2 <- c(rnorm(n, mean = -2.5), rnorm(n, mean = 2.5))
+y <- factor(rep(c("A", "B"), each = n))
+df <- data.frame(x1 = x1, x2 = x2, y = y)
+
+# Fit linear SVM
+svm_model <- svm(y ~ ., data = df, kernel = "linear", cost = 1, scale = TRUE)
+
+# Mark support vectors
+df$sv <- 0
+df$sv[svm_model$index] <- 1
+
+# Extract weights and intercept for decision boundary
+w <- t(svm_model$coefs) %*% svm_model$SV
+b <- -svm_model$rho
+
+# Function for decision boundary
+line_eq <- function(x, w, b) {
+  (-w[1] * x - b) / w[2]
+}
+
+ggplot(df, aes(x = x1, y = x2, color = y)) +
+  geom_point(size = 3, alpha = 0.9) +
+  stat_function(fun = function(x) line_eq(x, w, b), color = "black", size = 1.2) +
+  scale_shape_manual(values = c(16, 17), labels = c("Regular", "Support Vector")) +
+  labs(title = "Linear SVM: Decision Boundary",
+       subtitle = "Support vectors determine the boundary",
+       shape = "Point Type") +
+  theme_minimal() +
+  scale_color_tableau(palette = "Tableau 10") +
+  scale_fill_tableau(palette = "Tableau 10") +
+  theme(legend.position = "bottom")
+
+
+```
+
+:::
+
+::::
+
+## SVM
+
+*Support Vector Machine classifier*
+
+:::: {.columns}
+
+::: {.column width="45%"}
+
+**Optimal separating hyperplane:**
+
+- Maximizes the margin between classes
+- Margin = distance between the hyperplane and the closest points from each class
+- Done via solving a constrained optimization problem
+- The solution depends only on a subset of training data, i.e. **the support vectors**
+
+:::
+
+::: {.column width="5%"}
+
+:::
+
+::: {.column width="50%"}
+
+```{r}
+#| fig-width: 6
+#| fig-height: 7
+
+# Normalized normal vector
+normal_vec <- w / sqrt(sum(w^2))
+
+# Project support vectors perpendicularly to the hyperplane
+proj_segments <- df %>%
+  filter(sv == 1) %>%
+  rowwise() %>%
+  mutate(
+    dot = x1 * normal_vec[1] + x2 * normal_vec[2] + b,
+    x_proj = x1 - dot * normal_vec[1],
+    y_proj = x2 - dot * normal_vec[2]
+  )
+
+# Final plot
+ggplot(df, aes(x = x1, y = x2, color = y, shape = factor(sv))) +
+  geom_point(size = 3, alpha = 0.9) +
+  stat_function(fun = function(x) line_eq(x, w, b), color = "black", size = 1.2) +
+  geom_segment(data = proj_segments,
+               aes(x = x1, y = x2, xend = x_proj, yend = y_proj),
+               inherit.aes = FALSE,
+               linetype = "dashed", color = "gray30") +
+  scale_shape_manual(values = c(16, 17), labels = c("Regular", "Support Vector")) +
+  scale_color_tableau(palette = "Tableau 10") +
+  scale_fill_tableau(palette = "Tableau 10") +
+  labs(
+    title = "Linear SVM: Decision Boundary and Margin",
+    subtitle = "Dashed lines show margin from support vectors",
+    shape = "Point Type"
+  ) +
+  theme_minimal() +
+  theme(legend.position = "bottom")
+
+
+```
+
+
+:::
+
+::::
+
+## SVM
+
+*Support Vector Machine classifier*
+
+:::: {.columns}
+
+::: {.column width="45%"}
+
+**Optimal separating hyperplane:**
+
+- For non-separable data, introduces slack variables and a penalty parameter 
+$C$ to allow misclassifications (soft margin)
+- The cost parameter $C$ controls the trade-off between margin width and classification errors
+- Lower $C$ values tolerate more violations.
+
+:::
+
+::: {.column width="5%"}
+
+:::
+
+::: {.column width="50%"}
+
+
+
+```{r}
+#| fig-width: 6
+#| fig-height: 7
+
+# Generate non-separable overlapping data
+set.seed(42)
+n <- 100
+x1 <- c(rnorm(n, mean = -1.5), rnorm(n, mean = 1.5))
+x2 <- c(rnorm(n, mean = -1.5), rnorm(n, mean = 1.5))
+y <- factor(rep(c("A", "B"), each = n))
+df <- data.frame(x1 = x1, x2 = x2, y = y)
+
+# Fit linear SVM with soft margin (small cost allows violations)
+svm_model <- svm(y ~ ., data = df, kernel = "linear", cost = 0.1, scale = TRUE)
+
+# Mark support vectors
+df$sv <- 0
+df$sv[svm_model$index] <- 1
+
+# Extract weights and intercept
+w <- t(svm_model$coefs) %*% svm_model$SV
+b <- -svm_model$rho
+
+# Function for decision boundary
+line_eq <- function(x, w, b) {
+  (-w[1] * x - b) / w[2]
+}
+
+# Plot
+ggplot(df, aes(x = x1, y = x2, color = y, shape = factor(sv))) +
+  geom_point(size = 3, alpha = 0.9) +
+  stat_function(fun = function(x) line_eq(x, w, b), color = "black", size = 1.2) +
+  scale_shape_manual(values = c(16, 17), labels = c("Regular", "Support Vector")) +
+  labs(title = "SVM with Slack Variables (Soft Margin)",
+       subtitle = "Overlapping classes and support vectors near/beyond margin",
+       shape = "Point Type") +
+  theme_minimal() +
+  scale_color_tableau(palette = "Tableau 10") +
+  scale_fill_tableau(palette = "Tableau 10") +
+  theme(legend.position = "bottom")
+
+```
+:::
+
+::::
+
+
+## SVM
+
+*Support Vector Machine classifier*
+
+:::: {.columns}
+
+::: {.column width="45%"}
+
+**Optimal separating hyperplane:**
+
+- In non-linear cases, uses the kernel trick to find a linear boundary in transformed feature space
+- Data are projected into a higher-dimensional space, where a linear boundary is fitted, which translates to a non-linear boundary in the original space
+- The "trick" is using a kernel function which computes the inner product of the transformed data points in the new space without explicitly calculating the transformation itself or the coordinates in the high-dimensional space, often making it computationally cheaper.
+
+:::
+
+::: {.column width="5%"}
+
+:::
+
+::: {.column width="50%"}
+
+
+```{r}
+#| fig-width: 6
+#| fig-height: 7
+
+# Load required packages
+library(e1071)
+library(tidyverse)
+library(ggthemes)
+
+# Generate non-linearly separable data
+set.seed(42)
+n <- 100
+theta <- runif(n, 0, 2 * pi)
+radius <- c(runif(n/2, 0.5, 1), runif(n/2, 1.5, 2))
+x1 <- radius * cos(theta)
+x2 <- radius * sin(theta)
+y <- factor(rep(c("A", "B"), each = n/2))
+df <- data.frame(x1 = x1, x2 = x2, y = y)
+
+# Fit SVM with radial basis function kernel
+svm_rbf <- svm(y ~ ., data = df, kernel = "radial", cost = 1, gamma = 1)
+
+# Predict on a grid to visualize boundary
+grid <- expand.grid(
+  x1 = seq(min(df$x1), max(df$x1), length.out = 200),
+  x2 = seq(min(df$x2), max(df$x2), length.out = 200)
+)
+grid$pred <- predict(svm_rbf, newdata = grid)
+
+# Plot
+ggplot(df, aes(x = x1, y = x2, color = y)) +
+  geom_point(size = 3, alpha = 0.9) +
+  geom_contour(data = grid, aes(x = x1, y = x2, z = as.numeric(pred == "A")),
+               breaks = 0.5, color = "black", size = 1.2) +
+  labs(title = "SVM with Radial Basis Function (RBF) Kernel",
+       subtitle = "Non-linear decision boundary",
+       color = "Class") +
+  theme_minimal() +
+  scale_color_tableau(palette = "Tableau 10") +
+  theme(legend.position = "bottom")
+
+```
+
+:::
+
+::::
+
+
+## SVM {.smaller}
+
+<br>
+
+**🔑 Key points:**
+
+- Finds the optimal separating hyperplane with maximum margin  
+- Only support vectors influence the decision boundary  
+- Can model non-linear patterns using the **kernel trick**
+
+<br>
+
+. . .
+
+**✅ Pros:**
+
+- Effective in high-dimensional spaces  
+- Flexible with different kernel functions (e.g., linear, RBF)  
+- Often generalizes well with proper tuning
+
+<br>
+
+. . .
+
+**❌ Cons:**
+
+- Requires careful **feature scaling**  
+- Can be slow on large datasets  
+- Less interpretable than simpler models like KNN
+
+
+# Methods
+KNN, SVM and **Random Forest**
+
+## Decision Tree 🌳 {.smaller}
+
+<br>
+
+:::: {.columns}
+
+::: {.column width="45%"}
+
+- Splits data based on feature thresholds to form a tree of decisions  
+- Each leaf node assigns a predicted class  
+- At each node, the algorithm considers all possible splits for all features
+  - for classification: uses e.g. Gini impurity to measure split quality
+  - for regression: uses variance reduction or mean squared error
+- The best split is the one that results in the greatest "purity" in the child nodes
+- Splitting continues recursively until stopping criteria are met (e.g., max depth, min node size)
+
+:::
+
+::: {.column width="10%"}
+:::
+
+::: {.column width="45%"}
+
+Iris data set preview:
+```{r}
+print(head(iris))
+```
+
+<br>
+```{r}
+#| fig-width: 6
+
+library(rpart); 
+library(rpart.plot)
+fit <- rpart(Species ~ ., data = 
+               iris, method = "class")
+rpart.plot(fit, extra = 104)
+
+```
+:::
+
+::::
+
+## Decision Tree 🌳 
+
+*Controlling tree growth*
+
+<br>
+
+**`maxdepth`: Maximum Tree Depth**  
+
+- Limits how deep the tree can grow (number of split levels)  
+- Helps prevent overfitting on small patterns  
+- Lower values = simpler, more general trees
+
+. . .
+
+<br>
+
+**`minsplit`: Minimum Split Size**  
+
+- Minimum number of observations required to split a node  
+- Prevents the tree from splitting on tiny or noisy data subsets  
+- Higher values = fewer splits, more conservative tree
+
+<br>
+
+. . .
+
+The parameters balance **tree complexity** and **generalization**  
+
+
+## Random Forest 🌳 🌳 🌳 {.smaller}
+
+# Bagging, boosting, and stacking
 
 # Bagging
 

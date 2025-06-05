@@ -311,7 +311,7 @@ svm_results <- data.frame(cost = cost_grid, AUC = NA)
 
 for (i in seq_along(cost_grid)) {
   
-  model <- svm(obese ~ ., data = data_train_svm, cost = cost_grid[i], probability = TRUE)
+  model <- svm(obese ~ ., data = data_train_svm, cost = cost_grid[i], type = "C-classification", kernel = "linear", probability = TRUE)
   pred <- predict(model, newdata = data_valid_svm, probability = TRUE)
   probs <- attr(pred, "probabilities")[, "Yes"]
   svm_results$AUC[i] <- auc(roc(data_valid_svm$obese, probs, quiet = TRUE))
