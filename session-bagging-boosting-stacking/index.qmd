@@ -3,3 +3,13 @@
 
 **Learning outcomes**
 
+- Explain the core principles of ensemble learning, including bagging, boosting, and stacking.
+- Compare strengths and limitations of different ensemble approaches (e.g., Random Forest vs. XGBoost).
+- Implement bagging and boosting models in R using randomForest and xgboost.
+- Tune hyperparameters of ensemble models using validation data.
+- Construct a stacking ensemble using predicted probabilities from multiple base learners.
+- Train a meta-learner (e.g., logistic regression) to combine base model outputs.
+- Evaluate and interpret performance metrics (accuracy, AUC) for individual models and ensembles.
+
+
+
