@@ -5,6 +5,8 @@ format:
     slide-number: true
     view-distance: 10
     theme: [default, custom.scss]
+    mermaid: 
+      theme: forest
     chalkboard: 
       buttons: true
   html:
@@ -35,6 +37,12 @@ library(ggthemes)
 
 <br>
 
+1. Why do we need multiple models?
+2. Review of KNN, SVM, and Random Forest
+3. Bagging
+4. Boosting
+5. Stacking
+
 ## Methods {.smaller}
 
 <br>
@@ -58,30 +66,1268 @@ library(ggthemes)
 - Why might we use multiple models instead of relying on a single one? 
 - What are the potential benefits or trade-offs?
 
+. . .
+
+Some answers: 
+
+- Combining diverse models can capture different patterns and reduce error.
+- Multiple models can improve accuracy, reduce overfitting, and balance out individual model weaknesses.
+- There are trade-offs, such as increased complexity, lower interpretability, and higher computational cost.
 
 # Methods
 
+**KNN**, SVM and Random Forest
+
+
+## KNN 
+*example of a classification algorithm*
+```{r}
+#| label: fig-knn-create-points
+#| fig-cap: An example of k-nearest neighbours algorithm with k=3; in the top new observation (blue) is closest to three red triangales and thus classified as a red triangle; in the bottom, a new observation (blue) is closest to 2 black dots and 1 red triangle thus classified as a black dot (majority vote)
+
+# Example data
+n1 <- 10
+n2 <- 10
+set.seed(1)
+x <- c(rnorm(n1, mean=0, sd=1), rnorm(n2, mean=0.5, sd=1))
+y <- rnorm(n1+n2, mean=0, sd=1)
+
+group <- rep(1, (n1+n2))
+group[1:n1] <- 0
+idx.1 <- which(group==0)
+idx.2 <- which(group==1)
+
+# new points
+p1 <- c(1.5, 0.5)
+p2 <- c(0, 0.6)
+
+# distance 
+dist.1 <- c()
+dist.2 <- c()
+for (i in 1:length(x))
+{
+  dist.1[i] <- round(sqrt((p1[1]-x[i])^2 + (p1[2]-y[i])^2),2)
+  dist.2[i] <- round(sqrt((p2[1]-x[i])^2 + (p2[2]-y[i])^2),2)
+}
+
+# find nearest friends
+n.idx1 <- order(dist.1)
+n.idx2 <- order(dist.2)
+
+```
+
+```{r}
+#| label: fig-knn-00
+#| fig-width: 4
+#| fig-height: 5
+#| include: false
+
+# a) 
+par(mar=(c(3, 3, 1, 1)))
+plot(x[idx.1],y[idx.1], pch=0, las=1, xlim=c(min(x), max(x)), ylim=c(min(y), max(y)), xlab="x", ylab="y")
+points(x[idx.2], y[idx.2], pch=2, col="red")
+#points(p1[1], p1[2], pch=13, col="blue", cex=2)
+
+```
+
+```{r}
+#| label: fig-knn-01
+#| fig-width: 4
+#| fig-height: 5
+#| include: false
+
+# b) 
+par(mar=(c(3, 3, 1, 1)))
+plot(x[idx.1],y[idx.1], pch=0, las=1, xlim=c(min(x), max(x)), ylim=c(min(y), max(y)), xlab="x", ylab="y")
+points(x[idx.2], y[idx.2], pch=2, col="red")
+points(p1[1], p1[2], pch=13, col="blue", cex=2)
+
+```
+
+```{r}
+#| label: fig-knn-02
+#| fig-width: 4
+#| fig-height: 5
+#| include: false
+
+# c) 
+par(mar=(c(3, 3, 1, 1)))
+plot(x[idx.1],y[idx.1], pch=0, las=1, xlim=c(min(x), max(x)), ylim=c(min(y), max(y)), xlab="x", ylab="y")
+points(x[idx.2], y[idx.2], pch=2, col="red")
+points(p1[1], p1[2], pch=13, col="blue", cex=2)
+points(x[n.idx1[1:3]], y[n.idx1[1:3]], pch=17, col="red")
+
+```
+
+```{r}
+#| label: fig-knn-03
+#| fig-width: 4
+#| fig-height: 5
+#| include: false
+
+# d) 
+par(mar=(c(3, 3, 1, 1)))
+plot(x[idx.1],y[idx.1], pch=0, las=1, xlim=c(min(x), max(x)), ylim=c(min(y), max(y)), xlab="x", ylab="y")
+points(x[idx.2], y[idx.2], pch=2, col="red")
+points(p1[1], p1[2], pch=17, col="red", cex=3)
+points(x[n.idx1[1:3]], y[n.idx1[1:3]], pch=17, col="red")
+
+```
+
+:::{.r-stack}
+![](presentation_files/figure-revealjs/fig-knn-00-1.png){.fragment width="700" height="600"}
+
+![](presentation_files/figure-revealjs/fig-knn-01-1.png){.fragment width="700" height="600"}
+
+![](presentation_files/figure-revealjs/fig-knn-02-1.png){.fragment width="700" height="600"}
+
+![](presentation_files/figure-revealjs/fig-knn-03-1.png){.fragment width="700" height="600"}
+:::
+
+
 ## KNN
+*example of a classification algorithm*
+
+```{r}
+#| label: fig-knn-10
+#| fig-width: 4
+#| fig-height: 5
+#| include: false
+
+par(mar=(c(3, 3, 1, 1)))
+plot(x[idx.1],y[idx.1], pch=0, las=1, xlim=c(min(x), max(x)), ylim=c(min(y), max(y)), xlab="x", ylab="y")
+points(x[idx.2], y[idx.2], pch=2, col="red")
+```
+
+```{r}
+#| label: fig-knn-20
+#| fig-width: 4
+#| fig-height: 5
+#| include: false
+
+par(mar=(c(3, 3, 1, 1)))
+plot(x[idx.1],y[idx.1], pch=0, las=1, xlim=c(min(x), max(x)), ylim=c(min(y), max(y)), xlab="x", ylab="y")
+points(x[idx.2], y[idx.2], pch=2, col="red")
+points(p2[1], p2[2], pch=13, col="blue", cex=2)
+
+```
+
+```{r}
+#| label: fig-knn-30
+#| fig-width: 4
+#| fig-height: 5
+#| include: false
+
+par(mar=(c(3, 3, 1, 1)))
+plot(x[idx.1],y[idx.1], pch=0, las=1, xlim=c(min(x), max(x)), ylim=c(min(y), max(y)), xlab="x", ylab="y")
+
+points(x[idx.2], y[idx.2], pch=2, col="red")
+points(p2[1], p2[2], pch=13, col="blue", cex=2)
+points(x[n.idx2[1]], y[n.idx2[1]], pch=17, col="red")
+points(x[n.idx2[2:3]], y[n.idx2[2:3]], pch=19, col="black")
+
+```
+
+```{r}
+#| label: fig-knn-40
+#| fig-width: 4
+#| fig-height: 5
+#| include: false
+
+
+par(mar=(c(3, 3, 1, 1)))
+plot(x[idx.1],y[idx.1], pch=0, las=1, xlim=c(min(x), max(x)), ylim=c(min(y), max(y)), xlab="x", ylab="y")
+points(x[idx.2], y[idx.2], pch=2, col="red")
+points(p2[1], p2[2], pch=15, col="black", cex=2)
+points(x[n.idx2[1]], y[n.idx2[1]], pch=17, col="red")
+points(x[n.idx2[2:3]], y[n.idx2[2:3]], pch=19, col="black")
+
+```
+
+:::{.r-stack}
+![](presentation_files/figure-revealjs/fig-knn-10-1.png){.fragment width="700" height="600"}
+
+![](presentation_files/figure-revealjs/fig-knn-20-1.png){.fragment width="700" height="600"}
+
+![](presentation_files/figure-revealjs/fig-knn-30-1.png){.fragment width="700" height="600"}
+
+![](presentation_files/figure-revealjs/fig-knn-40-1.png){.fragment width="700" height="600"}
+:::
+
+## KNN {.smaller}
+
+*K-Nearest Neighbors (KNN)*
+
+- **Family:** Distance-based, non-parametric classification or regression
+- **Idea:** To classify a new observation, find the *k* closest points in the training data and let them "vote" on the outcome.
+
+
+. . .
+
+<br>
+<br>
+
+**How it works**
+
+::: incremental
+
+1. Choose a value of **k** (e.g., 3 or 5)
+2. Compute distance (e.g., Euclidean) from the new point to all training points
+3. Select the k nearest neighbors
+4. Predict:
+   - **Classification:** majority class among neighbors
+   - **Regression:** average of neighbors’ values
+
+:::
+
+## KNN {.smaller}
+
+<br>
+
+**🔑 Key points:**
+
+- No training phase: KNN just stores the data
+- Sensitive to scaling: Features must be normalized
+- Choice of distance metric matters: Euclidean, Manhattan, or Mahalanobis
+
+<br>
+
+. . . 
+
+**✅ Pros:**
+
+- Simple and intuitive
+- Works well with local structure
+
+<br>
+
+. . .
+
+**❌ Cons:**
+
+- Slow on large datasets
+- Sensitive to irrelevant features
+- Doesn’t work well in high dimensions (curse of dimensionality)
+
+# Methods
+
+KNN, **SVM** and Random Forest
 
 ## SVM
 
-## Random Forest
+*Support Vector Machine classifier*
 
-# Bagging
+:::: {.columns}
 
-# Boosting
+::: {.column width="45%"}
 
-XGBoost
+SVM
 
-# Stacking
+- based on fitting a linear class boundary between 2 classes in explanatory variable space
+- points on one side are predicted to belong to one class, points on the other side to another class
+- classes ($g_i$) are coded as -1 and 1
+- the boundary is defined by a hyperplane $$\mathbf{w}^T \mathbf{x} + b = 0$$ where $\mathbf{x}$ is the weight vector and $b$ is a scalar
+- in 2D, the hyperplane is a line
 
-## Beyond bagging, boosting, and stacking
+:::
 
-## More of each family
+::: {.column width="5%"}
 
-## Summary 
+:::
 
-## Lab
+::: {.column width="50%"}
+```{r}
+#| fig-width: 6
+#| fig-height: 7
+
+# Load required packages
+library(e1071)
+library(tidyverse)
+library(ggthemes)
+
+# Generate clearly separable data
+set.seed(42)
+n <- 100
+x1 <- c(rnorm(n, mean = -2.5), rnorm(n, mean = 2.5))
+x2 <- c(rnorm(n, mean = -2.5), rnorm(n, mean = 2.5))
+y <- factor(rep(c("A", "B"), each = n))
+df <- data.frame(x1 = x1, x2 = x2, y = y)
+
+# Fit linear SVM
+svm_model <- svm(y ~ ., data = df, kernel = "linear", cost = 1, scale = TRUE)
+
+# Mark support vectors
+df$sv <- 0
+df$sv[svm_model$index] <- 1
+
+# Extract weights and intercept for decision boundary
+w <- t(svm_model$coefs) %*% svm_model$SV
+b <- -svm_model$rho
+
+# Function for decision boundary
+line_eq <- function(x, w, b) {
+  (-w[1] * x - b) / w[2]
+}
+
+ggplot(df, aes(x = x1, y = x2, color = y)) +
+  geom_point(size = 3, alpha = 0.9) +
+  stat_function(fun = function(x) line_eq(x, w, b), color = "black", size = 1.2) +
+  scale_shape_manual(values = c(16, 17), labels = c("Regular", "Support Vector")) +
+  labs(title = "Linear SVM: Decision Boundary",
+       subtitle = "Support vectors determine the boundary",
+       shape = "Point Type") +
+  theme_minimal() +
+  scale_color_tableau(palette = "Tableau 10") +
+  scale_fill_tableau(palette = "Tableau 10") +
+  theme(legend.position = "bottom")
+
+
+```
+
+:::
+
+::::
+
+## SVM
+
+*Support Vector Machine classifier*
+
+:::: {.columns}
+
+::: {.column width="45%"}
+
+**Optimal separating hyperplane:**
+
+- Maximizes the margin between classes
+- Margin = distance between the hyperplane and the closest points from each class
+- Done via solving a constrained optimization problem
+- The solution depends only on a subset of training data, i.e. **the support vectors**
+
+:::
+
+::: {.column width="5%"}
+
+:::
+
+::: {.column width="50%"}
+
+```{r}
+#| fig-width: 6
+#| fig-height: 7
+
+# Normalized normal vector
+normal_vec <- w / sqrt(sum(w^2))
+
+# Project support vectors perpendicularly to the hyperplane
+proj_segments <- df %>%
+  filter(sv == 1) %>%
+  rowwise() %>%
+  mutate(
+    dot = x1 * normal_vec[1] + x2 * normal_vec[2] + b,
+    x_proj = x1 - dot * normal_vec[1],
+    y_proj = x2 - dot * normal_vec[2]
+  )
+
+# Final plot
+ggplot(df, aes(x = x1, y = x2, color = y, shape = factor(sv))) +
+  geom_point(size = 3, alpha = 0.9) +
+  stat_function(fun = function(x) line_eq(x, w, b), color = "black", size = 1.2) +
+  geom_segment(data = proj_segments,
+               aes(x = x1, y = x2, xend = x_proj, yend = y_proj),
+               inherit.aes = FALSE,
+               linetype = "dashed", color = "gray30") +
+  scale_shape_manual(values = c(16, 17), labels = c("Regular", "Support Vector")) +
+  scale_color_tableau(palette = "Tableau 10") +
+  scale_fill_tableau(palette = "Tableau 10") +
+  labs(
+    title = "Linear SVM: Decision Boundary and Margin",
+    subtitle = "Dashed lines show margin from support vectors",
+    shape = "Point Type"
+  ) +
+  theme_minimal() +
+  theme(legend.position = "bottom")
+
+
+```
+
+
+:::
+
+::::
+
+## SVM
+
+*Support Vector Machine classifier*
+
+:::: {.columns}
+
+::: {.column width="45%"}
+
+**Optimal separating hyperplane:**
+
+- For non-separable data, introduces slack variables and a penalty parameter 
+$C$ to allow misclassifications (soft margin)
+- The cost parameter $C$ controls the trade-off between margin width and classification errors
+- Lower $C$ values tolerate more violations.
+
+:::
+
+::: {.column width="5%"}
+
+:::
+
+::: {.column width="50%"}
+
+
+
+```{r}
+#| fig-width: 6
+#| fig-height: 7
+
+# Generate non-separable overlapping data
+set.seed(42)
+n <- 100
+x1 <- c(rnorm(n, mean = -1.5), rnorm(n, mean = 1.5))
+x2 <- c(rnorm(n, mean = -1.5), rnorm(n, mean = 1.5))
+y <- factor(rep(c("A", "B"), each = n))
+df <- data.frame(x1 = x1, x2 = x2, y = y)
+
+# Fit linear SVM with soft margin (small cost allows violations)
+svm_model <- svm(y ~ ., data = df, kernel = "linear", cost = 0.1, scale = TRUE)
+
+# Mark support vectors
+df$sv <- 0
+df$sv[svm_model$index] <- 1
+
+# Extract weights and intercept
+w <- t(svm_model$coefs) %*% svm_model$SV
+b <- -svm_model$rho
+
+# Function for decision boundary
+line_eq <- function(x, w, b) {
+  (-w[1] * x - b) / w[2]
+}
+
+# Plot
+ggplot(df, aes(x = x1, y = x2, color = y, shape = factor(sv))) +
+  geom_point(size = 3, alpha = 0.9) +
+  stat_function(fun = function(x) line_eq(x, w, b), color = "black", size = 1.2) +
+  scale_shape_manual(values = c(16, 17), labels = c("Regular", "Support Vector")) +
+  labs(title = "SVM with Slack Variables (Soft Margin)",
+       subtitle = "Overlapping classes and support vectors near/beyond margin",
+       shape = "Point Type") +
+  theme_minimal() +
+  scale_color_tableau(palette = "Tableau 10") +
+  scale_fill_tableau(palette = "Tableau 10") +
+  theme(legend.position = "bottom")
+
+```
+:::
+
+::::
+
+
+## SVM
+
+*Support Vector Machine classifier*
+
+:::: {.columns}
+
+::: {.column width="45%"}
+
+**Optimal separating hyperplane:**
+
+- In non-linear cases data are projected into a higher-dimensional space, 
+- where a linear boundary is fitted, which translates to a non-linear boundary in the original space
+- This is done using a kernel function that computes inner products in the new space without explicitly transforming the data.
+- Common kernel functions include linear, polynomial, radial basis function (RBF), and sigmoid.
+
+:::
+
+::: {.column width="5%"}
+
+:::
+
+::: {.column width="50%"}
+
+
+```{r}
+#| fig-width: 6
+#| fig-height: 7
+
+# Load required packages
+library(e1071)
+library(tidyverse)
+library(ggthemes)
+
+# Generate non-linearly separable data
+set.seed(42)
+n <- 100
+theta <- runif(n, 0, 2 * pi)
+radius <- c(runif(n/2, 0.5, 1), runif(n/2, 1.5, 2))
+x1 <- radius * cos(theta)
+x2 <- radius * sin(theta)
+y <- factor(rep(c("A", "B"), each = n/2))
+df <- data.frame(x1 = x1, x2 = x2, y = y)
+
+# Fit SVM with radial basis function kernel
+svm_rbf <- svm(y ~ ., data = df, kernel = "radial", cost = 1, gamma = 1)
+
+# Predict on a grid to visualize boundary
+grid <- expand.grid(
+  x1 = seq(min(df$x1), max(df$x1), length.out = 200),
+  x2 = seq(min(df$x2), max(df$x2), length.out = 200)
+)
+grid$pred <- predict(svm_rbf, newdata = grid)
+
+# Plot
+ggplot(df, aes(x = x1, y = x2, color = y)) +
+  geom_point(size = 3, alpha = 0.9) +
+  geom_contour(data = grid, aes(x = x1, y = x2, z = as.numeric(pred == "A")),
+               breaks = 0.5, color = "black", size = 1.2) +
+  labs(title = "SVM with Radial Basis Function (RBF) Kernel",
+       subtitle = "Non-linear decision boundary",
+       color = "Class") +
+  theme_minimal() +
+  scale_color_tableau(palette = "Tableau 10") +
+  theme(legend.position = "bottom")
+
+```
+
+:::
+
+::::
+
+
+## SVM {.smaller}
+
+<br>
+
+**🔑 Key points:**
+
+- Finds the optimal separating hyperplane with maximum margin
+- Only support vectors influence the decision boundary  
+- Can model non-linear patterns using the kernel trick
+
+<br>
+
+. . .
+
+**✅ Pros:**
+
+- Effective in high-dimensional spaces  
+- Flexible with different kernel functions (e.g., linear, RBF)  
+- Often generalizes well with proper tuning
+
+<br>
+
+. . .
+
+**❌ Cons:**
+
+- Requires careful feature scaling
+- Can be slow on large datasets  
+- Less interpretable than simpler models like KNN
+
+
+# Methods
+KNN, SVM and **Random Forest**
+
+## Decision Tree 🌳 {.smaller}
+
+<br>
+<br>
+
+:::: {.columns}
+
+::: {.column width="45%"}
+
+- Splits data based on feature thresholds to form a tree of decisions  
+- Each **leaf node** (terminal node) assigns a predicted class  
+- At each **split node** (internal node), the algorithm considers all possible splits for all features
+  - for classification: uses e.g. Gini impurity to measure split quality
+  - for regression: uses variance reduction or mean squared error
+- The best split is the one that results in the greatest "purity" in the child nodes
+- Splitting continues recursively until stopping criteria are met (e.g., max depth, min node size)
+
+:::
+
+::: {.column width="10%"}
+:::
+
+::: {.column width="45%"}
+
+```{r}
+#| fig-height: 8
+#| fig-width: 7
+
+# Load the clinical data
+data_obesity <- read_csv("data/data-obesity.csv") 
+data_expr <- read_csv("data/data-obesity-genes.csv")
+
+# Genes
+genes_all <- colnames(data_expr)[-1]  # Exclude the 'id' column
+genes_known <- c("FTO", "MC4R", "LEP")
+genes_other <- setdiff(genes_all, genes_known)
+
+var_clinical <- c("chol", "hdl", "age", "height")
+
+# join gene expression data with clinical data and filter
+data <- data_obesity %>%
+  left_join(data_expr, by = "id") %>%
+  dplyr::select("obese", all_of(genes_known), all_of(var_clinical)) %>%
+  na.omit()
+
+library(rpart); 
+library(rpart.plot)
+fit <- rpart(obese ~ ., data = 
+               data, method = "class")
+rpart.plot(fit, extra = 104)
+
+```
+
+:::
+
+::::
+
+## Decision Tree 🌳 
+
+*Controlling tree growth*
+
+<br>
+
+**`maxdepth`: Maximum Tree Depth**  
+
+- Limits how deep the tree can grow (number of split levels)  
+- Helps prevent overfitting on small patterns  
+- Lower values = simpler, more general trees
+
+. . .
+
+<br>
+
+**`minsplit`: Minimum Split Size**  
+
+- Minimum number of observations required to split a node  
+- Prevents the tree from splitting on tiny or noisy data subsets  
+- Higher values = fewer splits, more conservative tree
+
+<br>
+
+. . .
+
+The parameters balance **tree complexity** and **generalization**  
+
+
+## Random Forest 🌳 🌳 🌳 🌳 🌳 {.smaller}
+
+<br>
+
+**Ensemble of decision trees:**  
+
+::: incremental
+
+- Each tree is trained on a **bootstrap sample** of the data  
+- At each split, only a **random subset of features** is considered
+
+:::
+
+<br>
+
+. . .
+
+**Why this works:**  
+
+::: incremental
+
+- Trees become **de-correlated**  
+- Averaging their predictions reduces **variance**  
+- More stable and accurate than a single decision tree
+
+:::
+
+. . .
+
+<br>
+
+**Key Parameters:**  
+
+- `ntree`: Number of trees (more = better, up to a point)  
+- `mtry`: Number of features to consider at each split  
+- `nodesize`: Minimum size of terminal nodes
+
+## Random Forest 🌳 🌳 🌳 🌳 🌳 {.smaller}
+
+<br>
+
+:::: {.columns}
+
+::: {.column width="45%"}
+
+**Variable importance**  
+
+- Since each tree sees a bootstrap sample, 
+- and at each split only a random subset of features is considered (fair competition)
+- we can estimate how important each feature is. 
+- Variable importance is calculated as:
+  - total decrease in Gini or entropy from splits using a feature, summed across all trees
+  - or the drop in accuracy when a feature is randomly permuted (permutation importance)
+
+:::
+
+::: {.column width="10%"}
+:::
+
+::: {.column width="45%"}
+
+
+```{r}
+#| fig-height: 8
+
+library(randomForest)
+data <- data %>%
+  mutate(obese = as.factor(obese))  # Ensure 'obese' is a factor
+rf_model <- randomForest(obese ~ ., data = data, ntree = 200, mtry = 2)
+
+# Extract and prepare importance as a data frame
+importance_df <- as.data.frame(importance(rf_model))
+importance_df$Variable <- rownames(importance_df)
+
+# Choose importance metric (MeanDecreaseGini or MeanDecreaseAccuracy)
+ggplot(importance_df, aes(x = reorder(Variable, MeanDecreaseGini), y = MeanDecreaseGini)) +
+  geom_col(fill = "#0072B2") +
+  coord_flip() +
+  labs(title = "Variable Importance (Random Forest)",
+       x = "",
+       y = "Mean Decrease in Gini") +
+  theme_minimal() + 
+  theme(axis.text.y = element_text(size = 20),
+        axis.title.x = element_text(size = 20),
+        axis.title.y = element_text(size = 20), 
+        title = element_text(size = 20), 
+        axis.text.x = element_text(size = 20)) 
+
+```
+
+
+:::
+
+::::
+
+
+
+## Random Forest 🌳 🌳 🌳 🌳 🌳 {.smaller}
+
+<br>
+
+**🔑 Key points:**
+
+- Ensemble of decision trees trained on bootstrap samples  
+- Each split considers a random subset of features
+- Improves stability and accuracy by averaging predictions across trees
+
+<br>
+
+. . .
+
+**✅ Pros:**
+
+- Robust to overfitting and noise  
+- Handles high-dimensional and mixed-type data  
+- No need for feature scaling
+- Provides built-in variable importance measures
+
+<br>
+
+. . .
+
+**❌ Cons:**
+
+- Less interpretable than a single decision tree  
+
+# Bagging, boosting, and stacking
+
+## Bagging, boosting, and stacking {.smaller}
+
+*combining models*
+
+<br>
+
+. . .
+
+Bagging, boosting, and stacking
+
+::: incremental
+
+- Are ensemble techniques used to **improve the performance and robustness** of machine learning models  
+- Instead of relying on a single model, they **combine multiple learners** to make better predictions  
+
+:::
+
+<br>
+
+. . .
+
+**Bias–Variance Trade-off**  
+
+::: incremental
+
+- **High variance**: model fits training data too closely (e.g., deep trees)  
+- **High bias**: model is too simplistic to capture patterns (e.g., underfitted linear model)  
+
+:::
+
+<br>
+
+. . . 
+
+**Ensembles**
+
+::: incremental
+
+- They reduce **variance** or **bias** depending on the method  
+- Useful when single models are too simple, overfit, or capture only part of the signal  
+- Can combine **diverse models or multiple weak learners** to build a stronger overall model
+
+:::
+
+## Bagging {.smaller}
+
+*Bootstrap Aggregating*
+
+<br>
+
+```{mermaid}
+
+flowchart LR
+  D[Original Data]
+  D --> B1[Bootstrap Sample 1]
+  D --> B2[Bootstrap Sample 2]
+  D --> B3[Bootstrap Sample 3]
+
+  B1 --> M1[Model 1]
+  B2 --> M2[Model 2]
+  B3 --> M3[Model 3]
+
+  M1 --> A[Aggregate Output]
+  M2 --> A
+  M3 --> A
+
+```
+
+<br>
+
+::: incremental
+
+- Trains multiple models on different **bootstrap samples** of the data  
+- Each model is trained **independently** (in parallel)  
+- Final prediction is made by **averaging** (regression) or **voting** (classification)
+- Reduces variance
+- **Random Forest** uses bagging as a core principle
+- But bagging can be run with other methods too e.g. bagged SVM or logistic regression
+
+:::
+
+## Boosting {.smaller}
+
+<br>
+
+```{mermaid}
+
+flowchart LR
+  D[Original Data]
+  D --> M1[Model 1]
+  M1 --> R1[Residuals]
+  R1 --> M2[Model 2]
+  M2 --> R2[Residuals]
+  R2 --> M3[Model 3]
+
+  M3 --> A[Final Output]
+
+```
+
+<br>
+
+::: incremental
+
+- Models are trained **sequentially**, each focusing on previous errors (residuals)
+- Combines weak learners into a strong one  
+- Primary reduces bias 
+- but it can also help to stabilize variance
+- Common algorithms: AdaBoost, XGBoost
+
+:::
+
+## Boosting {.smaller}
+
+*Gradient descent*
+
+<br>
+
+:::: {.columns}
+
+::: {.column width="45%"}
+
+- Generic optimization algorithm capable of finding optimal solutions to a wide range of problems
+- The general idea is to tweak parameters iteratively to minimize a cost function
+- We can start with random initialization
+  - and then iteratively update the parameters in the direction of the steepest descent of the cost function
+  - until the algorithm converges to a minimum
+- In other words: we measure the local gradient of the error function with regard to the parameter vector $\boldsymbol{\theta}$ and update it in the direction of the descending gradient
+
+:::
+
+::: {.column width="5%"}
+:::
+
+::: {.column width="45%"}
+
+```{r}
+#| fig-width: 7
+
+# Define cost function (parabola)
+theta <- seq(-3, 3, length.out = 100)
+cost <- theta^2
+
+# Simulate gradient descent path
+steps <- 15
+theta_vals <- numeric(steps)
+theta_vals[1] <- -2.5  # starting point
+lr <- 0.2  # learning rate
+
+# Perform gradient descent updates
+for (i in 2:steps) {
+  grad <- 2 * theta_vals[i - 1]  # derivative of cost function: d/dθ (θ^2) = 2θ
+  theta_vals[i] <- theta_vals[i - 1] - lr * grad
+}
+
+cost_vals <- theta_vals^2
+path_df <- data.frame(theta = theta_vals, cost = cost_vals)
+
+# Base curve
+cost_df <- data.frame(theta = theta, cost = cost)
+
+# Plot
+ggplot() +
+  geom_line(data = cost_df, aes(x = theta, y = cost), color = "gray30", size = 1) +
+  geom_point(data = path_df, aes(x = theta, y = cost), color = "blue", size = 4) +
+  geom_point(aes(x = 0, y = 0), color = "orange", size = 5) +
+  geom_text(aes(x = 0, y = 0.2, label = "Minimum"), color = "orange", vjust = -1) +
+  #annotate("text", x = -2.5, y = 6.2, label = "Random\ninitial value", hjust = 0, size = 3.5) +
+  #annotate("text", x = -1.2, y = 4.5, label = "Learning step", angle = -30, size = 3.5) +
+  labs(title = "Gradient Descent Path", x = expression(theta), y = "Cost") +
+  theme_minimal() + 
+  theme(axis.text = element_text(size = 20),
+        axis.title = element_text(size = 20),
+        plot.title = element_text(size = 20, face = "bold"),
+        legend.position = "none")
+
+```
+
+:::
+
+::::
+
+
+## Boosting {.smaller}
+
+*Gradient descent*
+
+<br>
+
+:::: {.columns}
+
+::: {.column width="45%"}
+
+`learning rate` hyperparameter:
+
+- controls the step size in the gradient descent update
+- too small: slow convergence, may get stuck in local minima
+- too large: overshoot the minimum, may diverge
+
+:::
+
+::: {.column width="5%"}
+:::
+
+::: {.column width="45%"}
+
+```{r}
+#| fig-height: 5.5
+
+# Cost function (parabola)
+theta <- seq(-3, 3, length.out = 100)
+cost <- theta^2
+cost_df <- data.frame(theta = theta, cost = cost)
+
+# Simulate gradient descent path with small learning rate
+steps <- 20
+theta_vals <- numeric(steps)
+theta_vals[1] <- -2.5
+lr <- 0.03  # smaller learning rate
+
+for (i in 2:steps) {
+  grad <- 2 * theta_vals[i - 1]
+  theta_vals[i] <- theta_vals[i - 1] - lr * grad
+}
+
+path_df <- data.frame(theta = theta_vals, cost = theta_vals^2)
+
+# Plot
+ggplot() +
+  geom_line(data = cost_df, aes(x = theta, y = cost), color = "gray40", size = 1) +
+  geom_point(data = path_df, aes(x = theta, y = cost), color = "blue", size =4) +
+  labs(title = "Gradient Descent: Learning Rate Too Small", x = expression(theta), y = "Cost") +
+  theme_minimal() + 
+    theme(axis.text = element_text(size = 20),
+        axis.title = element_text(size = 20),
+        plot.title = element_text(size = 20, face = "bold"),
+        legend.position = "none")
+
+# Define cost function
+theta <- seq(-4, 4, length.out = 400)
+cost <- theta^2
+cost_df <- data.frame(theta = theta, cost = cost)
+
+# Simulate gradient descent with large learning rate
+steps <- 20
+theta_vals <- numeric(steps)
+theta_vals[1] <- -2.5
+lr <- 1.0  # large learning rate
+
+for (i in 2:steps) {
+  grad <- 2 * theta_vals[i - 1]
+  theta_vals[i] <- theta_vals[i - 1] - lr * grad
+}
+
+path_df <- data.frame(
+  step = 1:steps,
+  theta = theta_vals,
+  cost = theta_vals^2
+)
+
+# For arrow segments
+segment_df <- path_df %>%
+  mutate(
+    xend = lead(theta),
+    yend = lead(cost)
+  ) %>%
+  filter(!is.na(xend))
+
+# Plot
+ggplot() +
+  geom_line(data = cost_df, aes(x = theta, y = cost), color = "gray40", size = 1) +
+  geom_point(data = path_df, aes(x = theta, y = cost), color = "blue", size = 4) +
+  geom_segment(data = segment_df,
+               aes(x = theta, y = cost, xend = xend, yend = yend),
+               arrow = arrow(length = unit(0.12, "cm")),
+               linetype = "dashed", color = "gray50") +
+  labs(title = "Gradient Descent: Learning Rate Too Large",
+       x = expression(theta), y = "Cost") +
+  coord_cartesian(xlim = c(-4, 4), ylim = c(0, 20)) +
+  theme_minimal() + 
+    theme(axis.text = element_text(size = 20),
+      axis.title = element_text(size = 20),
+      plot.title = element_text(size = 20, face = "bold"),
+      legend.position = "none")
+
+
+```
+
+
+:::
+
+::::
+
+
+## Boosting {.smaller}
+
+*pitfalls*
+
+<br>
+
+```{r}
+#| fig-width: 8
+#| fig-height: 5
+#| fig-align: center
+
+# Custom non-convex cost function
+cost_fn <- function(theta) {
+  0.1 * theta^4 - theta^2 + 2 * sin(2 * theta) + 6
+}
+
+# Gradient of the cost function
+grad_fn <- function(theta) {
+  0.4 * theta^3 - 2 * theta + 4 * cos(2 * theta)
+}
+
+# Simulate gradient descent
+steps <- 25
+theta_vals <- numeric(steps)
+theta_vals[1] <- -2.5
+lr <- 0.1
+
+for (i in 2:steps) {
+  theta_vals[i] <- theta_vals[i - 1] - lr * grad_fn(theta_vals[i - 1])
+}
+
+cost_vals <- cost_fn(theta_vals)
+path_df <- data.frame(step = 1:steps, theta = theta_vals, cost = cost_vals)
+
+# Full curve
+theta_grid <- seq(-4, 6, length.out = 500)
+curve_df <- data.frame(theta = theta_grid, cost = cost_fn(theta_grid))
+
+# Plot
+ggplot() +
+  geom_line(data = curve_df, aes(x = theta, y = cost), color = "gray40", size = 1.2) +
+  geom_point(data = path_df, aes(x = theta, y = cost), color = "blue", size = 3) +
+  geom_segment(data = path_df[-nrow(path_df), ],
+               aes(x = theta, y = cost, xend = lead(theta), yend = lead(cost)),
+               arrow = arrow(length = unit(0.12, "cm")),
+               color = "gray50", linetype = "dashed") +
+  #annotate("text", x = theta_vals[1], y = cost_vals[1] + 1, label = "Start", size = 3.5) +
+  annotate("text", x = -1.7, y = cost_fn(-1.7), label = "Local\nminimum", hjust = 0, vjust = -0.5) +
+  annotate("text", x = 1.2, y = cost_fn(1.2), label = "Global\nminimum", hjust = -0.3, vjust = 0) +
+  annotate("text", x = 4.5, y = cost_fn(4.5), label = "Plateau", hjust = -0.2, vjust = -1.2) +
+  labs(title = "Gradient Descent Pitfalls",
+       x = expression(theta), y = "Cost") +
+  coord_cartesian(ylim = c(0, 15)) +
+  theme_minimal() + 
+  theme(axis.text = element_text(size = 20),
+    axis.title = element_text(size = 20),
+    plot.title = element_text(size = 20, face = "bold"),
+    legend.position = "none") + 
+  xlim(c(-4, 4))
+
+```
+
+<br>
+
+For complex cost functions, Gradient Descent can get stuck in local minima or plateaus.
+
+## {.smaller .nostretch}
+
+![](images/xgboost-logo.png){heigth="10%"}
+
+<br>
+
+**Extreme Gradient Boosting**
+
+::: incremental
+
+- A high-performance, scalable implementation of gradient boosting  
+- Builds a model as an **ensemble of decision trees**, added one at a time (sequentially)
+- Each new tree focuses on correcting the **errors of the previous trees**
+- Applies regularization to penalize complex trees and reduce overfitting
+- The final model is the weighted sum of the predictions from all the trees.
+
+:::
+
+## {.smaller .nostretch}
+
+![](images/xgboost-logo.png){heigth="10%"}
+
+<br>
+
+**Selected parameters**
+
+::: incremental
+
+- Parameters for Tree Boosters, e.g.
+  - `eta` control the learning rate
+  - `max_depth` controls the maximum depth of each tree
+- Parameters for Regularization, e.g.
+  - `lambda` and `alpha` control L2 and L1 regularization respectively
+- Task parameters, e.g.
+  - `objective` defines the learning task (e.g., binary classification, regression)
+  - `eval_metric` specifies the evaluation metric (e.g., accuracy, RMSE)
+:::
+
+## Stacking {.smaller}
+
+<br>
+
+```{mermaid}
+flowchart LR
+  D[Training Data]
+  D --> M1[Model 1, e.g. KNN]
+  D --> M2[Model 2, e.g. SVM]
+  D --> M3[Model 3, e.g. RF]
+
+  M1 --> P1[Pred 1]
+  M2 --> P2[Pred 2]
+  M3 --> P3[Pred 3]
+
+  P1 --> ML[Meta-Learner]
+  P2 --> ML
+  P3 --> ML
+
+  ML --> Final[Final Prediction]
+```
+
+<br>
+
+::: incremental
+
+- Base models are trained in parallel on the same dataset
+- Their predictions (usually probabilities) are used as inputs to a meta-learner
+- The meta-learner learns how to best combine base model outputs
+- Helps leverage strengths of different algorithms and often improves performance over any single model
+- E.g. a meta-learner could be a logistic regression model that takes the predictions of KNN, SVM, and RF as inputs to make the final prediction
+
+:::
+
+## 🚀 Beyond bagging, boosting, and stacking {.smaller}
+
+*building upon foundations*
+
+<br>
+
+::: incremental
+
+Some other ensemble methods include:
+
+- **Voting**: combines predictions from multiple models  
+  - *Hard voting*: majority class  
+  - *Soft voting*: average of predicted probabilities
+
+- **Blending**: similar to stacking but uses a **holdout set** (not cross-validation) for the meta-learner  
+  - Simpler, but more prone to overfitting on small data
+
+- **Cascading**: models are trained **sequentially**, with outputs from earlier models used as **features** in later ones  
+  - Useful for building hierarchical or layered predictions
+
+- **Boosted Stacking**: combines boosting ideas with meta-learning (e.g., boosting the residuals of meta-learner output)
+
+:::
+
+## 💻 Lab {.smaller}
+
+<br>
+
+::: incremental
+
+- We go back to try to understand the biology of obesity. 
+- We shown that the expression of several genes (FTO, MC4R, LEP) is associated with obesity. 
+- So we will try to see if we can build a predictive model for obesity based on gene expression data, focusing on less well-known genes (i.e. not FTO, MC4R, LEP).
+
+:::
+
+. . . 
+
+::: incremental
+
+We will explore three ensemble learning strategies:
+
+- Bagging, using Random Forest;
+- Boosting, using XGBoost;
+- Stacking, combining the predictions from KNN, SVM, and Random Forest, with logistic regression as a meta-learner.
+
+:::
+
+
+<br>
 
 ## Thank you
 
