@@ -960,8 +960,289 @@ flowchart LR
 
 ## Boosting {.smaller}
 
-*XGBoost*
+*Gradient descent*
 
+<br>
+
+:::: {.columns}
+
+::: {.column width="45%"}
+
+- Generic optimization algorithm capable of finding optimal solutions to a wide range of problems
+- The general idea is to tweak parameters iteratively to minimize a cost function
+- We can start with random initialization
+  - and then iteratively update the parameters in the direction of the steepest descent of the cost function
+  - until the algorithm converges to a minimum
+- In other words: we measure the local gradient of the error function with regard to the parameter vector $\boldsymbol{\theta}$ and update it in the direction of the descending gradient
+
+:::
+
+::: {.column width="5%"}
+:::
+
+::: {.column width="45%"}
+
+```{r}
+#| fig-width: 7
+
+# Define cost function (parabola)
+theta <- seq(-3, 3, length.out = 100)
+cost <- theta^2
+
+# Simulate gradient descent path
+steps <- 15
+theta_vals <- numeric(steps)
+theta_vals[1] <- -2.5  # starting point
+lr <- 0.2  # learning rate
+
+# Perform gradient descent updates
+for (i in 2:steps) {
+  grad <- 2 * theta_vals[i - 1]  # derivative of cost function: d/dθ (θ^2) = 2θ
+  theta_vals[i] <- theta_vals[i - 1] - lr * grad
+}
+
+cost_vals <- theta_vals^2
+path_df <- data.frame(theta = theta_vals, cost = cost_vals)
+
+# Base curve
+cost_df <- data.frame(theta = theta, cost = cost)
+
+# Plot
+ggplot() +
+  geom_line(data = cost_df, aes(x = theta, y = cost), color = "gray30", size = 1) +
+  geom_point(data = path_df, aes(x = theta, y = cost), color = "blue", size = 4) +
+  geom_point(aes(x = 0, y = 0), color = "orange", size = 5) +
+  geom_text(aes(x = 0, y = 0.2, label = "Minimum"), color = "orange", vjust = -1) +
+  #annotate("text", x = -2.5, y = 6.2, label = "Random\ninitial value", hjust = 0, size = 3.5) +
+  #annotate("text", x = -1.2, y = 4.5, label = "Learning step", angle = -30, size = 3.5) +
+  labs(title = "Gradient Descent Path", x = expression(theta), y = "Cost") +
+  theme_minimal() + 
+  theme(axis.text = element_text(size = 20),
+        axis.title = element_text(size = 20),
+        plot.title = element_text(size = 20, face = "bold"),
+        legend.position = "none")
+
+```
+
+:::
+
+::::
+
+
+## Boosting {.smaller}
+
+*Gradient descent*
+
+<br>
+
+:::: {.columns}
+
+::: {.column width="45%"}
+
+`learning rate` hyperparameter:
+
+- controls the step size in the gradient descent update
+- too small: slow convergence, may get stuck in local minima
+- too large: overshoot the minimum, may diverge
+
+:::
+
+::: {.column width="5%"}
+:::
+
+::: {.column width="45%"}
+
+```{r}
+#| fig-height: 5.5
+
+# Cost function (parabola)
+theta <- seq(-3, 3, length.out = 100)
+cost <- theta^2
+cost_df <- data.frame(theta = theta, cost = cost)
+
+# Simulate gradient descent path with small learning rate
+steps <- 20
+theta_vals <- numeric(steps)
+theta_vals[1] <- -2.5
+lr <- 0.03  # smaller learning rate
+
+for (i in 2:steps) {
+  grad <- 2 * theta_vals[i - 1]
+  theta_vals[i] <- theta_vals[i - 1] - lr * grad
+}
+
+path_df <- data.frame(theta = theta_vals, cost = theta_vals^2)
+
+# Plot
+ggplot() +
+  geom_line(data = cost_df, aes(x = theta, y = cost), color = "gray40", size = 1) +
+  geom_point(data = path_df, aes(x = theta, y = cost), color = "blue", size =4) +
+  labs(title = "Gradient Descent: Learning Rate Too Small", x = expression(theta), y = "Cost") +
+  theme_minimal() + 
+    theme(axis.text = element_text(size = 20),
+        axis.title = element_text(size = 20),
+        plot.title = element_text(size = 20, face = "bold"),
+        legend.position = "none")
+
+# Define cost function
+theta <- seq(-4, 4, length.out = 400)
+cost <- theta^2
+cost_df <- data.frame(theta = theta, cost = cost)
+
+# Simulate gradient descent with large learning rate
+steps <- 20
+theta_vals <- numeric(steps)
+theta_vals[1] <- -2.5
+lr <- 1.0  # large learning rate
+
+for (i in 2:steps) {
+  grad <- 2 * theta_vals[i - 1]
+  theta_vals[i] <- theta_vals[i - 1] - lr * grad
+}
+
+path_df <- data.frame(
+  step = 1:steps,
+  theta = theta_vals,
+  cost = theta_vals^2
+)
+
+# For arrow segments
+segment_df <- path_df %>%
+  mutate(
+    xend = lead(theta),
+    yend = lead(cost)
+  ) %>%
+  filter(!is.na(xend))
+
+# Plot
+ggplot() +
+  geom_line(data = cost_df, aes(x = theta, y = cost), color = "gray40", size = 1) +
+  geom_point(data = path_df, aes(x = theta, y = cost), color = "blue", size = 4) +
+  geom_segment(data = segment_df,
+               aes(x = theta, y = cost, xend = xend, yend = yend),
+               arrow = arrow(length = unit(0.12, "cm")),
+               linetype = "dashed", color = "gray50") +
+  labs(title = "Gradient Descent: Learning Rate Too Large",
+       x = expression(theta), y = "Cost") +
+  coord_cartesian(xlim = c(-4, 4), ylim = c(0, 20)) +
+  theme_minimal() + 
+    theme(axis.text = element_text(size = 20),
+      axis.title = element_text(size = 20),
+      plot.title = element_text(size = 20, face = "bold"),
+      legend.position = "none")
+
+
+```
+
+
+:::
+
+::::
+
+
+## Boosting {.smaller}
+
+*pitfalls*
+
+<br>
+
+```{r}
+#| fig-width: 8
+#| fig-height: 5
+#| fig-align: center
+
+# Custom non-convex cost function
+cost_fn <- function(theta) {
+  0.1 * theta^4 - theta^2 + 2 * sin(2 * theta) + 6
+}
+
+# Gradient of the cost function
+grad_fn <- function(theta) {
+  0.4 * theta^3 - 2 * theta + 4 * cos(2 * theta)
+}
+
+# Simulate gradient descent
+steps <- 25
+theta_vals <- numeric(steps)
+theta_vals[1] <- -2.5
+lr <- 0.1
+
+for (i in 2:steps) {
+  theta_vals[i] <- theta_vals[i - 1] - lr * grad_fn(theta_vals[i - 1])
+}
+
+cost_vals <- cost_fn(theta_vals)
+path_df <- data.frame(step = 1:steps, theta = theta_vals, cost = cost_vals)
+
+# Full curve
+theta_grid <- seq(-4, 6, length.out = 500)
+curve_df <- data.frame(theta = theta_grid, cost = cost_fn(theta_grid))
+
+# Plot
+ggplot() +
+  geom_line(data = curve_df, aes(x = theta, y = cost), color = "gray40", size = 1.2) +
+  geom_point(data = path_df, aes(x = theta, y = cost), color = "blue", size = 3) +
+  geom_segment(data = path_df[-nrow(path_df), ],
+               aes(x = theta, y = cost, xend = lead(theta), yend = lead(cost)),
+               arrow = arrow(length = unit(0.12, "cm")),
+               color = "gray50", linetype = "dashed") +
+  #annotate("text", x = theta_vals[1], y = cost_vals[1] + 1, label = "Start", size = 3.5) +
+  annotate("text", x = -1.7, y = cost_fn(-1.7), label = "Local\nminimum", hjust = 0, vjust = -0.5) +
+  annotate("text", x = 1.2, y = cost_fn(1.2), label = "Global\nminimum", hjust = -0.3, vjust = 0) +
+  annotate("text", x = 4.5, y = cost_fn(4.5), label = "Plateau", hjust = -0.2, vjust = -1.2) +
+  labs(title = "Gradient Descent Pitfalls",
+       x = expression(theta), y = "Cost") +
+  coord_cartesian(ylim = c(0, 15)) +
+  theme_minimal() + 
+  theme(axis.text = element_text(size = 20),
+    axis.title = element_text(size = 20),
+    plot.title = element_text(size = 20, face = "bold"),
+    legend.position = "none") + 
+  xlim(c(-4, 4))
+
+```
+
+<br>
+
+For complex cost functions, Gradient Descent can get stuck in local minima or plateaus.
+
+## {.smaller .nostretch}
+
+![](images/xgboost-logo.png){heigth="10%"}
+
+<br>
+
+**Extreme Gradient Boosting**
+
+::: incremental
+
+- A high-performance, scalable implementation of gradient boosting  
+- Builds a model as an **ensemble of decision trees**, added one at a time (sequentially)
+- Each new tree focuses on correcting the **errors of the previous trees**
+- Applies regularization to penalize complex trees and reduce overfitting
+- The final model is the weighted sum of the predictions from all the trees.
+
+:::
+
+## {.smaller .nostretch}
+
+![](images/xgboost-logo.png){heigth="10%"}
+
+<br>
+
+**Selected parameters**
+
+::: incremental
+
+- Parameters for Tree Boosters, e.g.
+  - `eta` control the learning rate
+  - `max_depth` controls the maximum depth of each tree
+- Parameters for Regularization, e.g.
+  - `lambda` and `alpha` control L2 and L1 regularization respectively
+- Task parameters, e.g.
+  - `objective` defines the learning task (e.g., binary classification, regression)
+  - `eval_metric` specifies the evaluation metric (e.g., accuracy, RMSE)
+:::
 
 ## Stacking {.smaller}
 
@@ -997,7 +1278,7 @@ flowchart LR
 
 :::
 
-## Beyond bagging, boosting, and stacking {.smaller}
+## 🚀 Beyond bagging, boosting, and stacking {.smaller}
 
 *building upon foundations*
 
@@ -1021,7 +1302,7 @@ Some other ensemble methods include:
 
 :::
 
-## Lab
+## 💻 Lab {.smaller}
 
 <br>
 

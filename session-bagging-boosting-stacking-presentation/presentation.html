@@ -719,7 +719,114 @@
 </section>
 <section id="boosting-1" class="slide level2 smaller">
 <h2>Boosting</h2>
-<p><em>XGBoost</em></p>
+<p><em>Gradient descent</em></p>
+<p><br></p>
+<div class="columns">
+<div class="column" style="width:45%;">
+<ul>
+<li>Generic optimization algorithm capable of finding optimal solutions to a wide range of problems</li>
+<li>The general idea is to tweak parameters iteratively to minimize a cost function</li>
+<li>We can start with random initialization
+<ul>
+<li>and then iteratively update the parameters in the direction of the steepest descent of the cost function</li>
+<li>until the algorithm converges to a minimum</li>
+</ul></li>
+<li>In other words: we measure the local gradient of the error function with regard to the parameter vector <span class="math inline">\(\boldsymbol{\theta}\)</span> and update it in the direction of the descending gradient</li>
+</ul>
+</div><div class="column" style="width:5%;">
+
+</div><div class="column" style="width:45%;">
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure>
+<p><img data-src="presentation_files/figure-revealjs/unnamed-chunk-10-1.png" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</div></div>
+</section>
+<section id="boosting-2" class="slide level2 smaller">
+<h2>Boosting</h2>
+<p><em>Gradient descent</em></p>
+<p><br></p>
+<div class="columns">
+<div class="column" style="width:45%;">
+<p><code>learning rate</code> hyperparameter:</p>
+<ul>
+<li>controls the step size in the gradient descent update</li>
+<li>too small: slow convergence, may get stuck in local minima</li>
+<li>too large: overshoot the minimum, may diverge</li>
+</ul>
+</div><div class="column" style="width:5%;">
+
+</div><div class="column" style="width:45%;">
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure>
+<p><img data-src="presentation_files/figure-revealjs/unnamed-chunk-11-1.png" width="960"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output-display">
+<div>
+<figure>
+<p><img data-src="presentation_files/figure-revealjs/unnamed-chunk-11-2.png" width="960"></p>
+</figure>
+</div>
+</div>
+</div>
+</div></div>
+</section>
+<section id="boosting-3" class="slide level2 smaller">
+<h2>Boosting</h2>
+<p><em>pitfalls</em></p>
+<p><br></p>
+
+<img data-src="presentation_files/figure-revealjs/unnamed-chunk-12-1.png" class="quarto-figure quarto-figure-center r-stretch" width="768"><p><br></p>
+<p>For complex cost functions, Gradient Descent can get stuck in local minima or plateaus.</p>
+</section>
+<section id="section" class="slide level2 smaller nostretch">
+<h2></h2>
+<p><img data-src="images/xgboost-logo.png" data-heigth="10%"></p>
+<p><br></p>
+<p><strong>Extreme Gradient Boosting</strong></p>
+<div>
+<ul>
+<li class="fragment">A high-performance, scalable implementation of gradient boosting<br>
+</li>
+<li class="fragment">Builds a model as an <strong>ensemble of decision trees</strong>, added one at a time (sequentially)</li>
+<li class="fragment">Each new tree focuses on correcting the <strong>errors of the previous trees</strong></li>
+<li class="fragment">Applies regularization to penalize complex trees and reduce overfitting</li>
+<li class="fragment">The final model is the weighted sum of the predictions from all the trees.</li>
+</ul>
+</div>
+</section>
+<section id="section-1" class="slide level2 smaller nostretch">
+<h2></h2>
+<p><img data-src="images/xgboost-logo.png" data-heigth="10%"></p>
+<p><br></p>
+<p><strong>Selected parameters</strong></p>
+<div>
+<ul>
+<li class="fragment">Parameters for Tree Boosters, e.g.
+<ul>
+<li class="fragment"><code>eta</code> control the learning rate</li>
+<li class="fragment"><code>max_depth</code> controls the maximum depth of each tree</li>
+</ul></li>
+<li class="fragment">Parameters for Regularization, e.g.
+<ul>
+<li class="fragment"><code>lambda</code> and <code>alpha</code> control L2 and L1 regularization respectively</li>
+</ul></li>
+<li class="fragment">Task parameters, e.g.
+<ul>
+<li class="fragment"><code>objective</code> defines the learning task (e.g., binary classification, regression)</li>
+<li class="fragment"><code>eval_metric</code> specifies the evaluation metric (e.g., accuracy, RMSE)</li>
+</ul></li>
+</ul>
+</div>
 </section>
 <section id="stacking" class="slide level2 smaller">
 <h2>Stacking</h2>
@@ -762,7 +869,7 @@
 </div>
 </section>
 <section id="beyond-bagging-boosting-and-stacking" class="slide level2 smaller">
-<h2>Beyond bagging, boosting, and stacking</h2>
+<h2>🚀 Beyond bagging, boosting, and stacking</h2>
 <p><em>building upon foundations</em></p>
 <p><br></p>
 <div>
@@ -786,8 +893,8 @@
 </ul>
 </div>
 </section>
-<section id="lab" class="slide level2">
-<h2>Lab</h2>
+<section id="lab" class="slide level2 smaller">
+<h2>💻 Lab</h2>
 <p><br></p>
 <div>
 <ul>
