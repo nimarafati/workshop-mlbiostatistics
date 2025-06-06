@@ -307,8 +307,8 @@
 <li>based on fitting a linear class boundary between 2 classes in explanatory variable space</li>
 <li>points on one side are predicted to belong to one class, points on the other side to another class</li>
 <li>classes (<span class="math inline">\(g_i\)</span>) are coded as -1 and 1</li>
-<li>the boundary is defined by a hyperplane <span class="math inline">\(\mathbf{w}^T \mathbf{x} + b = 0\)</span>, where <span class="math inline">\(\mathbf{x}\)</span> is the weight vector and <span class="math inline">\(b\)</span> is a scalar</li>
-<li>and in 2D, the hyperplane is a line</li>
+<li>the boundary is defined by a hyperplane <span class="math display">\[\mathbf{w}^T \mathbf{x} + b = 0\]</span> where <span class="math inline">\(\mathbf{x}\)</span> is the weight vector and <span class="math inline">\(b\)</span> is a scalar</li>
+<li>in 2D, the hyperplane is a line</li>
 </ul>
 </div><div class="column" style="width:5%;">
 
@@ -382,9 +382,10 @@
 <div class="column" style="width:45%;">
 <p><strong>Optimal separating hyperplane:</strong></p>
 <ul>
-<li>In non-linear cases, uses the kernel trick to find a linear boundary in transformed feature space</li>
-<li>Data are projected into a higher-dimensional space, where a linear boundary is fitted, which translates to a non-linear boundary in the original space</li>
-<li>The “trick” is using a kernel function which computes the inner product of the transformed data points in the new space without explicitly calculating the transformation itself or the coordinates in the high-dimensional space, often making it computationally cheaper.</li>
+<li>In non-linear cases data are projected into a higher-dimensional space,</li>
+<li>where a linear boundary is fitted, which translates to a non-linear boundary in the original space</li>
+<li>This is done using a kernel function that computes inner products in the new space without explicitly transforming the data.</li>
+<li>Common kernel functions include linear, polynomial, radial basis function (RBF), and sigmoid.</li>
 </ul>
 </div><div class="column" style="width:5%;">
 
@@ -405,11 +406,10 @@
 <p><br></p>
 <p><strong>🔑 Key points:</strong></p>
 <ul>
-<li>Finds the optimal separating hyperplane with maximum margin<br>
-</li>
+<li>Finds the optimal separating hyperplane with maximum margin</li>
 <li>Only support vectors influence the decision boundary<br>
 </li>
-<li>Can model non-linear patterns using the <strong>kernel trick</strong></li>
+<li>Can model non-linear patterns using the kernel trick</li>
 </ul>
 <p><br></p>
 <div class="fragment">
@@ -426,8 +426,7 @@
 <div class="fragment">
 <p><strong>❌ Cons:</strong></p>
 <ul>
-<li>Requires careful <strong>feature scaling</strong><br>
-</li>
+<li>Requires careful feature scaling</li>
 <li>Can be slow on large datasets<br>
 </li>
 <li>Less interpretable than simpler models like KNN</li>
@@ -441,15 +440,15 @@
 </section>
 <section id="decision-tree" class="slide level2 smaller">
 <h2>Decision Tree 🌳</h2>
-<p><br></p>
+<p><br> <br></p>
 <div class="columns">
 <div class="column" style="width:45%;">
 <ul>
 <li>Splits data based on feature thresholds to form a tree of decisions<br>
 </li>
-<li>Each leaf node assigns a predicted class<br>
+<li>Each <strong>leaf node</strong> (terminal node) assigns a predicted class<br>
 </li>
-<li>At each node, the algorithm considers all possible splits for all features
+<li>At each <strong>split node</strong> (internal node), the algorithm considers all possible splits for all features
 <ul>
 <li>for classification: uses e.g.&nbsp;Gini impurity to measure split quality</li>
 <li>for regression: uses variance reduction or mean squared error</li>
@@ -460,24 +459,11 @@
 </div><div class="column" style="width:10%;">
 
 </div><div class="column" style="width:45%;">
-<p>Iris data set preview:</p>
-<div class="cell">
-<div class="cell-output cell-output-stdout">
-<pre><code>  Sepal.Length Sepal.Width Petal.Length Petal.Width Species
-1          5.1         3.5          1.4         0.2  setosa
-2          4.9         3.0          1.4         0.2  setosa
-3          4.7         3.2          1.3         0.2  setosa
-4          4.6         3.1          1.5         0.2  setosa
-5          5.0         3.6          1.4         0.2  setosa
-6          5.4         3.9          1.7         0.4  setosa</code></pre>
-</div>
-</div>
-<p><br></p>
 <div class="cell">
 <div class="cell-output-display">
 <div>
 <figure>
-<p><img data-src="presentation_files/figure-revealjs/unnamed-chunk-7-1.png" width="576"></p>
+<p><img data-src="presentation_files/figure-revealjs/unnamed-chunk-6-1.png" width="672"></p>
 </figure>
 </div>
 </div>
@@ -516,28 +502,28 @@
 <h2>Random Forest 🌳 🌳 🌳 🌳 🌳</h2>
 <p><br></p>
 <p><strong>Ensemble of decision trees:</strong></p>
+<div>
 <ul>
-<li>Each tree is trained on a <strong>bootstrap sample</strong> of the data<br>
+<li class="fragment">Each tree is trained on a <strong>bootstrap sample</strong> of the data<br>
 </li>
-<li>At each split, only a <strong>random subset of features</strong> is considered</li>
+<li class="fragment">At each split, only a <strong>random subset of features</strong> is considered</li>
 </ul>
+</div>
 <p><br></p>
 <div class="fragment">
 <p><strong>Why this works:</strong></p>
+<div>
 <ul>
-<li>Trees become <strong>de-correlated</strong><br>
+<li class="fragment">Trees become <strong>de-correlated</strong><br>
 </li>
-<li>Averaging their predictions reduces <strong>variance</strong><br>
+<li class="fragment">Averaging their predictions reduces <strong>variance</strong><br>
 </li>
-<li>More stable and accurate than a single decision tree</li>
+<li class="fragment">More stable and accurate than a single decision tree</li>
 </ul>
 </div>
-</section>
-<section id="random-forest-1" class="slide level2 smaller">
-<h2>Random Forest 🌳 🌳 🌳 🌳 🌳</h2>
+</div>
+<div class="fragment">
 <p><br></p>
-<div class="columns">
-<div class="column" style="width:45%;">
 <p><strong>Key Parameters:</strong></p>
 <ul>
 <li><code>ntree</code>: Number of trees (more = better, up to a point)<br>
@@ -546,7 +532,13 @@
 </li>
 <li><code>nodesize</code>: Minimum size of terminal nodes</li>
 </ul>
+</div>
+</section>
+<section id="random-forest-1" class="slide level2 smaller">
+<h2>Random Forest 🌳 🌳 🌳 🌳 🌳</h2>
 <p><br></p>
+<div class="columns">
+<div class="column" style="width:45%;">
 <p><strong>Variable importance</strong></p>
 <ul>
 <li>Since each tree sees a bootstrap sample,</li>
@@ -565,7 +557,7 @@
 <div class="cell-output-display">
 <div>
 <figure>
-<p><img data-src="presentation_files/figure-revealjs/unnamed-chunk-8-1.png" width="960"></p>
+<p><img data-src="presentation_files/figure-revealjs/unnamed-chunk-7-1.png" width="960"></p>
 </figure>
 </div>
 </div>
@@ -607,8 +599,49 @@
 <h1>Bagging, boosting, and stacking</h1>
 
 </section>
-<section id="bagging" class="slide level2">
+<section id="bagging-boosting-and-stacking-1" class="slide level2 smaller">
+<h2>Bagging, boosting, and stacking</h2>
+<p><em>combining models</em></p>
+<p><br></p>
+<div class="fragment">
+<p>Bagging, boosting, and stacking</p>
+<div>
+<ul>
+<li class="fragment">Are ensemble techniques used to <strong>improve the performance and robustness</strong> of machine learning models<br>
+</li>
+<li class="fragment">Instead of relying on a single model, they <strong>combine multiple learners</strong> to make better predictions</li>
+</ul>
+</div>
+<p><br></p>
+</div>
+<div class="fragment">
+<p><strong>Bias–Variance Trade-off</strong></p>
+<div>
+<ul>
+<li class="fragment"><strong>High variance</strong>: model fits training data too closely (e.g., deep trees)<br>
+</li>
+<li class="fragment"><strong>High bias</strong>: model is too simplistic to capture patterns (e.g., underfitted linear model)</li>
+</ul>
+</div>
+<p><br></p>
+</div>
+<div class="fragment">
+<p><strong>Ensembles</strong></p>
+<div>
+<ul>
+<li class="fragment">They reduce <strong>variance</strong> or <strong>bias</strong> depending on the method<br>
+</li>
+<li class="fragment">Useful when single models are too simple, overfit, or capture only part of the signal<br>
+</li>
+<li class="fragment">Can combine <strong>diverse models or multiple weak learners</strong> to build a stronger overall model</li>
+</ul>
+</div>
+</div>
+</section>
+<section id="bagging" class="slide level2 smaller">
 <h2>Bagging</h2>
+<p><em>Bootstrap Aggregating</em></p>
+<p><br></p>
 <div class="cell" data-reveal="true" data-layout-align="default">
 <div class="cell-output-display">
 <div>
@@ -634,9 +667,23 @@
 </div>
 </div>
 </div>
+<p><br></p>
+<div>
+<ul>
+<li class="fragment">Trains multiple models on different <strong>bootstrap samples</strong> of the data<br>
+</li>
+<li class="fragment">Each model is trained <strong>independently</strong> (in parallel)<br>
+</li>
+<li class="fragment">Final prediction is made by <strong>averaging</strong> (regression) or <strong>voting</strong> (classification)</li>
+<li class="fragment">Reduces variance</li>
+<li class="fragment"><strong>Random Forest</strong> uses bagging as a core principle</li>
+<li class="fragment">But bagging can be run with other methods too e.g.&nbsp;bagged SVM or logistic regression</li>
+</ul>
+</div>
 </section>
-<section id="boosting" class="slide level2">
+<section id="boosting" class="slide level2 smaller">
 <h2>Boosting</h2>
+<p><br></p>
 <div class="cell" data-reveal="true" data-layout-align="default">
 <div class="cell-output-display">
 <div>
@@ -658,10 +705,25 @@
 </div>
 </div>
 </div>
-<p>XGBoost</p>
+<p><br></p>
+<div>
+<ul>
+<li class="fragment">Models are trained <strong>sequentially</strong>, each focusing on previous errors (residuals)</li>
+<li class="fragment">Combines weak learners into a strong one<br>
+</li>
+<li class="fragment">Primary reduces bias</li>
+<li class="fragment">but it can also help to stabilize variance</li>
+<li class="fragment">Common algorithms: AdaBoost, XGBoost</li>
+</ul>
+</div>
 </section>
-<section id="stacking" class="slide level2">
+<section id="boosting-1" class="slide level2 smaller">
+<h2>Boosting</h2>
+<p><em>XGBoost</em></p>
+</section>
+<section id="stacking" class="slide level2 smaller">
 <h2>Stacking</h2>
+<p><br></p>
 <div class="cell" data-reveal="true" data-layout-align="default">
 <div class="cell-output-display">
 <div>
@@ -688,18 +750,63 @@
 </div>
 </div>
 </div>
+<p><br></p>
+<div>
+<ul>
+<li class="fragment">Base models are trained in parallel on the same dataset</li>
+<li class="fragment">Their predictions (usually probabilities) are used as inputs to a meta-learner</li>
+<li class="fragment">The meta-learner learns how to best combine base model outputs</li>
+<li class="fragment">Helps leverage strengths of different algorithms and often improves performance over any single model</li>
+<li class="fragment">E.g. a meta-learner could be a logistic regression model that takes the predictions of KNN, SVM, and RF as inputs to make the final prediction</li>
+</ul>
+</div>
 </section>
-<section id="beyond-bagging-boosting-and-stacking" class="slide level2">
+<section id="beyond-bagging-boosting-and-stacking" class="slide level2 smaller">
 <h2>Beyond bagging, boosting, and stacking</h2>
-</section>
-<section id="more-of-each-family" class="slide level2">
-<h2>More of each family</h2>
-</section>
-<section id="summary" class="slide level2">
-<h2>Summary</h2>
+<p><em>building upon foundations</em></p>
+<p><br></p>
+<div>
+<p>Some other ensemble methods include:</p>
+<ul>
+<li class="fragment"><strong>Voting</strong>: combines predictions from multiple models
+<ul>
+<li class="fragment"><em>Hard voting</em>: majority class<br>
+</li>
+<li class="fragment"><em>Soft voting</em>: average of predicted probabilities</li>
+</ul></li>
+<li class="fragment"><strong>Blending</strong>: similar to stacking but uses a <strong>holdout set</strong> (not cross-validation) for the meta-learner
+<ul>
+<li class="fragment">Simpler, but more prone to overfitting on small data</li>
+</ul></li>
+<li class="fragment"><strong>Cascading</strong>: models are trained <strong>sequentially</strong>, with outputs from earlier models used as <strong>features</strong> in later ones
+<ul>
+<li class="fragment">Useful for building hierarchical or layered predictions</li>
+</ul></li>
+<li class="fragment"><strong>Boosted Stacking</strong>: combines boosting ideas with meta-learning (e.g., boosting the residuals of meta-learner output)</li>
+</ul>
+</div>
 </section>
 <section id="lab" class="slide level2">
 <h2>Lab</h2>
+<p><br></p>
+<div>
+<ul>
+<li class="fragment">We go back to try to understand the biology of obesity.</li>
+<li class="fragment">We shown that the expression of several genes (FTO, MC4R, LEP) is associated with obesity.</li>
+<li class="fragment">So we will try to see if we can build a predictive model for obesity based on gene expression data, focusing on less well-known genes (i.e.&nbsp;not FTO, MC4R, LEP).</li>
+</ul>
+</div>
+<div class="fragment">
+<div>
+<p>We will explore three ensemble learning strategies:</p>
+<ul>
+<li class="fragment">Bagging, using Random Forest;</li>
+<li class="fragment">Boosting, using XGBoost;</li>
+<li class="fragment">Stacking, combining the predictions from KNN, SVM, and Random Forest, with logistic regression as a meta-learner.</li>
+</ul>
+</div>
+<p><br></p>
+</div>
 </section>
 <section id="thank-you" class="slide level2">
 <h2>Thank you</h2>

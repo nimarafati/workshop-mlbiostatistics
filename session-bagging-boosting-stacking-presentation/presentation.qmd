@@ -326,8 +326,8 @@ SVM
 - based on fitting a linear class boundary between 2 classes in explanatory variable space
 - points on one side are predicted to belong to one class, points on the other side to another class
 - classes ($g_i$) are coded as -1 and 1
-- the boundary is defined by a hyperplane $\mathbf{w}^T \mathbf{x} + b = 0$, where $\mathbf{x}$ is the weight vector and $b$ is a scalar
-- and in 2D, the hyperplane is a line
+- the boundary is defined by a hyperplane $$\mathbf{w}^T \mathbf{x} + b = 0$$ where $\mathbf{x}$ is the weight vector and $b$ is a scalar
+- in 2D, the hyperplane is a line
 
 :::
 
@@ -537,9 +537,10 @@ ggplot(df, aes(x = x1, y = x2, color = y, shape = factor(sv))) +
 
 **Optimal separating hyperplane:**
 
-- In non-linear cases, uses the kernel trick to find a linear boundary in transformed feature space
-- Data are projected into a higher-dimensional space, where a linear boundary is fitted, which translates to a non-linear boundary in the original space
-- The "trick" is using a kernel function which computes the inner product of the transformed data points in the new space without explicitly calculating the transformation itself or the coordinates in the high-dimensional space, often making it computationally cheaper.
+- In non-linear cases data are projected into a higher-dimensional space, 
+- where a linear boundary is fitted, which translates to a non-linear boundary in the original space
+- This is done using a kernel function that computes inner products in the new space without explicitly transforming the data.
+- Common kernel functions include linear, polynomial, radial basis function (RBF), and sigmoid.
 
 :::
 
@@ -604,9 +605,9 @@ ggplot(df, aes(x = x1, y = x2, color = y)) +
 
 **🔑 Key points:**
 
-- Finds the optimal separating hyperplane with maximum margin  
+- Finds the optimal separating hyperplane with maximum margin
 - Only support vectors influence the decision boundary  
-- Can model non-linear patterns using the **kernel trick**
+- Can model non-linear patterns using the kernel trick
 
 <br>
 
@@ -624,7 +625,7 @@ ggplot(df, aes(x = x1, y = x2, color = y)) +
 
 **❌ Cons:**
 
-- Requires careful **feature scaling**  
+- Requires careful feature scaling
 - Can be slow on large datasets  
 - Less interpretable than simpler models like KNN
 
@@ -635,14 +636,15 @@ KNN, SVM and **Random Forest**
 ## Decision Tree 🌳 {.smaller}
 
 <br>
+<br>
 
 :::: {.columns}
 
 ::: {.column width="45%"}
 
 - Splits data based on feature thresholds to form a tree of decisions  
-- Each leaf node assigns a predicted class  
-- At each node, the algorithm considers all possible splits for all features
+- Each **leaf node** (terminal node) assigns a predicted class  
+- At each **split node** (internal node), the algorithm considers all possible splits for all features
   - for classification: uses e.g. Gini impurity to measure split quality
   - for regression: uses variance reduction or mean squared error
 - The best split is the one that results in the greatest "purity" in the child nodes
@@ -655,22 +657,35 @@ KNN, SVM and **Random Forest**
 
 ::: {.column width="45%"}
 
-Iris data set preview:
 ```{r}
-print(head(iris))
-```
+#| fig-height: 8
+#| fig-width: 7
 
-<br>
-```{r}
-#| fig-width: 6
+# Load the clinical data
+data_obesity <- read_csv("data/data-obesity.csv") 
+data_expr <- read_csv("data/data-obesity-genes.csv")
+
+# Genes
+genes_all <- colnames(data_expr)[-1]  # Exclude the 'id' column
+genes_known <- c("FTO", "MC4R", "LEP")
+genes_other <- setdiff(genes_all, genes_known)
+
+var_clinical <- c("chol", "hdl", "age", "height")
+
+# join gene expression data with clinical data and filter
+data <- data_obesity %>%
+  left_join(data_expr, by = "id") %>%
+  dplyr::select("obese", all_of(genes_known), all_of(var_clinical)) %>%
+  na.omit()
 
 library(rpart); 
 library(rpart.plot)
-fit <- rpart(Species ~ ., data = 
-               iris, method = "class")
+fit <- rpart(obese ~ ., data = 
+               data, method = "class")
 rpart.plot(fit, extra = 104)
 
 ```
+
 :::
 
 ::::
@@ -710,8 +725,12 @@ The parameters balance **tree complexity** and **generalization**
 
 **Ensemble of decision trees:**  
 
+::: incremental
+
 - Each tree is trained on a **bootstrap sample** of the data  
 - At each split, only a **random subset of features** is considered
+
+:::
 
 <br>
 
@@ -719,9 +738,23 @@ The parameters balance **tree complexity** and **generalization**
 
 **Why this works:**  
 
+::: incremental
+
 - Trees become **de-correlated**  
 - Averaging their predictions reduces **variance**  
 - More stable and accurate than a single decision tree
+
+:::
+
+. . .
+
+<br>
+
+**Key Parameters:**  
+
+- `ntree`: Number of trees (more = better, up to a point)  
+- `mtry`: Number of features to consider at each split  
+- `nodesize`: Minimum size of terminal nodes
 
 ## Random Forest 🌳 🌳 🌳 🌳 🌳 {.smaller}
 
@@ -730,14 +763,6 @@ The parameters balance **tree complexity** and **generalization**
 :::: {.columns}
 
 ::: {.column width="45%"}
-
-**Key Parameters:**  
-
-- `ntree`: Number of trees (more = better, up to a point)  
-- `mtry`: Number of features to consider at each split  
-- `nodesize`: Minimum size of terminal nodes
-
-<br>
 
 **Variable importance**  
 
@@ -755,11 +780,14 @@ The parameters balance **tree complexity** and **generalization**
 
 ::: {.column width="45%"}
 
+
 ```{r}
-#| fig-height: 6
+#| fig-height: 8
 
 library(randomForest)
-rf_model <- randomForest(Species ~ ., data = iris, ntree = 200, mtry = 2)
+data <- data %>%
+  mutate(obese = as.factor(obese))  # Ensure 'obese' is a factor
+rf_model <- randomForest(obese ~ ., data = data, ntree = 200, mtry = 2)
 
 # Extract and prepare importance as a data frame
 importance_df <- as.data.frame(importance(rf_model))
@@ -778,7 +806,9 @@ ggplot(importance_df, aes(x = reorder(Variable, MeanDecreaseGini), y = MeanDecre
         axis.title.y = element_text(size = 20), 
         title = element_text(size = 20), 
         axis.text.x = element_text(size = 20)) 
+
 ```
+
 
 :::
 
@@ -817,7 +847,55 @@ ggplot(importance_df, aes(x = reorder(Variable, MeanDecreaseGini), y = MeanDecre
 
 # Bagging, boosting, and stacking
 
-## Bagging
+## Bagging, boosting, and stacking {.smaller}
+
+*combining models*
+
+<br>
+
+. . .
+
+Bagging, boosting, and stacking
+
+::: incremental
+
+- Are ensemble techniques used to **improve the performance and robustness** of machine learning models  
+- Instead of relying on a single model, they **combine multiple learners** to make better predictions  
+
+:::
+
+<br>
+
+. . .
+
+**Bias–Variance Trade-off**  
+
+::: incremental
+
+- **High variance**: model fits training data too closely (e.g., deep trees)  
+- **High bias**: model is too simplistic to capture patterns (e.g., underfitted linear model)  
+
+:::
+
+<br>
+
+. . . 
+
+**Ensembles**
+
+::: incremental
+
+- They reduce **variance** or **bias** depending on the method  
+- Useful when single models are too simple, overfit, or capture only part of the signal  
+- Can combine **diverse models or multiple weak learners** to build a stronger overall model
+
+:::
+
+## Bagging {.smaller}
+
+*Bootstrap Aggregating*
+
+<br>
 
 ```{mermaid}
 
@@ -837,8 +915,22 @@ flowchart LR
 
 ```
 
+<br>
 
-## Boosting
+::: incremental
+
+- Trains multiple models on different **bootstrap samples** of the data  
+- Each model is trained **independently** (in parallel)  
+- Final prediction is made by **averaging** (regression) or **voting** (classification)
+- Reduces variance
+- **Random Forest** uses bagging as a core principle
+- But bagging can be run with other methods too e.g. bagged SVM or logistic regression
+
+:::
+
+## Boosting {.smaller}
+
+<br>
 
 ```{mermaid}
 
@@ -854,10 +946,26 @@ flowchart LR
 
 ```
 
+<br>
 
-XGBoost
+::: incremental
 
-## Stacking
+- Models are trained **sequentially**, each focusing on previous errors (residuals)
+- Combines weak learners into a strong one  
+- Primary reduces bias 
+- but it can also help to stabilize variance
+- Common algorithms: AdaBoost, XGBoost
+
+:::
+
+## Boosting {.smaller}
+
+*XGBoost*
+
+
+## Stacking {.smaller}
+
+<br>
 
 ```{mermaid}
 flowchart LR
@@ -877,14 +985,68 @@ flowchart LR
   ML --> Final[Final Prediction]
 ```
 
+<br>
 
-## Beyond bagging, boosting, and stacking
+::: incremental
 
-## More of each family
+- Base models are trained in parallel on the same dataset
+- Their predictions (usually probabilities) are used as inputs to a meta-learner
+- The meta-learner learns how to best combine base model outputs
+- Helps leverage strengths of different algorithms and often improves performance over any single model
+- E.g. a meta-learner could be a logistic regression model that takes the predictions of KNN, SVM, and RF as inputs to make the final prediction
 
-## Summary 
+:::
+
+## Beyond bagging, boosting, and stacking {.smaller}
+
+*building upon foundations*
+
+<br>
+
+::: incremental
+
+Some other ensemble methods include:
+
+- **Voting**: combines predictions from multiple models  
+  - *Hard voting*: majority class  
+  - *Soft voting*: average of predicted probabilities
+
+- **Blending**: similar to stacking but uses a **holdout set** (not cross-validation) for the meta-learner  
+  - Simpler, but more prone to overfitting on small data
+
+- **Cascading**: models are trained **sequentially**, with outputs from earlier models used as **features** in later ones  
+  - Useful for building hierarchical or layered predictions
+
+- **Boosted Stacking**: combines boosting ideas with meta-learning (e.g., boosting the residuals of meta-learner output)
+
+:::
 
 ## Lab
+
+<br>
+
+::: incremental
+
+- We go back to try to understand the biology of obesity. 
+- We shown that the expression of several genes (FTO, MC4R, LEP) is associated with obesity. 
+- So we will try to see if we can build a predictive model for obesity based on gene expression data, focusing on less well-known genes (i.e. not FTO, MC4R, LEP).
+
+:::
+
+. . . 
+
+::: incremental
+
+We will explore three ensemble learning strategies:
+
+- Bagging, using Random Forest;
+- Boosting, using XGBoost;
+- Stacking, combining the predictions from KNN, SVM, and Random Forest, with logistic regression as a meta-learner.
+
+:::
+
+
+<br>
 
 ## Thank you
 
