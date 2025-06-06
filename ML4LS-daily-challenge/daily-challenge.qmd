@@ -274,6 +274,93 @@ E) Correct. The first non-trivial diffusion component (DC1) often captures the m
 
 ## Tuesday
 
+### Bagging
+
+What is the main idea behind Bagging (Bootstrap Aggregating)?
+
+- [ ] Reducing bias by focusing on misclassified examples  
+- [ ] Creating a weighted average of base learners  
+- [x] Reducing variance by averaging multiple models trained on bootstrapped datasets  
+- [ ] Combining models sequentially to reduce training error  
+
+---
+
+### Random Forest
+
+In Random Forests, which two types of randomness are introduced to decorrelate the trees?
+
+- [ ] Different activation functions and loss functions  
+- [ ] Subsampling of data and cross-validation  
+- [x] Bootstrapping samples and random feature selection at each split  
+- [ ] Normalization and dropout  
+
+
+
+### Boosting vs. Bagging
+
+What distinguishes Boosting from Bagging in ensemble learning?
+
+- [ ] Boosting increases model variance; Bagging reduces it  
+- [x] Boosting trains base learners sequentially, while Bagging trains them independently  
+- [ ] Bagging uses only decision trees, while Boosting uses any model  
+- [ ] Boosting works best with unsupervised learning  
+
+---
+
+### Stacking
+
+Which of the following best describes Stacking in ensemble methods?
+
+- [ ] Using bootstrapped samples to train trees  
+- [ ] Averaging predictions from weak learners  
+- [x] Training a meta-model to combine outputs of several base models  
+- [ ] Adding more depth to individual trees  
+
+---
+
+### Stacking cross-validation
+
+In the lab practical, why is cross-validation particularly important when using ensemble methods like Stacking?
+
+- [ ] To find the best number of clusters  
+- [x] To avoid overfitting when combining base and meta models  
+- [ ] To balance class distributions  
+- [ ] To speed up computation time  
+
+---
+
+### Boosting regularization
+
+What is a typical consequence of using too many boosting iterations without regularization?
+
+- [ ] Improved generalization to unseen data  
+- [ ] Underfitting due to model simplicity  
+- [ ] Increased model bias  
+- [x] Overfitting to the training data  
+
+---
+
+### PLS
+
+What is a key feature of the Partial Least Squares (PLS) method in multivariate analysis?
+
+- [ ] It maximizes the correlation between residuals and inputs  
+- [ ] It decomposes the response matrix using PCA  
+- [x] It finds latent components that explain both predictors and responses  
+- [ ] It assumes independence between variables  
+
+---
+
+### PLS
+
+In the context of PLS, what is a latent variable?
+
+- [ ] A feature with a hidden label  
+- [ ] An observed predictor not directly used in the model  
+- [x] A linear combination of original predictors capturing shared variance with responses  
+- [ ] A categorical variable encoded as one-hot  
+
+
 ## Wednesday
 
 ## Thursday
