@@ -1,0 +1,291 @@
+---
+title: "Neural Networks in Life Sciences"
+format: 
+  revealjs:
+    slide-number: true
+    view-distance: 10
+    theme: [default, custom.scss]
+    mermaid: 
+      theme: forest
+    chalkboard: 
+      buttons: true
+  html:
+    code-fold: false
+editor_options: 
+  chunk_output_type: console
+bibliography: references.bib
+---
+
+```{r}
+#| message: false
+#| warning: false
+
+# load libraries
+library(tidyverse)
+library(magrittr)
+library(kableExtra)
+library(ggplot2)
+library(rmarkdown)
+library(ggbeeswarm)
+library(gridExtra)
+library(ggmosaic)
+library(scales)
+library(ggthemes)
+```
+
+
+### Why Architectures Matter 🏠 🏢 🏛️ 
+
+<br>
+<br>
+
+::: incremental
+
+- So far we talked about core concepts: neurons, layers, weights, and biases
+- and explained how networks learn using backpropagation and gradient descent
+- What is amazing is that different structures (architectures) of neural networks can lead to different capabilities.
+- Let's look at some examples.
+
+:::
+
+
+## Feedforward neural network {.smaller}
+
+<br>
+
+```{r}
+#| fig-align: center
+library(DiagrammeR)
+
+grViz("
+digraph neural_net {
+  rankdir=LR;
+  splines=line; // Makes connections straight
+  node [shape=circle style=filled fixedsize=true width=0.5]
+
+  // Input Layer
+  subgraph cluster_input {
+    color=none;
+    x1 [label=\"X\", fillcolor=lightblue]
+    label=\"Input Layer\"
+  }
+
+  // Hidden Layer 1
+  subgraph cluster_hidden1 {
+    color=none;
+    h11 [label=\"\", fillcolor=coral]
+    h12 [label=\"\", fillcolor=coral]
+    h13 [label=\"\", fillcolor=coral]
+    label=\"Hidden Layer 1\"
+  }
+
+  // Hidden Layer 2
+  subgraph cluster_hidden2 {
+    color=none;
+    h21 [label=\"\", fillcolor=khaki]
+    h22 [label=\"\", fillcolor=khaki]
+    h23 [label=\"\", fillcolor=khaki]
+    label=\"Hidden Layer 2\"
+  }
+
+  // Hidden Layer 3
+  subgraph cluster_hidden3 {
+    color=none;
+    h31 [label=\"\", fillcolor=lightgreen]
+    h32 [label=\"\", fillcolor=lightgreen]
+    h33 [label=\"\", fillcolor=lightgreen]
+    label=\"Hidden Layer 3\"
+  }
+
+  // Output Layer
+  y [label=\"Y\", fillcolor=white shape=circle]
+
+  // Connections
+  x1 -> {h11 h12 h13}
+
+  h11 -> {h21 h22 h23}
+  h12 -> {h21 h22 h23}
+  h13 -> {h21 h22 h23}
+
+  h21 -> {h31 h32 h33}
+  h22 -> {h31 h32 h33}
+  h23 -> {h31 h32 h33}
+
+  h31 -> y
+  h32 -> y
+  h33 -> y
+}
+")
+
+```
+
+Example of fully connected feedfoward neural network. Data only moves through the network in one direction, from input to output.
+
+## RNN {.smaller}
+
+*Recurrent Neural Networks*
+
+```{r}
+#| fig-align: center
+#| fig-height: 4
+
+grViz("
+digraph RNN_flow {
+  rankdir=LR;
+  splines=ortho;
+  node [shape=ellipse style=filled fontname=\"Arial\" fixedsize=true width=0.6]
+
+  // Real nodes
+  X [label=\"X\", fillcolor=white, style=solid]
+  A [label=\"A\", fillcolor=lightblue]
+  B [label=\"B\", fillcolor=salmon]
+  C [label=\"C\", fillcolor=khaki]
+  D [label=\"D\", fillcolor=green]
+  Y [label=\"Y\", fillcolor=white, style=solid]
+
+  // Invisible routing nodes (for curved-back arrows)
+  DY [label=\"\", width=0, height=0, style=invis]
+  DYtop [label=\"\", width=0, height=0, style=invis]
+  BC [label=\"\", width=0, height=0, style=invis]
+  BCtop [label=\"\", width=0, height=0, style=invis]
+
+  // Main forward flow
+  X -> A
+  A -> B
+  B -> BC [arrowhead=none]
+  BC -> C 
+  C -> D
+  D -> DY [arrowhead=none]
+  DY -> Y 
+
+  // Routed loopbacks
+  DY -> DYtop [arrowhead=none]
+  DYtop -> C [arrowhead=none]
+  
+  BC -> BCtop [arrowhead=none]
+  BCtop -> A [arrowhead=none]
+
+
+
+}
+")
+
+```
+
+::: incremental
+
+- By adding **loops**, RNNs can maintain a form of **memory** across time steps
+- When data is processed in batches, each new batch is combined with outputs from the previous one, enabling the network to learn from sequential context.
+- By combining loops and gates, it is possible to create more complex architectures like LSTM (Long Short-Term Memory), which are designed to handle long-term dependencies in sequences.
+
+:::
+
+## RNN {.smaller}
+
+*Recurrent Neural Networks*
+
+<br>
+
+
+**Designed for sequential data** 
+
+- time series
+- text
+- sequential biological data, e.g. EEG, ECG
+- genomic and proteomics sequences
+- patient health trajectories
+- motion and behavioral data
+
+
+<br>
+
+📍 Application: Temporal Prediction in Healthcare
+
+- 📊 Predict patient outcomes over time
+- 🏥 Used in models like DeepCare and Doctor AI
+
+
+
+## Convolutional Neural Networks (CNN)
+
+![CNN Architecture](https://www.v7labs.com/blog/content/images/2021/07/convnet.png)
+
+**Key Features:**
+- Processes grid-like data (e.g., images)
+- Utilizes convolutional layers to detect features
+- Commonly used in image analysis
+
+**Life Sciences Application:**
+- Medical imaging diagnostics (e.g., tumor detection in MRI scans)
+
+
+# CNN – Convolutional Neural Networks
+
+![CNN Architecture](https://upload.wikimedia.org/wikipedia/commons/6/63/Typical_cnn.png)
+
+### 📍 Application: Medical Imaging
+- Tumor detection in CT and MRI scans
+- Google LYNA model: lymph node metastasis detection
+
+
+
+# RNN – Recurrent Neural Networks
+
+![RNN Architecture](https://upload.wikimedia.org/wikipedia/commons/b/b5/Recurrent_neural_network_unfold.svg)
+
+### 📍 Application: Temporal Prediction in Healthcare
+- Predict patient health over time (e.g., readmission risk)
+- DeepCare, Doctor AI using EHR time series
+
+
+
+## Transformer
+
+![Transformer](https://upload.wikimedia.org/wikipedia/commons/1/10/Transformer_architecture.png)
+
+### 📍 Application: Protein and DNA Sequence Modeling
+- Meta’s ESM-2: learns from protein sequences
+- AlphaFold2: protein structure prediction with attention
+
+
+
+## LLM – Large Language Models
+
+![LLM Architecture](https://upload.wikimedia.org/wikipedia/commons/4/4e/GPT-3_Architecture.jpg)
+
+### 📍 Application: Medical NLP & Biological Foundation Models
+- Med-PaLM: AI answers to medical questions
+- Enformer: predicts gene expression from DNA
+
+
+## 💻 Lab {.smaller}
+
+<br>
+
+::: incremental
+
+- We go back to try to understand the biology of obesity. 
+- We shown that the expression of several genes (FTO, MC4R, LEP) is associated with obesity. 
+- So we will try to see if we can build a predictive model for obesity based on gene expression data, focusing on less well-known genes (i.e. not FTO, MC4R, LEP).
+
+:::
+
+. . . 
+
+::: incremental
+
+We will explore three ensemble learning strategies:
+
+- Bagging, using Random Forest;
+- Boosting, using XGBoost;
+- Stacking, combining the predictions from KNN, SVM, and Random Forest, with logistic regression as a meta-learner.
+
+:::
+
+<br>
+
+## Thank you
+
+Questions?
+
+## References
