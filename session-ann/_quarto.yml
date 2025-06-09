@@ -4,7 +4,7 @@ project:
     
 
 book:
-  title: "Bagging, boosting, and stacking"
+  title: "Neutral Networks"
   author: "Olga Dethlefsen"
   #date: "8/31/2022"
   chapters:

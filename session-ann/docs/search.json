@@ -2,9 +2,9 @@
   {
     "objectID": "index.html",
     "href": "index.html",
-    "title": "Bagging, boosting, and stacking",
+    "title": "Neutral Networks",
     "section": "",
-    "text": "Preface\nLearning outcomes\n\nExplain the core principles of ensemble learning, including bagging, boosting, and stacking.\nCompare strengths and limitations of different ensemble approaches (e.g., Random Forest vs. XGBoost).\nImplement bagging and boosting models in R using randomForest and xgboost.\nTune hyperparameters of ensemble models using validation data.\nConstruct a stacking ensemble using predicted probabilities from multiple base learners.\nTrain a meta-learner (e.g., logistic regression) to combine base model outputs.\nEvaluate and interpret performance metrics (accuracy, AUC) for individual models and ensembles.",
+    "text": "Preface\nLearning outcomes",
     "crumbs": [
       "Preface"
     ]
@@ -12,81 +12,31 @@
   {
     "objectID": "lab.html",
     "href": "lab.html",
-    "title": "Bagging, boosting and stacking",
+    "title": "Neural Networks",
     "section": "",
-    "text": "Introduction\nWe are still working to better understand the biology of obesity. Previous studies have shown that the expression of several genes (FTO, MC4R, LEP) is associated with this condition. In this exercise, we are interested in building a predictive model for obesity based on gene expression data, focusing on less well-known genes.\nWe will explore three ensemble learning strategies:",
+    "text": "Introduction",
     "crumbs": [
-      "<span class='chapter-number'>1</span>  <span class='chapter-title'>Bagging, boosting and stacking</span>"
+      "<span class='chapter-number'>1</span>  <span class='chapter-title'>Neural Networks</span>"
     ]
   },
   {
     "objectID": "lab.html#load-packages",
     "href": "lab.html#load-packages",
-    "title": "Bagging, boosting and stacking",
+    "title": "Neural Networks",
     "section": "Load packages",
     "text": "Load packages\n\n\nCode\n# load packages\nrm(list=ls())\nlibrary(tidyverse)\nlibrary(ggcorrplot)\nlibrary(glmnet)\nlibrary(fastDummies)\nlibrary(pROC)\nlibrary(ranger)\nlibrary(e1071)\nlibrary(class)\nlibrary(xgboost)\n\n# Load the clinical data\ndata_obesity &lt;- read_csv(\"data/data-obesity.csv\") \n\n# Load gene expression data\ndata_expr &lt;- read_csv(\"data/data-obesity-genes.csv\")\ngenes_all &lt;- colnames(data_expr)[-1]  # Exclude the 'id' column\n\n# Genes\ngens_known &lt;- c(\"FTO\", \"MC4R\", \"LEP\")\ngenes_other &lt;- setdiff(genes_all, gens_known)",
     "crumbs": [
-      "<span class='chapter-number'>1</span>  <span class='chapter-title'>Bagging, boosting and stacking</span>"
+      "<span class='chapter-number'>1</span>  <span class='chapter-title'>Neural Networks</span>"
     ]
   },
   {
     "objectID": "lab.html#split-data",
     "href": "lab.html#split-data",
-    "title": "Bagging, boosting and stacking",
+    "title": "Neural Networks",
     "section": "Split Data",
     "text": "Split Data\n\n# join gene expression data with clinical data\ndata &lt;- data_obesity %&gt;%\n  left_join(data_expr, by = \"id\") %&gt;%\n  dplyr::select(\"obese\", all_of(genes_other)) %&gt;%\n  na.omit()\n\n# three-way split: train (60%), validation (20%), test (20%)\nset.seed(123)\nn &lt;- nrow(data)\nidx &lt;- sample(seq_len(n))\nidx_train &lt;- idx[1:floor(0.6 * n)]\nidx_valid &lt;- idx[(floor(0.6 * n) + 1):floor(0.8 * n)]\nidx_test  &lt;- idx[(floor(0.8 * n) + 1):n]\n\ndata_train &lt;- data[idx_train, ]\ndata_valid &lt;- data[idx_valid, ]\ndata_test  &lt;- data[idx_test, ]\n\n# To keep focus on the important parts, we will skip feature engineering\n# and we will just scale all data\nx_train &lt;- data_train %&gt;%\n  dplyr::select(-obese) %&gt;%\n  as.matrix() %&gt;%\n  scale()\n\nx_valid &lt;- data_valid %&gt;%\n  dplyr::select(-obese) %&gt;%\n  as.matrix() %&gt;%\n  scale()\n\nx_test &lt;- data_test %&gt;%\n  dplyr::select(-obese) %&gt;%\n  as.matrix() %&gt;%\n  scale()\n\n# Separate and format target variable\ny_train &lt;- data_train$obese\ny_train &lt;- ifelse(y_train == \"Yes\", 1, 0) \n\ny_valid &lt;- data_valid$obese\ny_valid &lt;- ifelse(y_valid == \"Yes\", 1, 0)\n\ny_test &lt;- data_test$obese\ny_test &lt;- ifelse(y_test == \"Yes\", 1, 0)",
     "crumbs": [
-      "<span class='chapter-number'>1</span>  <span class='chapter-title'>Bagging, boosting and stacking</span>"
-    ]
-  },
-  {
-    "objectID": "lab.html#bagging-random-forest",
-    "href": "lab.html#bagging-random-forest",
-    "title": "Bagging, boosting and stacking",
-    "section": "Bagging: Random Forest",
-    "text": "Bagging: Random Forest\n\n\nCode\n\n# Combine predictors and target into a single data frame for ranger\ndf_train &lt;- data.frame(y = factor(data_train$obese), x_train)\ndf_valid &lt;- data.frame(y = factor(data_valid$obese), x_valid)\ndf_test &lt;- data.frame(y = factor(data_test$obese), x_test)\n\n# Tune RF\n# Grid search over mtry and min.node.size\nresults &lt;- expand.grid(\n  mtry = c(5, 10, 20, 50),\n  min.node.size = c(1, 5, 10)\n)\n\n# Create a function to evaluate AUC for a set of parameters\ntune_rf &lt;- function(mtry_val, min_node) {\n  rf_model &lt;- ranger(\n    y ~ ., data = df_train,\n    probability = TRUE,\n    num.trees = 500,\n    mtry = mtry_val,\n    min.node.size = min_node,\n    seed = 123\n  )\n  \n  rf_probs &lt;- predict(rf_model, data = df_valid)$predictions[, \"Yes\"]\n  roc_obj &lt;- roc(df_valid$y, rf_probs, quiet = TRUE)\n  auc_val &lt;- auc(roc_obj)\n  return(auc_val)\n}\n\nresults$AUC &lt;- mapply(tune_rf, results$mtry, results$min.node.size)\n\n# Find best combination\nbest_params &lt;- results[which.max(results$AUC), ]\nprint(best_params)\n##   mtry min.node.size       AUC\n## 8   50             5 0.9024217\n\n# Refit final tuned Random Forest model with best hyperparameters\nrf_model &lt;- ranger(\n  y ~ ., data = df_train,\n  probability = TRUE,\n  num.trees = 500,\n  mtry = best_params$mtry,\n  min.node.size = best_params$min.node.size,\n  seed = 123, \n  importance = \"impurity\"\n)\n\n# Predict and evaluate on test data\nrf_probs &lt;- predict(rf_model, data = df_test)$predictions[, \"Yes\"]\nrf_preds &lt;- ifelse(rf_probs &gt; 0.5, \"Yes\", \"No\")\n\n# Confusion matrix\nconf_matrix &lt;- table(Predicted = rf_preds, Actual = df_test$y)\nprint(conf_matrix)\n##          Actual\n## Predicted No Yes\n##       No  48  28\n##       Yes  0   4\n\n# Accuracy and AUC\naccuracy &lt;- sum(diag(conf_matrix)) / sum(conf_matrix)\nroc_obj &lt;- roc(df_test$y, rf_probs)\nauc_val &lt;- auc(roc_obj)\n\nplot(roc_obj, col = \"blue\", lwd = 2, main = \"Random Forest ROC\")\nabline(a = 0, b = 1, lty = 2, col = \"gray\")\ncat(\"AUC:\", auc(roc_obj), \"\\n\")\n## AUC: 0.7044271\n\nrf_conf_matrix &lt;- conf_matrix\nrf_acc &lt;- accuracy\nrf_auc &lt;- auc_val\n\nrf_best_parm &lt;- best_params\n\ncat(sprintf(\"Random Forest Test Accuracy: %.3f\\n\", rf_acc))\n## Random Forest Test Accuracy: 0.650\ncat(sprintf(\"Random Forest Test AUC: %.3f\\n\", rf_auc))\n## Random Forest Test AUC: 0.704\n\n\n\n\n\n\n\n\n\n\n\nCode\n# feature importance\nimportance &lt;- rf_model$variable.importance\n\n# Convert to data frame\nimportance_df &lt;- data.frame(\n  feature = names(importance),\n  importance = importance\n)\n\n# Plot top features\nimportance_df &lt;- importance_df %&gt;%\n  arrange(desc(importance))\n\nggplot(importance_df[1:20, ], aes(x = reorder(feature, importance), y = importance)) +\n  geom_col(fill = \"darkgreen\") +\n  coord_flip() +\n  labs(\n    title = \"Variable Importance (Random Forest)\",\n    x = \"Feature\", y = \"Importance (Gini Impurity)\"\n  ) +\n  theme_minimal()",
-    "crumbs": [
-      "<span class='chapter-number'>1</span>  <span class='chapter-title'>Bagging, boosting and stacking</span>"
-    ]
-  },
-  {
-    "objectID": "lab.html#boosting-xgboost",
-    "href": "lab.html#boosting-xgboost",
-    "title": "Bagging, boosting and stacking",
-    "section": "Boosting: XGBoost",
-    "text": "Boosting: XGBoost\n\n\nCode\n# Prepare data\ndtrain &lt;- xgb.DMatrix(data = x_train, label = y_train)  \ndvalid &lt;- xgb.DMatrix(data = x_valid, label = y_valid)\ndtest  &lt;- xgb.DMatrix(data = x_test)\n\n# Define parameter grid\nxgb_grid &lt;- expand.grid(\n  eta = c(0.01, 0.1, 0.3),\n  max_depth = c(3, 5, 7)\n)\n\n# Tuning loop\nxgb_grid$AUC &lt;- NA\n\nfor (i in 1:nrow(xgb_grid)) {\n  params &lt;- list(\n    objective = \"binary:logistic\",\n    eval_metric = \"auc\",\n    eta = xgb_grid$eta[i],\n    max_depth = xgb_grid$max_depth[i]\n  )\n  \n  xgb_model &lt;- xgb.train(\n    params = params,\n    data = dtrain,\n    nrounds = 100,\n    verbose = 0\n  )\n  \n  valid_probs &lt;- predict(xgb_model, newdata = dvalid)\n  roc_obj &lt;- roc(y_valid, valid_probs, quiet = TRUE)\n  xgb_grid$AUC[i] &lt;- auc(roc_obj)\n}\n\n# Best model\nbest_params &lt;- xgb_grid[which.max(xgb_grid$AUC), ]\nprint(best_params)\n##   eta max_depth       AUC\n## 6 0.3         5 0.9009972\n\n# Refit using best parameters\nfinal_xgb &lt;- xgb.train(\n  params = list(\n    objective = \"binary:logistic\",\n    eval_metric = \"auc\",\n    eta = best_params$eta,\n    max_depth = best_params$max_depth\n  ),\n  data = dtrain,\n  nrounds = 100,\n  verbose = 0\n)\n\n# Test predictions\nxgb_probs &lt;- predict(final_xgb, newdata = dtest)\nxgb_preds &lt;- ifelse(xgb_probs &gt; 0.5, \"Yes\", \"No\")\n\n# Evaluation\nxgb_conf_matrix &lt;- table(Predicted = xgb_preds, Actual = y_test)\nxgb_acc &lt;- sum(diag(xgb_conf_matrix)) / sum(xgb_conf_matrix)\nxgb_auc &lt;- auc(roc(y_test, xgb_probs))\n\nprint(xgb_conf_matrix)\n##          Actual\n## Predicted  0  1\n##       No  40 13\n##       Yes  8 19\ncat(sprintf(\"XGBoost Test Accuracy: %.3f\\n\", xgb_acc))\n## XGBoost Test Accuracy: 0.738\ncat(sprintf(\"XGBoost Test AUC: %.3f\\n\", xgb_auc))\n## XGBoost Test AUC: 0.819",
-    "crumbs": [
-      "<span class='chapter-number'>1</span>  <span class='chapter-title'>Bagging, boosting and stacking</span>"
-    ]
-  },
-  {
-    "objectID": "lab.html#stacking",
-    "href": "lab.html#stacking",
-    "title": "Bagging, boosting and stacking",
-    "section": "Stacking",
-    "text": "Stacking\nLet’s combine the predictions from Random Forest, SVM and KNN models using a stacking ensemble approach. We will use logistic regression as the meta-model. We have already tuned Random Forest, so we will need to tune SVM and KNN before proceeding with stacking.\n\nSVM\n\n\nCode\n# SVM with linear kernel\n\n# Prepare data for SMV\ndata_train_svm &lt;- data_train %&gt;%\n  mutate(obese = factor(obese, levels = c(\"No\", \"Yes\")))\n\ndata_valid_svm &lt;- data_valid %&gt;%\n  mutate(obese = factor(obese, levels = c(\"No\", \"Yes\")))\n\n# Try different cost values for SVM\ncost_grid &lt;- c(0.01, 0.1, 1, 10)\nsvm_results &lt;- data.frame(cost = cost_grid, AUC = NA)\n\nfor (i in seq_along(cost_grid)) {\n  \n  model &lt;- svm(obese ~ ., data = data_train_svm, cost = cost_grid[i], probability = TRUE)\n  pred &lt;- predict(model, newdata = data_valid_svm, probability = TRUE)\n  probs &lt;- attr(pred, \"probabilities\")[, \"Yes\"]\n  svm_results$AUC[i] &lt;- auc(roc(data_valid_svm$obese, probs, quiet = TRUE))\n  \n}\n\n# Find the best cost value based on AUC\nbest_cost &lt;- svm_results$cost[which.max(svm_results$AUC)]\n\n# Fit the final SVM model with the best cost\nsvm_model &lt;- svm(obese ~ ., data = data_train_svm, cost = best_cost, probability = TRUE)\n\n# Predict on test sets\nsvm_test_pred &lt;- predict(svm_model, newdata = data_test, probability = TRUE)\nsvm_test_probs &lt;- attr(svm_test_pred, \"probabilities\")[, \"Yes\"]\n\n# Accuracy and AUC for SVM\nsvm_preds &lt;- ifelse(svm_test_probs &gt; 0.5, \"Yes\", \"No\")\nsvm_acc &lt;- mean(svm_preds == data_test$obese)\nsvm_auc &lt;- auc(roc(data_test$obese, svm_test_probs, quiet = TRUE))\n\nsvm_best_cost &lt;- best_cost\n\ncat(sprintf(\"SVM Test Accuracy: %.3f\\n\", svm_acc))\n## SVM Test Accuracy: 0.537\ncat(sprintf(\"SVM Test AUC: %.3f\\n\", svm_auc))\n## SVM Test AUC: 0.458\n\n\n\n\nKNN\n\n\nCode\n# Tune KNN using validation AUC\nk_values &lt;- c(3, 5, 7, 9, 11, 13, 15)\nknn_results &lt;- data.frame(k = k_values, AUC = NA)\n\nfor (i in seq_along(k_values)) {\n  \n  pred &lt;- knn(train = x_train, test = x_valid, cl = data_train$obese, k = k_values[i], prob = TRUE)\n  probs &lt;- ifelse(pred == \"Yes\", attr(pred, \"prob\"), 1 - attr(pred, \"prob\"))\n  knn_results$AUC[i] &lt;- auc(roc(data_valid$obese, probs, quiet = TRUE))\n  \n}\n\nbest_k &lt;- knn_results$k[which.max(knn_results$AUC)]\n\n# Fit the final KNN model with the best k\nknn_test &lt;- knn(train = x_train, test = x_test,\n                cl = data_train$obese, k = best_k, prob = TRUE)\nknn_test_probs &lt;- ifelse(knn_test == \"Yes\", attr(knn_test, \"prob\"), 1 - attr(knn_test, \"prob\"))\n\n# Accuracy and AUC for KNN\nknn_preds &lt;- ifelse(knn_test_probs &gt; 0.5, \"Yes\", \"No\")\nknn_acc &lt;- mean(knn_preds == data_test$obese)\nknn_auc &lt;- auc(roc(data_test$obese, knn_test_probs, quiet = TRUE))\n\ncat(sprintf(\"KNN Test Accuracy: %.3f\\n\", knn_acc))\n## KNN Test Accuracy: 0.550\ncat(sprintf(\"KNN Test AUC: %.3f\\n\", knn_auc))\n## KNN Test AUC: 0.532\n\n\n\n\nStacking base models\nThe meta-learner is trained using the predicted probabilities from each base model (RF, SVM, KNN) on the validation set, learning how to best combine them.\n\n\nCode\n# Meta-learner is trained on validation-set predicted probabilities from each base model (RF, SVM, KNN)\n\n# get validation probabilities for each tuned base model\nrf_valid_probs &lt;- predict(rf_model, data = df_valid)$predictions[, \"Yes\"]\nsvm_valid_probs &lt;- predict(svm_model, newdata = data_valid_svm, probability = TRUE)\nsvm_valid_probs &lt;- attr(svm_valid_probs, \"probabilities\")[, \"Yes\"]\nknn_valid &lt;- knn(train = x_train, test = x_valid,\n                 cl = data_train$obese, k = best_k, prob = TRUE)\nknn_valid_probs &lt;- ifelse(knn_valid == \"Yes\", attr(knn_valid, \"prob\"), 1 - attr(knn_valid, \"prob\"))\n\n# Combine validation predictions for meta-model\nstack_valid &lt;- data.frame(\n  rf = rf_valid_probs,\n  svm = svm_valid_probs,\n  knn = knn_valid_probs,\n  obese = as.factor(data_valid$obese)\n)\n\nx_meta &lt;- model.matrix(obese ~ . - 1, data = stack_valid)\ny_meta &lt;- as.numeric(stack_valid$obese) - 1\n\n# Combine test predictions for meta-model\nstack_test &lt;- data.frame(\n  rf = predict(rf_model, data = df_test)$predictions[, \"Yes\"],\n  svm = svm_test_probs,\n  knn = knn_test_probs\n)\nx_stack_test &lt;- model.matrix(~ . - 1, data = stack_test)\n\n# Tune meta-model using Lasso regression\nmeta_model &lt;- cv.glmnet(x_meta, y_meta, family = \"binomial\", alpha = 1)\nbest_lambda &lt;- meta_model$lambda.min\ncat(\"Best lambda:\", best_lambda)\n## Best lambda: 0.002781908\n\n# Predict on test set using the meta-model\nstack_probs &lt;- predict(meta_model, newx = x_stack_test, s = \"lambda.min\", type = \"response\")\nstack_preds &lt;- ifelse(stack_probs &gt; 0.5, \"Yes\", \"No\") |&gt; factor(levels = c(\"No\", \"Yes\"))\n\n# Accuracy and AUC for stacked ensemble\nstack_acc &lt;- mean(stack_preds == data_test$obese)\nstack_auc &lt;- auc(roc(data_test$obese, as.numeric(stack_preds == \"Yes\"), quiet = TRUE))\n\n\n\n\nResults\n\n\nCode\n# Create a results table\nresults_table &lt;- data.frame(\n  Model = c(\"Random Forest\", \"XGBoost\", \"SVM\", \"KNN\", \"Stacked\"),\n  Accuracy = c(rf_acc, xgb_acc, svm_acc, knn_acc, stack_acc),\n  AUC = c(rf_auc, xgb_auc, svm_auc, knn_auc, stack_auc)\n)\n\nresults_table &lt;- results_table %&gt;%\n  mutate(Accuracy = round(Accuracy, 2),\n         AUC = round(AUC, 2)) \n\nprint(results_table)\n##           Model Accuracy  AUC\n## 1 Random Forest     0.65 0.70\n## 2       XGBoost     0.74 0.82\n## 3           SVM     0.54 0.46\n## 4           KNN     0.55 0.53\n## 5       Stacked     0.68 0.66\n\n\nComments:\n\nGBoost is clearly the best performer, with the highest accuracy (0.74) and AUC (0.82), indicating strong predictive power and probability calibration.\nRandom Forest performs moderately, with decent AUC (0.70) but lower accuracy than XGBoost.\nSVM and KNN underperform both in accuracy and AUC, suggesting they may not be well-suited for the structure of the gene expression data.\nStacked Ensemble improves upon Random Forest and the weaker base models, but does not outperform XGBoost, showing accuracy of 0.68 and AUC of 0.66.\nThis suggests stacking helped stabilize performance, but couldn’t exceed the strongest individual learner, possibly due to weak or correlated base model predictions.\n\nTo improve the stacking model, we could consider:\n\nAdding more diverse models, e.g. including XGBoost, or LASSO logistic regression, to reduce redundancy among base learners.\nTuning the meta-learner more carefully by trying both lambda.min and lambda.1se for LASSO; or trying different meta-learner\nIncluding raw features in the meta-learner, e.g by combining predicted probabilities with a few key original features (e.g., top gene expressions) to provide richer inputs.\nChecking for prediction correlation: High correlation between base model outputs reduces the benefit of stacking—replace or drop highly redundant learners.\nTrying alternative performance metrics, e.g. if our main main goal is identifying obese individuals, we could consider optimizing for recall, F1-score, instead of accuracy or AUC.",
-    "crumbs": [
-      "<span class='chapter-number'>1</span>  <span class='chapter-title'>Bagging, boosting and stacking</span>"
-    ]
-  },
-  {
-    "objectID": "lab.html#task-i",
-    "href": "lab.html#task-i",
-    "title": "Bagging, boosting and stacking",
-    "section": "Task I",
-    "text": "Task I\nExperiment with the above suggestions, to see if you can improve the stacking model performance.",
-    "crumbs": [
-      "<span class='chapter-number'>1</span>  <span class='chapter-title'>Bagging, boosting and stacking</span>"
-    ]
-  },
-  {
-    "objectID": "lab.html#task-ii",
-    "href": "lab.html#task-ii",
-    "title": "Bagging, boosting and stacking",
-    "section": "Task II",
-    "text": "Task II\nModify the above code for a regression task, predicting BMI instead of obesity.",
-    "crumbs": [
-      "<span class='chapter-number'>1</span>  <span class='chapter-title'>Bagging, boosting and stacking</span>"
+      "<span class='chapter-number'>1</span>  <span class='chapter-title'>Neural Networks</span>"
     ]
   }
 ]
