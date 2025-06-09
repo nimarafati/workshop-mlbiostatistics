@@ -44,7 +44,6 @@ library(ggthemes)
 - So far we talked about core concepts: neurons, layers, weights, and biases
 - and explained how networks learn using backpropagation and gradient descent
 - What is amazing is that different structures (architectures) of neural networks can lead to different capabilities.
-- Let's look at some examples.
 
 :::
 
@@ -165,8 +164,6 @@ digraph RNN_flow {
   BC -> BCtop [arrowhead=none]
   BCtop -> A [arrowhead=none]
 
-
-
 }
 ")
 
@@ -186,66 +183,168 @@ digraph RNN_flow {
 
 <br>
 
+:::: {.columns}
 
-**Designed for sequential data** 
+::: {.column width="40%"}
 
-- time series
-- text
-- sequential biological data, e.g. EEG, ECG
-- genomic and proteomics sequences
-- patient health trajectories
-- motion and behavioral data
 
+**Designed for sequential data, e.g. text, time series**
+
+- ❤️ ECG monitoring for arrhythmia detection and cardiac event prediction
+- 🧠 EEG analysis for seizure detection and sleep stage classification
+- 🏥 Tracking patient health trajectories over time
+- 🕺 Motion capture and behavioral prediction
+
+:::
+
+::: {.column width="5%"}
+
+:::
+
+::: {.column width="55%"}
+
+<div style="text-align: center; margin-bottom: 1em;">
+  <img src="images/doctorai.png" style="width: 90%; display: block; margin: auto; margin-top: -1em;" />
+</div>
+
+:::
+
+::::
+
+
+## CNN 
+*Convolutional Neural Networks*
 
 <br>
 
-📍 Application: Temporal Prediction in Healthcare
-
-- 📊 Predict patient outcomes over time
-- 🏥 Used in models like DeepCare and Doctor AI
 
 
+:::: {.columns}
 
-## Convolutional Neural Networks (CNN)
-
-![CNN Architecture](https://www.v7labs.com/blog/content/images/2021/07/convnet.png)
-
-**Key Features:**
-- Processes grid-like data (e.g., images)
-- Utilizes convolutional layers to detect features
-- Commonly used in image analysis
-
-**Life Sciences Application:**
-- Medical imaging diagnostics (e.g., tumor detection in MRI scans)
+::: {.column width="35%"}
 
 
-# CNN – Convolutional Neural Networks
+- Based on the hierarchical visual system of mammals
+- Neurons first detect **simple features** like edges in small image regions
+- These are combined to identify **shapes or parts** (e.g. wheels, frames)
+- Higher layers integrate these into **whole object recognition**
 
-![CNN Architecture](https://upload.wikimedia.org/wikipedia/commons/6/63/Typical_cnn.png)
+:::
 
-### 📍 Application: Medical Imaging
-- Tumor detection in CT and MRI scans
-- Google LYNA model: lymph node metastasis detection
+::: {.column width="5%"}
+
+:::
+
+::: {.column width="60%"}
+
+![](images/CNN-bike.png)
+
+:::
+
+::::
+
+## CNN {.smaller}
+*Convolutional Neural Networks*
+
+<br>
+
+:::: {.columns}
+
+::: {.column width="35%"}
+
+- The central operation is convolution, an operation that combines two functions. 
+- We apply a sliding filter (kernel) to detect local features like edges and textures.
+- A series of convlution and pooloign layers extract and compress key visual patterns hierarchically.
+
+:::
+
+::: {.column width="10%"}
+
+:::
+
+::: {.column width="50%"}
+
+![](images/CNN-koala.png)
+*Source: https://www.v7labs.com/blog/neural-network-architectures-guide*
+
+:::
+
+::::
 
 
-
-# RNN – Recurrent Neural Networks
-
-![RNN Architecture](https://upload.wikimedia.org/wikipedia/commons/b/b5/Recurrent_neural_network_unfold.svg)
-
-### 📍 Application: Temporal Prediction in Healthcare
-- Predict patient health over time (e.g., readmission risk)
-- DeepCare, Doctor AI using EHR time series
+## CNN {.smaller}
+*Convolutional Neural Networks*
 
 
+:::: {.columns}
 
-## Transformer
+::: {.column width="35%"}
+*Perfect for images*
 
-![Transformer](https://upload.wikimedia.org/wikipedia/commons/1/10/Transformer_architecture.png)
+- 🩻 Medical imaging (CT, MRI, X-ray) for tumor or anomaly detection
+- 🔬 Microscopy for cell classification and tissue pathology
+- 🧫 Histopathology slides for cancer grading and segmentation
+- 👁️ Retinal and skin image analysis for diabetic retinopathy and lesion detection
+:::
 
-### 📍 Application: Protein and DNA Sequence Modeling
-- Meta’s ESM-2: learns from protein sequences
-- AlphaFold2: protein structure prediction with attention
+::: {.column width="5%"}
+
+:::
+
+::: {.column width="60%"}
+
+![](images/CNN-LYNA.png)
+
+*Google LYNA (Lymph Node Assistant) uses CNNs to detect metastatic breast cancer in lymph nodes. Source: https://research.google/blog/assisting-pathologists-in-detecting-cancer-with-deep-learning/*
+
+:::
+
+::::
+
+
+## GAN {.smaller}
+
+*Generative Adversarial Network*
+
+:::: {.columns}
+
+::: {.column width="35%"}
+Generates entirely new synthetic data by learning the pattern:
+
+- Generator and a discriminator work in a competitive fashion
+- The generator creates fake data, while the discriminator tries to distinguish real from fake
+- In life science: 
+  - 🧠 Brain imaging enhancement: super-resolve MRI scans
+  - 🧪 Data augmentation: enhance datasets for rare diseases or underrepresented classes
+  - 👁️ Privacy-preserving data generation: create realistic but anonymized patient records (e.g. synthetic EHRs)
+
+:::
+
+::: {.column width="5%"}
+
+:::
+
+::: {.column width="60%"}
+
+![](images/GAN.png)
+
+*Source: https://research.google/blog/assisting-pathologists-in-detecting-cancer-with-deep-learning/*
+
+:::
+
+::::
+
+## Transformer Neural Network
+
+<br>
+
+**Parallelize the training on sequential data**
+
+- Transformers use self-attention mechanisms to weigh the importance of different parts of the input sequence, allowing them to capture long-range dependencies without relying on recurrence.
+- BERT
+- Google Gemini
+- ChatGPT 
+
 
 
 
@@ -288,4 +387,4 @@ We will explore three ensemble learning strategies:
 
 Questions?
 
-## References
+

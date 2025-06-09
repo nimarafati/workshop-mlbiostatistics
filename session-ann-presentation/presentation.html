@@ -148,7 +148,6 @@
 <li class="fragment">So far we talked about core concepts: neurons, layers, weights, and biases</li>
 <li class="fragment">and explained how networks learn using backpropagation and gradient descent</li>
 <li class="fragment">What is amazing is that different structures (architectures) of neural networks can lead to different capabilities.</li>
-<li class="fragment">Let’s look at some examples.</li>
 </ul>
 </div>
 </section>
@@ -157,8 +156,8 @@
 <p><br></p>
 <div class="cell" data-layout-align="center">
 <div class="cell-output-display">
-<div class="grViz html-widget html-fill-item" id="htmlwidget-941f58ef8deebf341b67" style="width:960px;height:480px;"></div>
-<script type="application/json" data-for="htmlwidget-941f58ef8deebf341b67">{"x":{"diagram":"\ndigraph neural_net {\n  rankdir=LR;\n  splines=line; // Makes connections straight\n  node [shape=circle style=filled fixedsize=true width=0.5]\n\n  // Input Layer\n  subgraph cluster_input {\n    color=none;\n    x1 [label=\"X\", fillcolor=lightblue]\n    label=\"Input Layer\"\n  }\n\n  // Hidden Layer 1\n  subgraph cluster_hidden1 {\n    color=none;\n    h11 [label=\"\", fillcolor=coral]\n    h12 [label=\"\", fillcolor=coral]\n    h13 [label=\"\", fillcolor=coral]\n    label=\"Hidden Layer 1\"\n  }\n\n  // Hidden Layer 2\n  subgraph cluster_hidden2 {\n    color=none;\n    h21 [label=\"\", fillcolor=khaki]\n    h22 [label=\"\", fillcolor=khaki]\n    h23 [label=\"\", fillcolor=khaki]\n    label=\"Hidden Layer 2\"\n  }\n\n  // Hidden Layer 3\n  subgraph cluster_hidden3 {\n    color=none;\n    h31 [label=\"\", fillcolor=lightgreen]\n    h32 [label=\"\", fillcolor=lightgreen]\n    h33 [label=\"\", fillcolor=lightgreen]\n    label=\"Hidden Layer 3\"\n  }\n\n  // Output Layer\n  y [label=\"Y\", fillcolor=white shape=circle]\n\n  // Connections\n  x1 -> {h11 h12 h13}\n\n  h11 -> {h21 h22 h23}\n  h12 -> {h21 h22 h23}\n  h13 -> {h21 h22 h23}\n\n  h21 -> {h31 h32 h33}\n  h22 -> {h31 h32 h33}\n  h23 -> {h31 h32 h33}\n\n  h31 -> y\n  h32 -> y\n  h33 -> y\n}\n","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+<div class="grViz html-widget html-fill-item" id="htmlwidget-ad81fec24a25996e43e9" style="width:960px;height:480px;"></div>
+<script type="application/json" data-for="htmlwidget-ad81fec24a25996e43e9">{"x":{"diagram":"\ndigraph neural_net {\n  rankdir=LR;\n  splines=line; // Makes connections straight\n  node [shape=circle style=filled fixedsize=true width=0.5]\n\n  // Input Layer\n  subgraph cluster_input {\n    color=none;\n    x1 [label=\"X\", fillcolor=lightblue]\n    label=\"Input Layer\"\n  }\n\n  // Hidden Layer 1\n  subgraph cluster_hidden1 {\n    color=none;\n    h11 [label=\"\", fillcolor=coral]\n    h12 [label=\"\", fillcolor=coral]\n    h13 [label=\"\", fillcolor=coral]\n    label=\"Hidden Layer 1\"\n  }\n\n  // Hidden Layer 2\n  subgraph cluster_hidden2 {\n    color=none;\n    h21 [label=\"\", fillcolor=khaki]\n    h22 [label=\"\", fillcolor=khaki]\n    h23 [label=\"\", fillcolor=khaki]\n    label=\"Hidden Layer 2\"\n  }\n\n  // Hidden Layer 3\n  subgraph cluster_hidden3 {\n    color=none;\n    h31 [label=\"\", fillcolor=lightgreen]\n    h32 [label=\"\", fillcolor=lightgreen]\n    h33 [label=\"\", fillcolor=lightgreen]\n    label=\"Hidden Layer 3\"\n  }\n\n  // Output Layer\n  y [label=\"Y\", fillcolor=white shape=circle]\n\n  // Connections\n  x1 -> {h11 h12 h13}\n\n  h11 -> {h21 h22 h23}\n  h12 -> {h21 h22 h23}\n  h13 -> {h21 h22 h23}\n\n  h21 -> {h31 h32 h33}\n  h22 -> {h31 h32 h33}\n  h23 -> {h31 h32 h33}\n\n  h31 -> y\n  h32 -> y\n  h33 -> y\n}\n","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
 </div>
 </div>
 <p>Example of fully connected feedfoward neural network. Data only moves through the network in one direction, from input to output.</p>
@@ -168,8 +167,8 @@
 <p><em>Recurrent Neural Networks</em></p>
 <div class="cell" data-layout-align="center">
 <div class="cell-output-display">
-<div class="grViz html-widget html-fill-item" id="htmlwidget-963af39f0a377e139b3d" style="width:960px;height:384px;"></div>
-<script type="application/json" data-for="htmlwidget-963af39f0a377e139b3d">{"x":{"diagram":"\ndigraph RNN_flow {\n  rankdir=LR;\n  splines=ortho;\n  node [shape=ellipse style=filled fontname=\"Arial\" fixedsize=true width=0.6]\n\n  // Real nodes\n  X [label=\"X\", fillcolor=white, style=solid]\n  A [label=\"A\", fillcolor=lightblue]\n  B [label=\"B\", fillcolor=salmon]\n  C [label=\"C\", fillcolor=khaki]\n  D [label=\"D\", fillcolor=green]\n  Y [label=\"Y\", fillcolor=white, style=solid]\n\n  // Invisible routing nodes (for curved-back arrows)\n  DY [label=\"\", width=0, height=0, style=invis]\n  DYtop [label=\"\", width=0, height=0, style=invis]\n  BC [label=\"\", width=0, height=0, style=invis]\n  BCtop [label=\"\", width=0, height=0, style=invis]\n\n  // Main forward flow\n  X -> A\n  A -> B\n  B -> BC [arrowhead=none]\n  BC -> C \n  C -> D\n  D -> DY [arrowhead=none]\n  DY -> Y \n\n  // Routed loopbacks\n  DY -> DYtop [arrowhead=none]\n  DYtop -> C [arrowhead=none]\n  \n  BC -> BCtop [arrowhead=none]\n  BCtop -> A [arrowhead=none]\n\n\n\n}\n","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+<div class="grViz html-widget html-fill-item" id="htmlwidget-ffd41536bae1cca4fc61" style="width:960px;height:384px;"></div>
+<script type="application/json" data-for="htmlwidget-ffd41536bae1cca4fc61">{"x":{"diagram":"\ndigraph RNN_flow {\n  rankdir=LR;\n  splines=ortho;\n  node [shape=ellipse style=filled fontname=\"Arial\" fixedsize=true width=0.6]\n\n  // Real nodes\n  X [label=\"X\", fillcolor=white, style=solid]\n  A [label=\"A\", fillcolor=lightblue]\n  B [label=\"B\", fillcolor=salmon]\n  C [label=\"C\", fillcolor=khaki]\n  D [label=\"D\", fillcolor=green]\n  Y [label=\"Y\", fillcolor=white, style=solid]\n\n  // Invisible routing nodes (for curved-back arrows)\n  DY [label=\"\", width=0, height=0, style=invis]\n  DYtop [label=\"\", width=0, height=0, style=invis]\n  BC [label=\"\", width=0, height=0, style=invis]\n  BCtop [label=\"\", width=0, height=0, style=invis]\n\n  // Main forward flow\n  X -> A\n  A -> B\n  B -> BC [arrowhead=none]\n  BC -> C \n  C -> D\n  D -> DY [arrowhead=none]\n  DY -> Y \n\n  // Routed loopbacks\n  DY -> DYtop [arrowhead=none]\n  DYtop -> C [arrowhead=none]\n  \n  BC -> BCtop [arrowhead=none]\n  BCtop -> A [arrowhead=none]\n\n}\n","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
 </div>
 </div>
 <div>
@@ -184,47 +183,109 @@
 <h2>RNN</h2>
 <p><em>Recurrent Neural Networks</em></p>
 <p><br></p>
-<p><strong>Designed for sequential data</strong> (e.g.&nbsp;time series, text)</p>
+<div class="columns">
+<div class="column" style="width:40%;">
+<p><strong>Designed for sequential data, e.g.&nbsp;text, time series</strong></p>
+<ul>
+<li>❤️ ECG monitoring for arrhythmia detection and cardiac event prediction</li>
+<li>🧠 EEG analysis for seizure detection and sleep stage classification</li>
+<li>🏥 Tracking patient health trajectories over time</li>
+<li>🕺 Motion capture and behavioral prediction</li>
+</ul>
+</div><div class="column" style="width:5%;">
+
+</div><div class="column" style="width:55%;">
+<div style="text-align: center; margin-bottom: 1em;">
+<p><img src="images/doctorai.png" style="width: 90%; display: block; margin: auto; margin-top: -1em;"></p>
+</div>
+</div></div>
+</section>
+<section id="cnn" class="slide level2">
+<h2>CNN</h2>
+<p><em>Convolutional Neural Networks</em></p>
 <p><br></p>
-<p>📍 Application: Temporal Prediction in Healthcare</p>
+<div class="columns">
+<div class="column" style="width:35%;">
 <ul>
-<li>📊 Predict patient outcomes over time</li>
-<li>🏥 Used in models like DeepCare and Doctor AI</li>
+<li>Based on the hierarchical visual system of mammals</li>
+<li>Neurons first detect <strong>simple features</strong> like edges in small image regions</li>
+<li>These are combined to identify <strong>shapes or parts</strong> (e.g.&nbsp;wheels, frames)</li>
+<li>Higher layers integrate these into <strong>whole object recognition</strong></li>
 </ul>
+</div><div class="column" style="width:5%;">
+
+</div><div class="column" style="width:60%;">
+<p><img data-src="images/CNN-bike.png"></p>
+</div></div>
 </section>
-<section id="convolutional-neural-networks-cnn" class="slide level2">
-<h2>Convolutional Neural Networks (CNN)</h2>
-
-<img data-src="https://www.v7labs.com/blog/content/images/2021/07/convnet.png" class="r-stretch quarto-figure-center"><p class="caption">CNN Architecture</p><p><strong>Key Features:</strong> - Processes grid-like data (e.g., images) - Utilizes convolutional layers to detect features - Commonly used in image analysis</p>
-<p><strong>Life Sciences Application:</strong> - Medical imaging diagnostics (e.g., tumor detection in MRI scans)</p>
-</section>
-<section>
-<section id="cnn-convolutional-neural-networks" class="title-slide slide level1 center">
-<h1>CNN – Convolutional Neural Networks</h1>
-
-<img data-src="https://upload.wikimedia.org/wikipedia/commons/6/63/Typical_cnn.png" class="r-stretch quarto-figure-center"><p class="caption">CNN Architecture</p></section>
-<h3 id="application-medical-imaging">📍 Application: Medical Imaging</h3>
+<section id="cnn-1" class="slide level2 smaller">
+<h2>CNN</h2>
+<p><em>Convolutional Neural Networks</em></p>
+<p><br></p>
+<div class="columns">
+<div class="column" style="width:35%;">
 <ul>
-<li>Tumor detection in CT and MRI scans</li>
-<li>Google LYNA model: lymph node metastasis detection</li>
-</ul></section>
-<section>
-<section id="rnn-recurrent-neural-networks" class="title-slide slide level1 center">
-<h1>RNN – Recurrent Neural Networks</h1>
-
-<img data-src="https://upload.wikimedia.org/wikipedia/commons/b/b5/Recurrent_neural_network_unfold.svg" class="r-stretch quarto-figure-center"><p class="caption">RNN Architecture</p></section>
-<h3 id="application-temporal-prediction-in-healthcare">📍 Application: Temporal Prediction in Healthcare</h3>
-<ul>
-<li>Predict patient health over time (e.g., readmission risk)</li>
-<li>DeepCare, Doctor AI using EHR time series</li>
+<li>The central operation is convolution, an operation that combines two functions.</li>
+<li>We apply a sliding filter (kernel) to detect local features like edges and textures.</li>
+<li>A series of convlution and pooloign layers extract and compress key visual patterns hierarchically.</li>
 </ul>
-<section id="transformer" class="slide level2">
-<h2>Transformer</h2>
+</div><div class="column" style="width:10%;">
 
-<img data-src="https://upload.wikimedia.org/wikipedia/commons/1/10/Transformer_architecture.png" class="r-stretch quarto-figure-center"><p class="caption">Transformer</p><h3 id="application-protein-and-dna-sequence-modeling">📍 Application: Protein and DNA Sequence Modeling</h3>
+</div><div class="column" style="width:50%;">
+<p><img data-src="images/CNN-koala.png"> <em>Source: https://www.v7labs.com/blog/neural-network-architectures-guide</em></p>
+</div></div>
+</section>
+<section id="cnn-2" class="slide level2 smaller">
+<h2>CNN</h2>
+<p><em>Convolutional Neural Networks</em></p>
+<div class="columns">
+<div class="column" style="width:35%;">
+<p><em>Perfect for images</em></p>
 <ul>
-<li>Meta’s ESM-2: learns from protein sequences</li>
-<li>AlphaFold2: protein structure prediction with attention</li>
+<li>🩻 Medical imaging (CT, MRI, X-ray) for tumor or anomaly detection</li>
+<li>🔬 Microscopy for cell classification and tissue pathology</li>
+<li>🧫 Histopathology slides for cancer grading and segmentation</li>
+<li>👁️ Retinal and skin image analysis for diabetic retinopathy and lesion detection</li>
+</ul>
+</div><div class="column" style="width:5%;">
+
+</div><div class="column" style="width:60%;">
+<p><img data-src="images/CNN-LYNA.png"></p>
+<p><em>Google LYNA (Lymph Node Assistant) uses CNNs to detect metastatic breast cancer in lymph nodes. Source: https://research.google/blog/assisting-pathologists-in-detecting-cancer-with-deep-learning/</em></p>
+</div></div>
+</section>
+<section id="gan" class="slide level2 smaller">
+<h2>GAN</h2>
+<p><em>Generative Adversarial Network</em></p>
+<div class="columns">
+<div class="column" style="width:35%;">
+<p>Generates entirely new synthetic data by learning the pattern:</p>
+<ul>
+<li>Generator and a discriminator work in a competitive fashion</li>
+<li>The generator creates fake data, while the discriminator tries to distinguish real from fake</li>
+<li>In life science:
+<ul>
+<li>🧠 Brain imaging enhancement: super-resolve MRI scans</li>
+<li>🧪 Data augmentation: enhance datasets for rare diseases or underrepresented classes</li>
+<li>👁️ Privacy-preserving data generation: create realistic but anonymized patient records (e.g.&nbsp;synthetic EHRs)</li>
+</ul></li>
+</ul>
+</div><div class="column" style="width:5%;">
+
+</div><div class="column" style="width:60%;">
+<p><img data-src="images/GAN.png"></p>
+<p><em>Source: https://research.google/blog/assisting-pathologists-in-detecting-cancer-with-deep-learning/</em></p>
+</div></div>
+</section>
+<section id="transformer-neural-network" class="slide level2">
+<h2>Transformer Neural Network</h2>
+<p><br></p>
+<p><strong>Parallelize the training on sequential data</strong></p>
+<ul>
+<li>Transformers use self-attention mechanisms to weigh the importance of different parts of the input sequence, allowing them to capture long-range dependencies without relying on recurrence.</li>
+<li>BERT</li>
+<li>Google Gemini</li>
+<li>ChatGPT</li>
 </ul>
 </section>
 <section id="llm-large-language-models" class="slide level2">
@@ -261,11 +322,8 @@
 <section id="thank-you" class="slide level2">
 <h2>Thank you</h2>
 <p>Questions?</p>
-</section>
-<section id="references" class="slide level2">
-<h2>References</h2>
 
-</section></section>
+</section>
     </div>
   <div class="quarto-auto-generated-content" style="display: none;">
 <div class="footer footer-default">
