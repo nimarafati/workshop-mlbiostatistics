@@ -156,8 +156,8 @@
 <p><br></p>
 <div class="cell" data-layout-align="center">
 <div class="cell-output-display">
-<div class="grViz html-widget html-fill-item" id="htmlwidget-ad81fec24a25996e43e9" style="width:960px;height:480px;"></div>
-<script type="application/json" data-for="htmlwidget-ad81fec24a25996e43e9">{"x":{"diagram":"\ndigraph neural_net {\n  rankdir=LR;\n  splines=line; // Makes connections straight\n  node [shape=circle style=filled fixedsize=true width=0.5]\n\n  // Input Layer\n  subgraph cluster_input {\n    color=none;\n    x1 [label=\"X\", fillcolor=lightblue]\n    label=\"Input Layer\"\n  }\n\n  // Hidden Layer 1\n  subgraph cluster_hidden1 {\n    color=none;\n    h11 [label=\"\", fillcolor=coral]\n    h12 [label=\"\", fillcolor=coral]\n    h13 [label=\"\", fillcolor=coral]\n    label=\"Hidden Layer 1\"\n  }\n\n  // Hidden Layer 2\n  subgraph cluster_hidden2 {\n    color=none;\n    h21 [label=\"\", fillcolor=khaki]\n    h22 [label=\"\", fillcolor=khaki]\n    h23 [label=\"\", fillcolor=khaki]\n    label=\"Hidden Layer 2\"\n  }\n\n  // Hidden Layer 3\n  subgraph cluster_hidden3 {\n    color=none;\n    h31 [label=\"\", fillcolor=lightgreen]\n    h32 [label=\"\", fillcolor=lightgreen]\n    h33 [label=\"\", fillcolor=lightgreen]\n    label=\"Hidden Layer 3\"\n  }\n\n  // Output Layer\n  y [label=\"Y\", fillcolor=white shape=circle]\n\n  // Connections\n  x1 -> {h11 h12 h13}\n\n  h11 -> {h21 h22 h23}\n  h12 -> {h21 h22 h23}\n  h13 -> {h21 h22 h23}\n\n  h21 -> {h31 h32 h33}\n  h22 -> {h31 h32 h33}\n  h23 -> {h31 h32 h33}\n\n  h31 -> y\n  h32 -> y\n  h33 -> y\n}\n","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+<div class="grViz html-widget html-fill-item" id="htmlwidget-8dcbafb1686c69b45666" style="width:960px;height:480px;"></div>
+<script type="application/json" data-for="htmlwidget-8dcbafb1686c69b45666">{"x":{"diagram":"\ndigraph neural_net {\n  rankdir=LR;\n  splines=line; // Makes connections straight\n  node [shape=circle style=filled fixedsize=true width=0.5]\n\n  // Input Layer\n  subgraph cluster_input {\n    color=none;\n    x1 [label=\"X\", fillcolor=lightblue]\n    label=\"Input Layer\"\n  }\n\n  // Hidden Layer 1\n  subgraph cluster_hidden1 {\n    color=none;\n    h11 [label=\"\", fillcolor=coral]\n    h12 [label=\"\", fillcolor=coral]\n    h13 [label=\"\", fillcolor=coral]\n    label=\"Hidden Layer 1\"\n  }\n\n  // Hidden Layer 2\n  subgraph cluster_hidden2 {\n    color=none;\n    h21 [label=\"\", fillcolor=khaki]\n    h22 [label=\"\", fillcolor=khaki]\n    h23 [label=\"\", fillcolor=khaki]\n    label=\"Hidden Layer 2\"\n  }\n\n  // Hidden Layer 3\n  subgraph cluster_hidden3 {\n    color=none;\n    h31 [label=\"\", fillcolor=lightgreen]\n    h32 [label=\"\", fillcolor=lightgreen]\n    h33 [label=\"\", fillcolor=lightgreen]\n    label=\"Hidden Layer 3\"\n  }\n\n  // Output Layer\n  y [label=\"Y\", fillcolor=white shape=circle]\n\n  // Connections\n  x1 -> {h11 h12 h13}\n\n  h11 -> {h21 h22 h23}\n  h12 -> {h21 h22 h23}\n  h13 -> {h21 h22 h23}\n\n  h21 -> {h31 h32 h33}\n  h22 -> {h31 h32 h33}\n  h23 -> {h31 h32 h33}\n\n  h31 -> y\n  h32 -> y\n  h33 -> y\n}\n","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
 </div>
 </div>
 <p>Example of fully connected feedfoward neural network. Data only moves through the network in one direction, from input to output.</p>
@@ -167,8 +167,8 @@
 <p><em>Recurrent Neural Networks</em></p>
 <div class="cell" data-layout-align="center">
 <div class="cell-output-display">
-<div class="grViz html-widget html-fill-item" id="htmlwidget-ffd41536bae1cca4fc61" style="width:960px;height:384px;"></div>
-<script type="application/json" data-for="htmlwidget-ffd41536bae1cca4fc61">{"x":{"diagram":"\ndigraph RNN_flow {\n  rankdir=LR;\n  splines=ortho;\n  node [shape=ellipse style=filled fontname=\"Arial\" fixedsize=true width=0.6]\n\n  // Real nodes\n  X [label=\"X\", fillcolor=white, style=solid]\n  A [label=\"A\", fillcolor=lightblue]\n  B [label=\"B\", fillcolor=salmon]\n  C [label=\"C\", fillcolor=khaki]\n  D [label=\"D\", fillcolor=green]\n  Y [label=\"Y\", fillcolor=white, style=solid]\n\n  // Invisible routing nodes (for curved-back arrows)\n  DY [label=\"\", width=0, height=0, style=invis]\n  DYtop [label=\"\", width=0, height=0, style=invis]\n  BC [label=\"\", width=0, height=0, style=invis]\n  BCtop [label=\"\", width=0, height=0, style=invis]\n\n  // Main forward flow\n  X -> A\n  A -> B\n  B -> BC [arrowhead=none]\n  BC -> C \n  C -> D\n  D -> DY [arrowhead=none]\n  DY -> Y \n\n  // Routed loopbacks\n  DY -> DYtop [arrowhead=none]\n  DYtop -> C [arrowhead=none]\n  \n  BC -> BCtop [arrowhead=none]\n  BCtop -> A [arrowhead=none]\n\n}\n","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+<div class="grViz html-widget html-fill-item" id="htmlwidget-09e437c8304bbf98738d" style="width:960px;height:384px;"></div>
+<script type="application/json" data-for="htmlwidget-09e437c8304bbf98738d">{"x":{"diagram":"\ndigraph RNN_flow {\n  rankdir=LR;\n  splines=ortho;\n  node [shape=ellipse style=filled fontname=\"Arial\" fixedsize=true width=0.6]\n\n  // Real nodes\n  X [label=\"X\", fillcolor=white, style=solid]\n  A [label=\"A\", fillcolor=lightblue]\n  B [label=\"B\", fillcolor=salmon]\n  C [label=\"C\", fillcolor=khaki]\n  D [label=\"D\", fillcolor=green]\n  Y [label=\"Y\", fillcolor=white, style=solid]\n\n  // Invisible routing nodes (for curved-back arrows)\n  DY [label=\"\", width=0, height=0, style=invis]\n  DYtop [label=\"\", width=0, height=0, style=invis]\n  BC [label=\"\", width=0, height=0, style=invis]\n  BCtop [label=\"\", width=0, height=0, style=invis]\n\n  // Main forward flow\n  X -> A\n  A -> B\n  B -> BC [arrowhead=none]\n  BC -> C \n  C -> D\n  D -> DY [arrowhead=none]\n  DY -> Y \n\n  // Routed loopbacks\n  DY -> DYtop [arrowhead=none]\n  DYtop -> C [arrowhead=none]\n  \n  BC -> BCtop [arrowhead=none]\n  BCtop -> A [arrowhead=none]\n\n}\n","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
 </div>
 </div>
 <div>
@@ -283,41 +283,17 @@
 <p><strong>Parallelize the training on sequential data</strong></p>
 <ul>
 <li>Transformers use self-attention mechanisms to weigh the importance of different parts of the input sequence, allowing them to capture long-range dependencies without relying on recurrence.</li>
+<li>Large Language Models
+<ul>
 <li>BERT</li>
 <li>Google Gemini</li>
 <li>ChatGPT</li>
-</ul>
-</section>
-<section id="llm-large-language-models" class="slide level2">
-<h2>LLM – Large Language Models</h2>
-
-<img data-src="https://upload.wikimedia.org/wikipedia/commons/4/4e/GPT-3_Architecture.jpg" class="r-stretch quarto-figure-center"><p class="caption">LLM Architecture</p><h3 id="application-medical-nlp-biological-foundation-models">📍 Application: Medical NLP &amp; Biological Foundation Models</h3>
-<ul>
-<li>Med-PaLM: AI answers to medical questions</li>
-<li>Enformer: predicts gene expression from DNA</li>
+</ul></li>
 </ul>
 </section>
 <section id="lab" class="slide level2 smaller">
 <h2>💻 Lab</h2>
 <p><br></p>
-<div>
-<ul>
-<li class="fragment">We go back to try to understand the biology of obesity.</li>
-<li class="fragment">We shown that the expression of several genes (FTO, MC4R, LEP) is associated with obesity.</li>
-<li class="fragment">So we will try to see if we can build a predictive model for obesity based on gene expression data, focusing on less well-known genes (i.e.&nbsp;not FTO, MC4R, LEP).</li>
-</ul>
-</div>
-<div class="fragment">
-<div>
-<p>We will explore three ensemble learning strategies:</p>
-<ul>
-<li class="fragment">Bagging, using Random Forest;</li>
-<li class="fragment">Boosting, using XGBoost;</li>
-<li class="fragment">Stacking, combining the predictions from KNN, SVM, and Random Forest, with logistic regression as a meta-learner.</li>
-</ul>
-</div>
-<p><br></p>
-</div>
 </section>
 <section id="thank-you" class="slide level2">
 <h2>Thank you</h2>

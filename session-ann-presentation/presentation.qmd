@@ -341,47 +341,16 @@ Generates entirely new synthetic data by learning the pattern:
 **Parallelize the training on sequential data**
 
 - Transformers use self-attention mechanisms to weigh the importance of different parts of the input sequence, allowing them to capture long-range dependencies without relying on recurrence.
-- BERT
-- Google Gemini
-- ChatGPT 
-
-
-
-
-## LLM – Large Language Models
-
-![LLM Architecture](https://upload.wikimedia.org/wikipedia/commons/4/4e/GPT-3_Architecture.jpg)
-
-### 📍 Application: Medical NLP & Biological Foundation Models
-- Med-PaLM: AI answers to medical questions
-- Enformer: predicts gene expression from DNA
-
+- Large Language Models
+  - BERT
+  - Google Gemini
+  - ChatGPT 
 
 ## 💻 Lab {.smaller}
 
 <br>
 
-::: incremental
 
-- We go back to try to understand the biology of obesity. 
-- We shown that the expression of several genes (FTO, MC4R, LEP) is associated with obesity. 
-- So we will try to see if we can build a predictive model for obesity based on gene expression data, focusing on less well-known genes (i.e. not FTO, MC4R, LEP).
-
-:::
-
-. . . 
-
-::: incremental
-
-We will explore three ensemble learning strategies:
-
-- Bagging, using Random Forest;
-- Boosting, using XGBoost;
-- Stacking, combining the predictions from KNN, SVM, and Random Forest, with logistic regression as a meta-learner.
-
-:::
-
-<br>
 
 ## Thank you
 
