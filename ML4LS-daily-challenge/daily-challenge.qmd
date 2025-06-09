@@ -338,7 +338,13 @@ What is a typical consequence of using too many boosting iterations without regu
 - [ ] Increased model bias  
 - [x] Overfitting to the training data  
 
----
+### SVM
+In a soft-margin Support Vector Machine, which of the following statements about **support vectors and the margin** is correct?
+
+- [ ] All training points within the margin are ignored when computing the hyperplane.  
+- [x] Only support vectors determine the position of the optimal hyperplane; other points have no influence.  
+- [ ] Increasing the number of support vectors always increases the margin width.  
+- [ ] Support vectors lie exactly on the margin boundaries in all cases, regardless of C.  
 
 ### PLS
 

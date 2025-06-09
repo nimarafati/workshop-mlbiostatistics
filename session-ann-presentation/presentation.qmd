@@ -1,0 +1,359 @@
+---
+title: "Neural Networks in Life Sciences"
+format: 
+  revealjs:
+    slide-number: true
+    view-distance: 10
+    theme: [default, custom.scss]
+    mermaid: 
+      theme: forest
+    chalkboard: 
+      buttons: true
+  html:
+    code-fold: false
+editor_options: 
+  chunk_output_type: console
+bibliography: references.bib
+---
+
+```{r}
+#| message: false
+#| warning: false
+
+# load libraries
+library(tidyverse)
+library(magrittr)
+library(kableExtra)
+library(ggplot2)
+library(rmarkdown)
+library(ggbeeswarm)
+library(gridExtra)
+library(ggmosaic)
+library(scales)
+library(ggthemes)
+```
+
+
+### Why Architectures Matter 🏠 🏢 🏛️ 
+
+<br>
+<br>
+
+::: incremental
+
+- So far we talked about core concepts: neurons, layers, weights, and biases
+- and explained how networks learn using backpropagation and gradient descent
+- What is amazing is that different structures (architectures) of neural networks can lead to different capabilities.
+
+:::
+
+
+## Feedforward neural network {.smaller}
+
+<br>
+
+```{r}
+#| fig-align: center
+library(DiagrammeR)
+
+grViz("
+digraph neural_net {
+  rankdir=LR;
+  splines=line; // Makes connections straight
+  node [shape=circle style=filled fixedsize=true width=0.5]
+
+  // Input Layer
+  subgraph cluster_input {
+    color=none;
+    x1 [label=\"X\", fillcolor=lightblue]
+    label=\"Input Layer\"
+  }
+
+  // Hidden Layer 1
+  subgraph cluster_hidden1 {
+    color=none;
+    h11 [label=\"\", fillcolor=coral]
+    h12 [label=\"\", fillcolor=coral]
+    h13 [label=\"\", fillcolor=coral]
+    label=\"Hidden Layer 1\"
+  }
+
+  // Hidden Layer 2
+  subgraph cluster_hidden2 {
+    color=none;
+    h21 [label=\"\", fillcolor=khaki]
+    h22 [label=\"\", fillcolor=khaki]
+    h23 [label=\"\", fillcolor=khaki]
+    label=\"Hidden Layer 2\"
+  }
+
+  // Hidden Layer 3
+  subgraph cluster_hidden3 {
+    color=none;
+    h31 [label=\"\", fillcolor=lightgreen]
+    h32 [label=\"\", fillcolor=lightgreen]
+    h33 [label=\"\", fillcolor=lightgreen]
+    label=\"Hidden Layer 3\"
+  }
+
+  // Output Layer
+  y [label=\"Y\", fillcolor=white shape=circle]
+
+  // Connections
+  x1 -> {h11 h12 h13}
+
+  h11 -> {h21 h22 h23}
+  h12 -> {h21 h22 h23}
+  h13 -> {h21 h22 h23}
+
+  h21 -> {h31 h32 h33}
+  h22 -> {h31 h32 h33}
+  h23 -> {h31 h32 h33}
+
+  h31 -> y
+  h32 -> y
+  h33 -> y
+}
+")
+
+```
+
+Example of fully connected feedfoward neural network. Data only moves through the network in one direction, from input to output.
+
+## RNN {.smaller}
+
+*Recurrent Neural Networks*
+
+```{r}
+#| fig-align: center
+#| fig-height: 4
+
+grViz("
+digraph RNN_flow {
+  rankdir=LR;
+  splines=ortho;
+  node [shape=ellipse style=filled fontname=\"Arial\" fixedsize=true width=0.6]
+
+  // Real nodes
+  X [label=\"X\", fillcolor=white, style=solid]
+  A [label=\"A\", fillcolor=lightblue]
+  B [label=\"B\", fillcolor=salmon]
+  C [label=\"C\", fillcolor=khaki]
+  D [label=\"D\", fillcolor=green]
+  Y [label=\"Y\", fillcolor=white, style=solid]
+
+  // Invisible routing nodes (for curved-back arrows)
+  DY [label=\"\", width=0, height=0, style=invis]
+  DYtop [label=\"\", width=0, height=0, style=invis]
+  BC [label=\"\", width=0, height=0, style=invis]
+  BCtop [label=\"\", width=0, height=0, style=invis]
+
+  // Main forward flow
+  X -> A
+  A -> B
+  B -> BC [arrowhead=none]
+  BC -> C 
+  C -> D
+  D -> DY [arrowhead=none]
+  DY -> Y 
+
+  // Routed loopbacks
+  DY -> DYtop [arrowhead=none]
+  DYtop -> C [arrowhead=none]
+  
+  BC -> BCtop [arrowhead=none]
+  BCtop -> A [arrowhead=none]
+
+}
+")
+
+```
+
+::: incremental
+
+- By adding **loops**, RNNs can maintain a form of **memory** across time steps
+- When data is processed in batches, each new batch is combined with outputs from the previous one, enabling the network to learn from sequential context.
+- By combining loops and gates, it is possible to create more complex architectures like LSTM (Long Short-Term Memory), which are designed to handle long-term dependencies in sequences.
+
+:::
+
+## RNN {.smaller}
+
+*Recurrent Neural Networks*
+
+<br>
+
+:::: {.columns}
+
+::: {.column width="40%"}
+
+
+**Designed for sequential data, e.g. text, time series**
+
+- ❤️ ECG monitoring for arrhythmia detection and cardiac event prediction
+- 🧠 EEG analysis for seizure detection and sleep stage classification
+- 🏥 Tracking patient health trajectories over time
+- 🕺 Motion capture and behavioral prediction
+
+:::
+
+::: {.column width="5%"}
+
+:::
+
+::: {.column width="55%"}
+
+<div style="text-align: center; margin-bottom: 1em;">
+  <img src="images/doctorai.png" style="width: 90%; display: block; margin: auto; margin-top: -1em;" />
+</div>
+
+:::
+
+::::
+
+
+## CNN 
+*Convolutional Neural Networks*
+
+<br>
+
+
+
+:::: {.columns}
+
+::: {.column width="35%"}
+
+
+- Based on the hierarchical visual system of mammals
+- Neurons first detect **simple features** like edges in small image regions
+- These are combined to identify **shapes or parts** (e.g. wheels, frames)
+- Higher layers integrate these into **whole object recognition**
+
+:::
+
+::: {.column width="5%"}
+
+:::
+
+::: {.column width="60%"}
+
+![](images/CNN-bike.png)
+
+:::
+
+::::
+
+## CNN {.smaller}
+*Convolutional Neural Networks*
+
+<br>
+
+:::: {.columns}
+
+::: {.column width="35%"}
+
+- The central operation is convolution, an operation that combines two functions. 
+- We apply a sliding filter (kernel) to detect local features like edges and textures.
+- A series of convlution and pooloign layers extract and compress key visual patterns hierarchically.
+
+:::
+
+::: {.column width="10%"}
+
+:::
+
+::: {.column width="50%"}
+
+![](images/CNN-koala.png)
+*Source: https://www.v7labs.com/blog/neural-network-architectures-guide*
+
+:::
+
+::::
+
+
+## CNN {.smaller}
+*Convolutional Neural Networks*
+
+
+:::: {.columns}
+
+::: {.column width="35%"}
+*Perfect for images*
+
+- 🩻 Medical imaging (CT, MRI, X-ray) for tumor or anomaly detection
+- 🔬 Microscopy for cell classification and tissue pathology
+- 🧫 Histopathology slides for cancer grading and segmentation
+- 👁️ Retinal and skin image analysis for diabetic retinopathy and lesion detection
+:::
+
+::: {.column width="5%"}
+
+:::
+
+::: {.column width="60%"}
+
+![](images/CNN-LYNA.png)
+
+*Google LYNA (Lymph Node Assistant) uses CNNs to detect metastatic breast cancer in lymph nodes. Source: https://research.google/blog/assisting-pathologists-in-detecting-cancer-with-deep-learning/*
+
+:::
+
+::::
+
+
+## GAN {.smaller}
+
+*Generative Adversarial Network*
+
+:::: {.columns}
+
+::: {.column width="35%"}
+Generates entirely new synthetic data by learning the pattern:
+
+- Generator and a discriminator work in a competitive fashion
+- The generator creates fake data, while the discriminator tries to distinguish real from fake
+- In life science: 
+  - 🧠 Brain imaging enhancement: super-resolve MRI scans
+  - 🧪 Data augmentation: enhance datasets for rare diseases or underrepresented classes
+  - 👁️ Privacy-preserving data generation: create realistic but anonymized patient records (e.g. synthetic EHRs)
+
+:::
+
+::: {.column width="5%"}
+
+:::
+
+::: {.column width="60%"}
+
+![](images/GAN.png)
+
+*Source: https://research.google/blog/assisting-pathologists-in-detecting-cancer-with-deep-learning/*
+
+:::
+
+::::
+
+## Transformer Neural Network
+
+<br>
+
+**Parallelize the training on sequential data**
+
+- Transformers use self-attention mechanisms to weigh the importance of different parts of the input sequence, allowing them to capture long-range dependencies without relying on recurrence.
+- Large Language Models
+  - BERT
+  - Google Gemini
+  - ChatGPT 
+
+## 💻 Lab {.smaller}
+
+<br>
+
+
+
+## Thank you
+
+Questions?
+
+
