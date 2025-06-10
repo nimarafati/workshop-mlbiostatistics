@@ -405,3 +405,14 @@ mm2 <- lmer(Reaction ~ Days + (1 + Days | Subject), data = sleepall)
 summary(mm2)
 ```
 
+## Predicting random effects
+
+The random effects can be predicted using the `ranef()` function.
+
+```{r ranef}
+fixef(mm)
+ranef(mm)
+```
+
+The overall mean is given by the fixed effects, and the random effects are the deviations from this mean for each group.
+
