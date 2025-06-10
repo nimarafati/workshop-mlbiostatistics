@@ -291,7 +291,7 @@ The `Orthodont` dataset from the `nlme` package contains orthodontic measurement
 
 Use this dataset to study how the distance changes with age, accounting for individual differences in growth patterns. Also, take any relevant covariates into account.
 
-```{r ortho}
+```{r ortho, message=FALSE}
 library(nlme)
 data("Orthodont", package = "nlme")
 ```
@@ -302,9 +302,10 @@ Start by looking at the data table.
 summary(Orthodont)
 ```
 
-
 Visualize the data.
 
+:::{.callout-tip collapse="true"}
+## Code 
 ```{r fig-orthodont, results="hide"}
 Orthodont |> 
   ggplot(aes(x = age, y = distance, group = Subject, color = Sex)) +
@@ -314,6 +315,7 @@ Orthodont |>
   ylab("Distance (mm)") +
   theme_bw()
 ```
+:::
 
 What is the grouping structure in the data?
 
@@ -323,12 +325,18 @@ First, fit a linear model to the data, ignoring any groupings, but include relev
 
 Then, fit a mixed model taking the grouping structure into account. Use a random intercept for `Subject` to account for individual differences in growth patterns.
 
+:::{.callout-tip collapse="true"}
+## Code
+
+The groups would be the individual subjects, and the covariates could be `age` and `Sex`.
+
 ```{r}
 lmortho <- lm(distance ~ age + Sex, data=Orthodont)
 summary(lmortho)
 mmortho <- lmer(distance ~ age + Sex + (1 | Subject), data=Orthodont)
 summary(mmortho)
 ```
+:::
 
 What is the estimated effect of age on distance in the linear model? How does it compare to the mixed model?
 

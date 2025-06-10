@@ -152,13 +152,22 @@ head(eggs)
 
 Visualize the data.
 
+:::{.callout-tip collapse="true"}
+## Code
+
 ```{r}
 #| fig-cap: "Fat content by Lab and Technician"
 eggs |> ggplot(aes(x= Lab, y = Fat, color = Technician, shape=Sample)) +
   geom_jitter() +
   theme_bw()
 ```
+:::
+
 What is the grouping structure and how is it nested. Using this information fit a linear mixed model.
+
+:::{.callout-tip collapse="true"}}
+Sample is nested within Technician, which is nested within Lab.
+:::
 
 There are multiple ways to specify the random effects structure, use the method that is least confusing to you!
 
@@ -172,14 +181,14 @@ mfat <- lmer(Fat ~ Sample + (1|Lab) + (1|Lab:Technician) + (1|Lab:Technician:Sam
 ```
 :::
 
-Examine the model output and interpret the fixed effects. What is the effect of sample on fat content? Is it statistically significant?
+Examine the model output and interpret the random effects. At what level is the most variation in fat content?
 
 # Model comparisons
 ## Orthodont
 
 Let's get back to the `Orthodont` dataset in the `nlme` package, which contains measurements of 27 children's teeth growth over time.
 
-```{r ortho}
+```{r ortho, message=FALSE}
 library(nlme)
 data("Orthodont", package = "nlme")
 summary(Orthodont)
@@ -227,7 +236,7 @@ anova(mo1, mo2, mo3, mo4, refit = FALSE)
 ```
 :::
 
-Your PI changes their mind, they want estimate the effect of sex on the distance. How could you do this? With random intercept per subject, build models with different sets of fixed effects. Start with only intercept and age, then add also sex and finally also the interaction between age and sex.
+Your PI changes their mind, they want to estimate the effect of sex on the distance. How could you do this? With random intercept per subject, build models with different sets of fixed effects. Start with only intercept and age, then add also sex and finally also the interaction between age and sex.
 
 ```{r}
 mo1 <- lmer(distance ~ age + (1|Subject), data = Orthodont)
@@ -235,7 +244,8 @@ mof2 <- lmer(distance ~ age + Sex + (1|Subject), data = Orthodont)
 mof3 <- lmer(distance ~ age*Sex + (1|Subject), data = Orthodont)
 ```
 
-Compare the models using likelihood ratio test. Use the `anova`function and remener to set `refit=TRUE` to use ML and not REML!
+Compare the models using likelihood ratio test. Use the `anova`function and remember to set `refit=TRUE` to use ML and not REML!
+
 What do the results tell you? Which model would you choose?
 
 :::{.callout-tip collapse="true"}
@@ -250,7 +260,7 @@ anova(mo1, mof2, mof3, refit = TRUE)
 
 In this section you will use the `lmerTest` package to compute p-values for mixed models using Satterthwaite's approximation. This package extends the `lme4` package and provides functions to compute p-values for fixed effects in linear mixed models.
 
-Go back to the exercises from the previous section and use the `lmerTest` package to compute p-values for the fixed effects in the models you fitted. Do the p-values change any of your conclusions?
+Go back to the exercises from the this morning and use the `lmerTest` package to compute p-values for the fixed effects in the models you fitted.
 
 # Logistic mixed model
 
@@ -287,9 +297,11 @@ The above model is however incorrect as it ignores the fact that each child has 
 mohio <- glmer(resp ~ age + smoke + (1|id), family=binomial, data=ohio)
 summary(mohio)
 ```
+
 We compute the ORs;
 
 ```{r}
 exp(fixef(mohio))
 ```
+
 According to this model, does the odds for wheezing increase or decrease with age? What about smoking? Are any of the effects statistically significant?
