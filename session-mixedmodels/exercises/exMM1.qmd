@@ -143,7 +143,7 @@ The random intercepts for each hospital can be computed using the `ranef` functi
 
 Compute the random effects using `ranef`. Note that `ranef` gives the deviations from the overall mean for each hospital.
 
-:::{.callout-tip collapse="true"}}
+:::{.callout-tip collapse="true"}
 ## Code
 
 ```{r bprandom}
@@ -306,6 +306,7 @@ Visualize the data.
 
 :::{.callout-tip collapse="true"}
 ## Code 
+
 ```{r fig-orthodont, results="hide"}
 Orthodont |> 
   ggplot(aes(x = age, y = distance, group = Subject, color = Sex)) +
