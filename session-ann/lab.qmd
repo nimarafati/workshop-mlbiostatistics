@@ -25,26 +25,34 @@ knitr:
 
 # Introduction
 
+We are going to continue with our exploration of the biology of obesity. Let's see if we can improve our predictive using the less well-known genes by using neural networks. 
+
+We will train a forward feedback network, also known as multilayer perceptrons (MLPs).
 
 ## Load packages
 ```{r}
 #| label: load-packages
+#| eval: false
+
 
 # load packages
 rm(list=ls())
 library(tidyverse)
-library(ggcorrplot)
-library(glmnet)
+#library(ggcorrplot)
+#library(glmnet)
 library(fastDummies)
 library(pROC)
 library(class)
+
 library(keras)
 library(reticulate)
-
-
-# Load the clinical data
+use_condaenv("r-reticulate", required = TRUE)
+# reticulate::py_discover_config()
+# # Load the clinical data
 data_obesity <- read_csv("data/data-obesity.csv") 
 
+
+#use_python("/Users/olga.hrydziuszko/miniconda3/envs/r-reticulate/bin/python")
 # Load gene expression data
 data_expr <- read_csv("data/data-obesity-genes.csv")
 genes_all <- colnames(data_expr)[-1]  # Exclude the 'id' column
@@ -60,7 +68,7 @@ genes_other <- setdiff(genes_all, gens_known)
 
 ```{r}
 #| label: split-data
-#| eval: true
+#| eval: false
 #| warning: false
 #| message: false
 #| code-fold: false
@@ -78,16 +86,15 @@ gene_vars <- data %>%
   summarise(across(everything(), var)) %>%
   pivot_longer(everything(), names_to = "gene", values_to = "variance")
 
-# Select top 100 most variable genes
-top_genes <- gene_vars %>%
-  arrange(desc(variance)) %>%
-  slice_head(n = 100) %>%
-  pull(gene)
+# # Select top 100 most variable genes
+# top_genes <- gene_vars %>%
+#   arrange(desc(variance)) %>%
+#   slice_head(n = 100) %>%
+#   pull(gene)
 
-# Subset the data to use only top 100 genes
-data <- data %>%
-  select(obese, all_of(top_genes))
-
+# # Subset the data to use only top 100 genes
+# data <- data %>%
+#   select(obese, all_of(top_genes))
 
 # three-way split: train (60%), validation (20%), test (20%)
 set.seed(123)
@@ -130,11 +137,45 @@ y_test <- ifelse(y_test == "Yes", 1, 0)
 
 ```
 
-## K
+## Train Feedforward Neural Network
 
 ```{r}
 #| label: keras-model
 #| eval: true
+#| message: false
+#| warning: false
+
+# Define model
+model <- keras_model_sequential() %>%
+  layer_dense(units = 64, activation = "relu", input_shape = ncol(x_train)) %>%
+  layer_dropout(0.3) %>%
+  layer_dense(units = 32, activation = "relu") %>%
+  layer_dropout(0.2) %>%
+  layer_dense(units = 1, activation = "sigmoid")
+
+# Compile model
+model %>% compile(
+  optimizer = "adam",
+  loss = "binary_crossentropy",
+  metrics = c("accuracy")
+)
+
+# Fit model
+history <- model %>% fit(
+  x_train, y_train,
+  epochs = 10,
+  batch_size = 32,
+  validation_data = list(x_valid, y_valid),
+  verbose = 1
+)
+
+```
+
+
+
+```{r}
+#| eval: false
+#| include: false
 #| message: false
 #| warning: false
 
@@ -186,6 +227,8 @@ history <- model %>% fit(
 
 ```{r}
 #| label: plot-history
+#| eval: false
+#| include: false
 #| fig-cap: "Training vs Validation Accuracy"
 plot(history)
 ```
@@ -193,6 +236,8 @@ plot(history)
 
 ```{r}
 #| label: evaluate-test
+#| eval: false
+#| include: false
 #| message: false
 #| warning: false
 
@@ -204,6 +249,8 @@ model %>% evaluate(x_test, y_test)
 
 ```{r}
 #| label: predictions-roc
+#| eval: false
+#| include: false
 #| message: false
 #| warning: false
 #| fig-cap: "ROC Curve for Test Set"
@@ -225,6 +272,9 @@ plot(roc_obj, col = "blue", print.auc = TRUE)
 
 ## DALEX for Feature Importance
 ```{r}
+#| eval: false
+#| include: false
+
 library(DALEX)
 
 # Wrap Keras model in a prediction function
@@ -248,8 +298,10 @@ vip <- variable_importance(explainer_nn)
 ```
 
 ```{r}
-plot(vip, max_vars = 10)
+#| eval: false
+#| include: false
 
+plot(vip, max_vars = 10)
 
 ```
 

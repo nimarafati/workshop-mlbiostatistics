@@ -97,7 +97,7 @@ ggplot(data, aes(x = time, y = patient)) +
 We we observe 10 $(Y, \sigma)$ pairs, which we denote as $(y_1, \sigma_1, \dots, (y_n, \sigma_n))$, where $n = 10$. From @fig-censoring, we can see that: 
 
 - for patient #1 we get $(y_1= t_1, \space \sigma_1 = 1)$ since we observe event (death) as ca. 23 months, before the end of the follow-up at 24 months. 
-- for patient #2 we get $(y_2= c_1, \space \sigma_1 = 0)$ since the patient is still alive at the end of the study at 24 moths, meaning that the patient has survied at least 24 months (censored)
+- for patient #2 we get $(y_2= c_1, \space \sigma_1 = 0)$ since the patient is still alive at the end of the study at 24 months, meaning that the patient has survived at least 24 months (censored)
 - for patient #3 we get $(y_3= t_3, \space \sigma_3 = 1)$ since we observe event (death) at 9 months
 - for patients #4, we get $(y_4= c_4, \space \sigma_4 = 0)$, anther censored data point. The study is not over yet, the patient has not diet but is **lost to follow-up**, e.g. due to withdrawing from the study
 - analogously, for patients #5, #6, #8 and #10 we observe survival times, and for patients #7 and #9 we observe censoring times.
@@ -222,7 +222,7 @@ We can visualize the Kaplan-Meier curve for this data:
 #| fig.cap: Kaplan-Meier survival curve for tooth filling data. The curve shows the estimated probability of survival (filling intact) over time.
 
 fit.surv <- survfit(Surv(time, surv) ~ 1, data = data_tooth)
-plot(fit.surv, conf.int=FALSE,  xlab = "Months", ylab = "Estiamted Probabiliy of Survival")
+plot(fit.surv, conf.int=FALSE,  xlab = "Months", ylab = "Estiamted Probabiliy of Survival", las = 1)
 
 ```
 
@@ -274,7 +274,7 @@ We can see how the censoring data affect the KM curve:
 data_tooth[1, "surv"] <- 0
 data_tooth[4, "surv"] <- 0
 fit.surv <- survfit(Surv(time, surv) ~ 1, data = data_tooth)
-plot(fit.surv, mark.time=TRUE, conf.int=FALSE,  xlab = "Months", ylab = "Estiamted Probabiliy of Survival")
+plot(fit.surv, mark.time=TRUE, conf.int=FALSE,  xlab = "Months", ylab = "Estiamted Probabiliy of Survival", las = 1)
 
 ```
 
@@ -284,13 +284,13 @@ The Kaplan-Meier curve shows the cumulative survival probabilities. A steeper sl
 
 At specific time points, you can estimate the survival probability by locating the time point on the horizontal axis and dropping a vertical line to the curve. Then, read the corresponding survival probability from the vertical axis.
 
-- So, what is the probability that a tooth filling will last 8 months? We can estimate this by locating 8 months on the x-axis and dropping a vertical line to the curve. The estimated survival probability at 10 months is approximately 0.343, meaning there is a 34.3.7% chance that a tooth filling will last 10 months.
+- So, what is the probability that a tooth filling will last 10 months? We can estimate this by locating 10 months on the x-axis and dropping a vertical line to the curve. The estimated survival probability at 10 months is approximately 0.343, meaning there is a 34.3.7% chance that a tooth filling will last 10 months.
 
 ```{r}
 #| label: fig-tooth-filling-2b
 #| fig.cap: Kaplan-Meier survival curve for tooth filling data. Red lines indicate the estimated survival probability (tooth being intact) at 10 months.
 
-plot(fit.surv, conf.int=FALSE,  xlab = "Months", ylab = "Estiamted Probabiliy of Survival")
+plot(fit.surv, conf.int=FALSE,  xlab = "Months", ylab = "Estiamted Probabiliy of Survival", las = 1)
 abline(v = 10, h = 0.343, col = "red", lty = 2)
 
 ```

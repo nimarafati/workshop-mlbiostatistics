@@ -2,12 +2,12 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.4.554">
+<meta name="generator" content="quarto-1.6.36">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Survival Analysis - 2&nbsp; Regression with survival response</title>
+<title>2&nbsp; Regression with survival response – Survival Analysis</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -33,7 +33,7 @@ div.sourceCode { overflow: auto; }
 }
 @media print {
 pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
 }
 pre.numberSource code
   { counter-reset: source-line 0; }
@@ -91,10 +91,10 @@ div.csl-indent {
 <script src="site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="site_libs/quarto-html/anchor.min.js"></script>
 <link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-01c78b5cd655e4cd89133cf59d535862.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-595ce8e6fccf78f72a84a0830d8fd265.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "sidebar",
   "copy-button": false,
@@ -123,7 +123,7 @@ div.csl-indent {
   }
 }</script>
 
-  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
 
 <script type="text/javascript">
@@ -161,13 +161,13 @@ window.Quarto = {
   <header id="quarto-header" class="headroom fixed-top">
   <nav class="quarto-secondary-nav">
     <div class="container-fluid d-flex">
-      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
         <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./regression.html"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Regression with survival response</span></a></li></ol></nav>
-        <a class="flex-grow-1" role="button" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
-      <button type="button" class="btn quarto-search-button" aria-label="" onclick="window.quartoOpenSearch();">
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
         <i class="bi bi-search"></i>
       </button>
     </div>
@@ -413,7 +413,7 @@ Score (logrank) test = 40.79  on 5 df,   p=1e-07</code></pre>
 <p>In Cox regression, we can estimate:</p>
 <ul>
 <li>the survival probability at a specific time, <span class="math inline">\(S(t|X=x)\)</span></li>
-<li>and the hazard ratio for an individual relative to a reference individual, $h(t|X=x) / <span class="math inline">\(S(t|X=x_{ref})\)</span>, where <span class="math inline">\(X_{ref}\)</span> is a reference individual with known covariate values.</li>
+<li>and the hazard ratio for an individual relative to a reference individual, <span class="math inline">\(h(t|X=x) / h(t|X=x_{ref})\)</span>, where <span class="math inline">\(X_{ref}\)</span> is a reference individual with known covariate values.</li>
 </ul>
 <p>For predicted survival, the choice of time matters. A predicted HR will not depend on time due to proportional hazards assumption.</p>
 <section id="survival" class="level4" data-number="2.2.4.1">
@@ -455,7 +455,7 @@ $se.fit
 <ul>
 <li><code>reference = "zero"</code>: the reference individual has continuous predictor values set to 0 and categorical predictors each at their reference level. This is not a good choice if a value of 0 is not plausible for continuous variables in the model, e.g.&nbsp;age.</li>
 <li><code>reference = "sample"</code>: the reference individual has continuous predictors each their respective sample mean and categorical predictors at their reference level.</li>
-<li><code>reference = "strata"</code>: this leads to the same results as in <code>reference = "sample" unless the model includes a</code>strata()`, in which case continuous variables will be set their within-stratum means.</li>
+<li><code>reference = "strata"</code>: this leads to the same results as in <code>reference = "sample"</code> unless the model includes a <code>strata()</code>, in which case continuous variables will be set their within-stratum means.</li>
 </ul>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># predict HR for our new patient</span></span>
@@ -523,7 +523,11 @@ $se.fit
 <section id="multiple-events-competing-risks" class="level2" data-number="2.4">
 <h2 data-number="2.4" class="anchored" data-anchor-id="multiple-events-competing-risks"><span class="header-section-number">2.4</span> Multiple events: competing risks</h2>
 <p>In survival analysis, <strong>competing risks</strong> occur when an individual is at risk of more than one mutually exclusive event, and the occurrence of one event <strong>precludes</strong> the occurrence of the others. Traditional survival models, such as the <strong>Cox proportional hazards model</strong>, typically focus on a single type of event (e.g., death or failure), but in many real-world scenarios, individuals may face different types of events that compete with each other.</p>
-<p>A <strong>competing risk</strong> refers to events that prevent the event of primary interest from happening. For example: - In a study of heart disease, <strong>death due to cancer</strong> is a competing risk if the primary event of interest is <strong>death due to heart disease</strong>. - In a study of cancer treatment, <strong>death from any cause</strong> is a competing risk if the event of interest is <strong>relapse</strong>.</p>
+<p>A <strong>competing risk</strong> refers to events that prevent the event of primary interest from happening. For example:</p>
+<ul>
+<li>In a study of heart disease, <strong>death due to cancer</strong> is a competing risk if the primary event of interest is <strong>death due to heart disease</strong>.</li>
+<li>In a study of cancer treatment, <strong>death from any cause</strong> is a competing risk if the event of interest is <strong>relapse</strong>.</li>
+</ul>
 <p>In these situations, standard survival analysis methods may overestimate the probability of the primary event because they do not account for the possibility of competing events.</p>
 <p><strong>The Cumulative Incidence Function (CIF)</strong> is commonly used in competing risks analysis. It represents the probability of experiencing a specific event (e.g., death from heart disease) by a certain time, accounting for the presence of competing risks (e.g., death from cancer).</p>
 <p>CIF is a product of two estimates.</p>
@@ -589,18 +593,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     }
     return false;
   }
-  const clipboard = new window.ClipboardJS('.code-copy-button', {
-    text: function(trigger) {
-      const codeEl = trigger.previousElementSibling.cloneNode(true);
-      for (const childEl of codeEl.children) {
-        if (isCodeAnnotation(childEl)) {
-          childEl.remove();
-        }
-      }
-      return codeEl.innerText;
-    }
-  });
-  clipboard.on('success', function(e) {
+  const onCopySuccess = function(e) {
     // button target
     const button = e.trigger;
     // don't keep focus
@@ -632,7 +625,27 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     }, 1000);
     // clear code selection
     e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
   });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
     var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
     var mailtoRegex = new RegExp(/^mailto:/);
       var filterRegex = new RegExp('/' + window.location.host + '/');
@@ -640,7 +653,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
         return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
     }
     // Inspect non-navigation links and adorn them if external
- 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool)');
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
     for (var i=0; i<links.length; i++) {
       const link = links[i];
       if (!isInternal(link.href)) {
@@ -737,7 +750,6 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       if (window.Quarto?.typesetMath) {
         window.Quarto.typesetMath(note);
       }
-      // TODO in 1.5, we should make sure this works without a callout special case
       if (note.classList.contains("callout")) {
         return note.outerHTML;
       } else {
