@@ -135,7 +135,7 @@
 
 </section>
 <section id="survival-analysis" class="slide level2 smaller">
-<h2>Survival analysis</h2>
+<h2>Survival analysis 🏕️</h2>
 <p><br></p>
 <p>Statistical methods for <strong>time-to-event data</strong></p>
 <ul>
@@ -665,21 +665,248 @@ Figure&nbsp;5: Kaplan-Meier survival curves for a new extended study of tooth fi
 <h1>Regression with survival data</h1>
 
 </section>
-<section id="cox-proportional-hazards-model" class="slide level2">
+<section id="cox-proportional-hazards-model" class="slide level2 smaller">
 <h2>Cox proportional hazards model</h2>
+<p><em>Studying relationship between survival time and predictors</em></p>
+<p><br></p>
+<p><strong>Cox PH model</strong></p>
+<ul>
+<li>Is used to estimate the hazard ratio for individuals based on their covariates.</li>
+<li>Is used to study <strong>how different factors affect the risk</strong> of an event over time
+<ul>
+<li>e.g.&nbsp;Is an older patient more likely to relapse sooner than a younger one?</li>
+</ul></li>
+<li>The model gives <strong>relative risk</strong>, not absolute predictions of survival time . . .</li>
+</ul>
+<p><br></p>
+<p>The risk of death at time <span class="math inline">\(t_j\)</span> for each subject in the risk set is given by: <span class="math display">\[h(t|\boldsymbol{x}) = h_0(t)\textrm{exp}(\boldsymbol{\beta}^T\boldsymbol{x})\]</span></p>
+<p>where:</p>
+<ul>
+<li><span class="math inline">\(h(t|\boldsymbol{x})\)</span>: hazard at time <span class="math inline">\(t\)</span> for a subject with covariates <span class="math inline">\(\boldsymbol{x}\)</span></li>
+<li><span class="math inline">\(\boldsymbol{\beta}^T\boldsymbol{x}\)</span> is the matrix representation of the regression function, <span class="math inline">\(\beta_1x_1 + \beta_2x_2 + \cdots + \beta_px_p\)</span></li>
+<li>and <span class="math inline">\(h_0(t)\)</span> is <strong>baseline hazard function</strong> (common to all)</li>
+<li><span class="math inline">\(\exp(\boldsymbol{\beta}^T \boldsymbol{x})\)</span>: relative effect of covariates</li>
+</ul>
 </section>
-<section id="example-cox-model" class="slide level2">
-<h2>Example: Cox model</h2>
+<section id="cox-ph-model" class="slide level2 smaller">
+<h2>Cox PH model</h2>
+<p><br></p>
+<p><em>Example with brain cancer data</em></p>
+<div class="columns">
+<div class="column" style="width:45%;">
+<p>The <code>BrainCancer</code> data set from the <code>ISLR2</code> package contains survival times for patients with primary brain tumors undergoing treatment with radiation therapy.</p>
+<p>Variables included in the study are:</p>
+<ul>
+<li><code>sex</code>: male or female</li>
+<li><code>diagnosis</code>: meningioma, LG glioma, HG glioma, or other</li>
+<li><code>loc</code>: tumor location, infratentorial or supratentorial</li>
+<li><code>gtv</code>: gross tumor volume <span class="math inline">\(cm^3\)</span></li>
+<li><code>ki</code>: Karnofsky index</li>
+<li><code>stereo</code>: stereotatcic radiosurgery (SRS) or fractionated stereotactic (SRT) radiotherapy</li>
+</ul>
+</div><div class="column" style="width:5%;">
+
+</div><div class="column" style="width:45%;">
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code>Call:
+coxph(formula = Surv(time, status) ~ sex + diagnosis + ki, data = data_brain)
+
+  n= 87, number of events= 35 
+   (1 observation deleted due to missingness)
+
+                       coef exp(coef) se(coef)      z Pr(&gt;|z|)    
+sexMale             0.11149   1.11795  0.35670  0.313 0.754608    
+diagnosisLG glioma  1.01441   2.75774  0.62159  1.632 0.102687    
+diagnosisHG glioma  2.22962   9.29629  0.44520  5.008  5.5e-07 ***
+diagnosisOther      0.82773   2.28813  0.57751  1.433 0.151774    
+ki                 -0.06624   0.93591  0.01753 -3.778 0.000158 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+                   exp(coef) exp(-coef) lower .95 upper .95
+sexMale               1.1179     0.8945    0.5556    2.2493
+diagnosisLG glioma    2.7577     0.3626    0.8156    9.3251
+diagnosisHG glioma    9.2963     0.1076    3.8847   22.2467
+diagnosisOther        2.2881     0.4370    0.7377    7.0967
+ki                    0.9359     1.0685    0.9043    0.9686
+
+Concordance= 0.782  (se = 0.038 )
+Likelihood ratio test= 36.59  on 5 df,   p=7e-07
+Wald test            = 34.11  on 5 df,   p=2e-06
+Score (logrank) test = 40.79  on 5 df,   p=1e-07</code></pre>
+</div>
+</div>
+</div></div>
+<div class="fragment">
+<p>Based on the results:</p>
+<div>
+<ul>
+<li class="fragment">The estimated hazard ratio (HR) for a male patient is <span class="math inline">\(e^{0.11} = 1.11\)</span>. This means that men have 1.11 times the hazard of dying than women while keeping other variables constant (adjusted hazard ration, AHR).</li>
+<li class="fragment">The associated p-value of 0.75 (large) indicates that this difference is not statistically significant.</li>
+<li class="fragment">One-unit increase in the Karnofsky index is corresponds to a multiplier of <span class="math inline">\(e^{-0.06} = 0.94\)</span> in the chance of dying. The higher the Karnofsky index score, the lower the chance of dying at any given point in time, with this effect being highly significant <span class="math inline">\(p\)</span>-value of 0.000158.</li>
+<li class="fragment">To find HR associated with for patients with 10 units higher Karnofsky index, we calculate HR as <span class="math inline">\(e^{-0.06 \times 10} = 0.54\)</span>. This means that patients with 10 units higher Karnofsky index have 0.54 times the hazard of dying compared to those with lower Karnofsky index.</li>
+</ul>
+</div>
+</div>
 </section>
-<section id="time-dependent-covariates" class="slide level2">
-<h2>Time-dependent covariates</h2>
+<section id="cox-ph-model-1" class="slide level2 smaller">
+<h2>Cox PH model</h2>
+<p><br></p>
+<p><em>Forest plot</em></p>
+<p><br></p>
+<p>Sometimes, in addition to reporting the numeric results of a Cox regression, <strong>forest plots</strong> are used to visualize HRs and their 95% confidence intervals.</p>
+
+<img data-src="presentation_files/figure-revealjs/forest-plot-1.png" width="960" class="r-stretch"></section>
+<section id="cox-ph-model-2" class="slide level2 smaller">
+<h2>Cox PH model</h2>
+<p><em>Likelihood ratio test, Wald test, and Score test</em></p>
+<p><br></p>
+<p>Cox regression output includes <strong>three overall tests</strong> to evaluate whether the covariates collectively improve the model:</p>
+<div class="fragment">
+<p><br></p>
+<p><strong>Likelihood Ratio Test (LRT)</strong></p>
+<ul>
+<li>Compares the log-likelihood of:
+<ul>
+<li>A null model (no covariates)</li>
+<li>A full model (with covariates)</li>
+</ul></li>
+<li>Tests whether the full model significantly improves fit</li>
+</ul>
+</div>
+<div class="fragment">
+<p><br></p>
+<p><strong>Wald Test</strong></p>
+<ul>
+<li>Tests whether each coefficient <span class="math inline">\(\beta_i\)</span> is significantly <span class="math inline">\(\neq 0\)</span></li>
+</ul>
+</div>
+<div class="fragment">
+<p><br></p>
+<p><strong>Score Test (Log-Rank Test)</strong></p>
+<ul>
+<li>Assesses the contribution of predictors using the <strong>expected vs.&nbsp;observed</strong> events</li>
+<li>Like LRT, compares null and full models</li>
+<li>Uses a <strong>chi-squared distribution</strong></li>
+</ul>
+</div>
 </section>
-<section id="multiple-events-competing-risks" class="slide level2">
+<section id="cox-ph-model-3" class="slide level2 smaller">
+<h2>Cox PH model</h2>
+<p><em>Concordance</em></p>
+<p><br></p>
+<ul>
+<li>Measures how well the Cox model <strong>predicts the order of events</strong></li>
+<li>Assesses: Can the model correctly identify <strong>who experiences the event earlier</strong>?</li>
+</ul>
+<p><br></p>
+<div class="fragment">
+<p><strong>Interpretation:</strong></p>
+<ul>
+<li><strong>C-index = 0.5</strong> → No better than random guessing</li>
+<li><strong>C-index = 1</strong> → Perfect prediction of event order</li>
+</ul>
+</div>
+<div class="fragment">
+<p><br></p>
+<p><strong>Example:</strong></p>
+<ul>
+<li>A C-index of <strong>0.782</strong> means:
+<ul>
+<li>The model correctly orders survival times in <strong>78.2%</strong> of comparable pairs</li>
+<li>In 78.2% of cases, the individual with the higher predicted risk had the event first</li>
+</ul></li>
+<li><strong>Standard error = 0.038</strong>:
+<ul>
+<li>Quantifies uncertainty around the estimate</li>
+<li>Smaller SE → greater confidence in the result</li>
+</ul></li>
+</ul>
+</div>
+</section>
+<section id="cox-ph-model-4" class="slide level2 smaller">
+<h2>Cox PH model</h2>
+<p><em>Predictions</em></p>
+<p><br></p>
+<p>In Cox regression, we can estimate:</p>
+<div>
+<ul>
+<li class="fragment">the survival probability at a specific time</li>
+<li class="fragment">and the hazard ratio for an individual relative to a reference individual</li>
+</ul>
+</div>
+</section>
+<section id="cox-ph-model-5" class="slide level2 smaller">
+<h2>Cox PH model</h2>
+<p><em>Time-dependent covariates</em></p>
+<p><br></p>
+<ul>
+<li>So far, predictors (covariates) have been <strong>fixed</strong> over time</li>
+<li>But some predictors can <strong>change during follow-up</strong></li>
+<li>e.g.&nbsp;in a heart attack study, blood pressure may change over time</li>
+</ul>
+<div class="fragment">
+<p><br> <br></p>
+<p>The Cox model allows covariates <span class="math inline">\(\boldsymbol{x}(t)\)</span> to vary with time: <span class="math display">\[h(t | \boldsymbol{x}(t)) = h_0(t) \cdot \exp(\boldsymbol{\beta}^T \boldsymbol{x}(t))\]</span></p>
+<ul>
+<li>Follow-up time is split into <strong>intervals</strong> where covariates are constant</li>
+<li>Covariates are updated at each interval to reflect changes</li>
+</ul>
+</div>
+</section>
+<section id="multiple-events-competing-risks" class="slide level2 smaller">
 <h2>Multiple events: competing risks</h2>
+<p><em>death from other causes</em></p>
+<p><br></p>
+<ul>
+<li>In many studies, individuals are at risk of <strong>more than one event</strong></li>
+<li>A <strong>competing risk</strong> is an event that <strong>prevents</strong> the event of interest from happening</li>
+</ul>
+<div class="fragment">
+<p><br></p>
+<p><strong>Examples:</strong></p>
+<ul>
+<li>Studying death from heart disease:
+<ul>
+<li>Death from cancer = competing risk</li>
+</ul></li>
+<li>Studying cancer relapse:
+<ul>
+<li>Death from any cause = competing risk</li>
+</ul></li>
+</ul>
+<p><br></p>
+</div>
+<div class="fragment">
+<p><strong>Why it matters:</strong></p>
+<ul>
+<li>Cox PH model assumes only <strong>one type of event</strong></li>
+<li>Ignoring competing risks can <strong>overestimate</strong> the chance of the event we are interested in</li>
+</ul>
+</div>
+<div class="fragment">
+<p><br></p>
+<p><strong>Beyond Cox PH model:</strong></p>
+<ul>
+<li>The <strong>Cumulative Incidence Function (CIF)</strong> tells us the <strong>probability of a specific event</strong> happening over time, <strong>accounting for competing events</strong></li>
+<li><strong>Fine and Gray’s model</strong>, help include covariates when modeling competing risks</li>
+</ul>
+</div>
 </section>
 <section id="lab" class="slide level2 smaller">
 <h2>💻 Lab</h2>
 <p><br></p>
+<p>In the lab there are examples of:</p>
+<ul>
+<li>constructing Kaplan-Meier estimator</li>
+<li>comparing survival curves with the log-rank test</li>
+<li>fitting Cox proportional hazards model</li>
+<li>interpreting the results of the Cox model</li>
+<li>predicting survival probabilities and hazard ratios</li>
+<li>handling time-dependent covariates</li>
+<li>dealing with competing risks using the Cumulative Incidence Function (CIF)</li>
+</ul>
 </section>
 <section id="thank-you" class="slide level2">
 <h2>Thank you</h2>

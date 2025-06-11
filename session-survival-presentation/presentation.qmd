@@ -34,7 +34,7 @@ library(ggthemes)
 ```
 
 
-## Survival analysis {.smaller}
+## Survival analysis 🏕️ {.smaller} 
 
 ```{r}
 #| include: false
@@ -572,24 +572,269 @@ $$
 
 with 1 $df$.
 
-
-
-
 # Regression with survival data
 
-## Cox proportional hazards model
 
-## Example: Cox model
+## Cox proportional hazards model {.smaller}
 
-## Time-dependent covariates
+*Studying relationship between survival time and predictors*
 
-## Multiple events: competing risks
+<br>
+
+
+**Cox PH model**
+
+- Is used to estimate the hazard ratio for individuals based on their covariates. 
+- Is used to study **how different factors affect the risk** of an event over time
+  - e.g. Is an older patient more likely to relapse sooner than a younger one?
+- The model gives **relative risk**, not absolute predictions of survival time
+. . .
+
+<br>
+
+The risk of death at time $t_j$ for each subject in the risk set is given by: 
+$$h(t|\boldsymbol{x}) = h_0(t)\textrm{exp}(\boldsymbol{\beta}^T\boldsymbol{x})$$
+
+where: 
+
+- $h(t|\boldsymbol{x})$: hazard at time $t$ for a subject with covariates $\boldsymbol{x}$
+- $\boldsymbol{\beta}^T\boldsymbol{x}$ is the matrix representation of the regression function, $\beta_1x_1 + \beta_2x_2 + \cdots + \beta_px_p$
+- and $h_0(t)$ is **baseline hazard function** (common to all)
+- $\exp(\boldsymbol{\beta}^T \boldsymbol{x})$: relative effect of covariates
+
+## Cox PH model {.smaller}
+
+<br>
+
+*Example with brain cancer data*
+
+:::: {.columns}
+
+::: {.column width="45%"}
+The `BrainCancer` data set from the `ISLR2` package contains survival times for patients with primary brain tumors undergoing treatment with radiation therapy. 
+
+Variables included in the study are:
+
+- `sex`: male or female
+- `diagnosis`: meningioma, LG glioma, HG glioma, or other
+- `loc`: tumor location, infratentorial or supratentorial
+- `gtv`: gross tumor volume $cm^3$
+- `ki`: Karnofsky index
+- `stereo`: stereotatcic radiosurgery (SRS) or fractionated stereotactic (SRT) radiotherapy
+:::
+
+::: {.column width="5%"}
+
+:::
+
+::: {.column width="45%"}
+```{r}
+
+# preview data
+data_brain <- BrainCancer
+
+# data_brain %>%
+#   str()
+
+# Cox model with multiple predictors
+fit.cox_multi <- coxph(Surv(time, status) ~ sex + diagnosis + ki, data = data_brain)
+summary(fit.cox_multi)
+
+```
+:::
+
+::::
+
+. . .
+
+Based on the results: 
+
+::: incremental
+
+- The estimated hazard ratio (HR) for a male patient is $e^{0.11} = 1.11$. This means that men have 1.11 times the hazard of dying than women while keeping other variables constant (adjusted hazard ration, AHR).
+- The associated p-value of 0.75 (large) indicates that this difference is not statistically significant.
+- One-unit increase in the Karnofsky index is corresponds to a multiplier of $e^{-0.06} = 0.94$ in the chance of dying. The higher the Karnofsky index score, the lower the chance of dying at any given point in time, with this effect being highly significant $p$-value of 0.000158.
+- To find HR associated with for patients with 10 units higher Karnofsky index, we calculate HR as $e^{-0.06 \times 10} = 0.54$. This means that patients with 10 units higher Karnofsky index have 0.54 times the hazard of dying compared to those with lower Karnofsky index.
+
+:::
+
+## Cox PH model {.smaller}
+
+<br>
+
+*Forest plot*
+
+<br>
+
+Sometimes, in addition to reporting the numeric results of a Cox regression, **forest plots** are used to visualize HRs and their 95% confidence intervals.
+
+```{r}
+#| label: forest-plot
+
+# make forest plot with ggforest()
+ggforest(fit.cox_multi, data = data_brain)
+```
+
+## Cox PH model {.smaller}
+
+*Likelihood ratio test, Wald test, and Score test*
+
+<br>
+
+Cox regression output includes **three overall tests** to evaluate whether the covariates collectively improve the model:
+
+. . . 
+
+<br>
+
+**Likelihood Ratio Test (LRT)**
+
+- Compares the log-likelihood of:
+  - A null model (no covariates)
+  - A full model (with covariates)
+- Tests whether the full model significantly improves fit
+
+. . .
+
+<br>
+
+**Wald Test**
+
+- Tests whether each coefficient $\beta_i$ is significantly $\neq 0$
+
+. . .
+
+<br>
+
+**Score Test (Log-Rank Test)**
+
+- Assesses the contribution of predictors using the **expected vs. observed** events
+- Like LRT, compares null and full models
+- Uses a **chi-squared distribution**
+
+
+## Cox PH model {.smaller}
+
+*Concordance*
+
+<br>
+
+- Measures how well the Cox model **predicts the order of events**
+- Assesses: Can the model correctly identify **who experiences the event earlier**?
+
+<br>
+
+. . .
+
+**Interpretation:**
+
+- **C-index = 0.5** → No better than random guessing
+- **C-index = 1** → Perfect prediction of event order
+
+. . .
+
+<br>
+
+**Example:**
+
+- A C-index of **0.782** means:
+  - The model correctly orders survival times in **78.2%** of comparable pairs
+  - In 78.2% of cases, the individual with the higher predicted risk had the event first
+
+- **Standard error = 0.038**:
+  - Quantifies uncertainty around the estimate
+  - Smaller SE → greater confidence in the result
+  
+
+## Cox PH model {.smaller}
+
+*Predictions*
+
+<br>
+
+In Cox regression, we can estimate: 
+
+::: incremental
+
+- the survival probability at a specific time
+- and the hazard ratio for an individual relative to a reference individual
+
+:::
+
+## Cox PH model {.smaller}
+
+*Time-dependent covariates*
+
+<br>
+
+- So far, predictors (covariates) have been **fixed** over time
+- But some predictors can **change during follow-up** 
+- e.g. in a heart attack study, blood pressure may change over time
+
+. . .
+
+<br>
+<br>
+
+The Cox model allows covariates $\boldsymbol{x}(t)$ to vary with time:
+$$h(t | \boldsymbol{x}(t)) = h_0(t) \cdot \exp(\boldsymbol{\beta}^T \boldsymbol{x}(t))$$
+  
+- Follow-up time is split into **intervals** where covariates are constant
+- Covariates are updated at each interval to reflect changes
+
+
+## Multiple events: competing risks {.smaller}
+
+*death from other causes*
+
+<br>
+
+- In many studies, individuals are at risk of **more than one event**
+- A **competing risk** is an event that **prevents** the event of interest from happening
+
+. . .
+
+<br>
+
+**Examples:**
+
+- Studying death from heart disease:
+  - Death from cancer = competing risk
+- Studying cancer relapse:
+  - Death from any cause = competing risk
+
+<br>
+
+. . .
+
+**Why it matters:**
+
+- Cox PH model assumes only **one type of event**
+- Ignoring competing risks can **overestimate** the chance of the event we are interested in
+
+. . .
+
+<br>
+
+**Beyond Cox PH model:**
+
+- The **Cumulative Incidence Function (CIF)** tells us the **probability of a specific event** happening over time, **accounting for competing events**
+- **Fine and Gray’s model**, help include covariates when modeling competing risks
+
 
 ## 💻 Lab {.smaller}
 
 <br>
 
+In the lab there are examples of: 
 
+- constructing Kaplan-Meier estimator
+- comparing survival curves with the log-rank test
+- fitting Cox proportional hazards model
+- interpreting the results of the Cox model
+- predicting survival probabilities and hazard ratios
+- handling time-dependent covariates
+- dealing with competing risks using the Cumulative Incidence Function (CIF)
 
 ## Thank you
 
