@@ -1,0 +1,27 @@
+---
+title: "notes"
+format: html
+---
+
+## Notes
+
+## 💬 Discussion
+
+- **Does it make sense to combine different modeling approaches?**  
+  ✅ Yes — combining models from different families can improve predictive performance. Each model type has distinct strengths (e.g., linear models are interpretable, tree-based models capture interactions, neural nets handle unstructured data). By combining them, we reduce the chance that all models will make the same errors.
+
+- **Why might we use multiple models instead of relying on a single one?**  
+  - To **reduce overfitting** by averaging predictions (bagging).  
+  - To **improve accuracy**, especially using boosting or stacking.  
+  - To **mitigate limitations** of individual models — for instance, one model may capture simple patterns, while another captures complex ones.
+
+- **What are the potential benefits or trade-offs?**  
+  **Benefits:**  
+  - Increased accuracy and robustness  
+  - Better generalization to new data  
+  - Flexibility to model different aspects of the data  
+
+  **Trade-offs:**  
+  - Increased computational cost  
+  - Reduced interpretability  
+  - More complex workflows (e.g., model tuning, stacking logic)

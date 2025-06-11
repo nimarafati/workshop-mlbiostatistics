@@ -141,7 +141,7 @@ In our example, a concordance of 0.782 means that the Cox model can correctly pr
 In Cox regression, we can estimate: 
 
 - the survival probability at a specific time, $S(t|X=x)$
-- and the hazard ratio for an individual relative to a reference individual, $h(t|X=x) / $S(t|X=x_{ref})$, where $X_{ref}$ is a reference individual with known covariate values. 
+- and the hazard ratio for an individual relative to a reference individual, $h(t|X=x) / h(t|X=x_{ref})$, where $X_{ref}$ is a reference individual with known covariate values. 
 
 For predicted survival, the choice of time matters. A predicted HR will not depend on time due to proportional hazards assumption.
 
@@ -182,7 +182,7 @@ To predict the adjusted hazard ratio for a new patient, we use again the `predic
 
 - `reference = "zero"`: the reference individual has continuous predictor values set to 0 and categorical predictors each at their reference level. This is not a good choice if a value of 0 is not plausible for continuous variables in the model, e.g. age.
 - `reference = "sample"`: the reference individual has continuous predictors each their respective sample mean and categorical predictors at their reference level. 
-- `reference = "strata"`: this leads to the same results as in `reference = "sample" unless the model includes a `strata()`, in which case continuous variables will be set their within-stratum means. 
+- `reference = "strata"`: this leads to the same results as in `reference = "sample"` unless the model includes a `strata()`, in which case continuous variables will be set their within-stratum means. 
 
 ```{r}
 #| label: predict-hr
@@ -243,6 +243,7 @@ data_opioid %>%
 In survival analysis, **competing risks** occur when an individual is at risk of more than one mutually exclusive event, and the occurrence of one event **precludes** the occurrence of the others. Traditional survival models, such as the **Cox proportional hazards model**, typically focus on a single type of event (e.g., death or failure), but in many real-world scenarios, individuals may face different types of events that compete with each other.
 
 A **competing risk** refers to events that prevent the event of primary interest from happening. For example:
+
 - In a study of heart disease, **death due to cancer** is a competing risk if the primary event of interest is **death due to heart disease**.
 - In a study of cancer treatment, **death from any cause** is a competing risk if the event of interest is **relapse**.
 
