@@ -156,8 +156,8 @@
 <p><br></p>
 <div class="cell" data-layout-align="center">
 <div class="cell-output-display">
-<div class="grViz html-widget html-fill-item" id="htmlwidget-8dcbafb1686c69b45666" style="width:960px;height:480px;"></div>
-<script type="application/json" data-for="htmlwidget-8dcbafb1686c69b45666">{"x":{"diagram":"\ndigraph neural_net {\n  rankdir=LR;\n  splines=line; // Makes connections straight\n  node [shape=circle style=filled fixedsize=true width=0.5]\n\n  // Input Layer\n  subgraph cluster_input {\n    color=none;\n    x1 [label=\"X\", fillcolor=lightblue]\n    label=\"Input Layer\"\n  }\n\n  // Hidden Layer 1\n  subgraph cluster_hidden1 {\n    color=none;\n    h11 [label=\"\", fillcolor=coral]\n    h12 [label=\"\", fillcolor=coral]\n    h13 [label=\"\", fillcolor=coral]\n    label=\"Hidden Layer 1\"\n  }\n\n  // Hidden Layer 2\n  subgraph cluster_hidden2 {\n    color=none;\n    h21 [label=\"\", fillcolor=khaki]\n    h22 [label=\"\", fillcolor=khaki]\n    h23 [label=\"\", fillcolor=khaki]\n    label=\"Hidden Layer 2\"\n  }\n\n  // Hidden Layer 3\n  subgraph cluster_hidden3 {\n    color=none;\n    h31 [label=\"\", fillcolor=lightgreen]\n    h32 [label=\"\", fillcolor=lightgreen]\n    h33 [label=\"\", fillcolor=lightgreen]\n    label=\"Hidden Layer 3\"\n  }\n\n  // Output Layer\n  y [label=\"Y\", fillcolor=white shape=circle]\n\n  // Connections\n  x1 -> {h11 h12 h13}\n\n  h11 -> {h21 h22 h23}\n  h12 -> {h21 h22 h23}\n  h13 -> {h21 h22 h23}\n\n  h21 -> {h31 h32 h33}\n  h22 -> {h31 h32 h33}\n  h23 -> {h31 h32 h33}\n\n  h31 -> y\n  h32 -> y\n  h33 -> y\n}\n","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+<div class="grViz html-widget html-fill-item" id="htmlwidget-4b8d05aaab3755d20920" style="width:960px;height:480px;"></div>
+<script type="application/json" data-for="htmlwidget-4b8d05aaab3755d20920">{"x":{"diagram":"\ndigraph neural_net {\n  rankdir=LR;\n  splines=line; // Makes connections straight\n  node [shape=circle style=filled fixedsize=true width=0.5]\n\n  // Input Layer\n  subgraph cluster_input {\n    color=none;\n    x1 [label=\"X\", fillcolor=lightblue]\n    label=\"Input Layer\"\n  }\n\n  // Hidden Layer 1\n  subgraph cluster_hidden1 {\n    color=none;\n    h11 [label=\"\", fillcolor=coral]\n    h12 [label=\"\", fillcolor=coral]\n    h13 [label=\"\", fillcolor=coral]\n    label=\"Hidden Layer 1\"\n  }\n\n  // Hidden Layer 2\n  subgraph cluster_hidden2 {\n    color=none;\n    h21 [label=\"\", fillcolor=khaki]\n    h22 [label=\"\", fillcolor=khaki]\n    h23 [label=\"\", fillcolor=khaki]\n    label=\"Hidden Layer 2\"\n  }\n\n  // Hidden Layer 3\n  subgraph cluster_hidden3 {\n    color=none;\n    h31 [label=\"\", fillcolor=lightgreen]\n    h32 [label=\"\", fillcolor=lightgreen]\n    h33 [label=\"\", fillcolor=lightgreen]\n    label=\"Hidden Layer 3\"\n  }\n\n  // Output Layer\n  y [label=\"Y\", fillcolor=white shape=circle]\n\n  // Connections\n  x1 -> {h11 h12 h13}\n\n  h11 -> {h21 h22 h23}\n  h12 -> {h21 h22 h23}\n  h13 -> {h21 h22 h23}\n\n  h21 -> {h31 h32 h33}\n  h22 -> {h31 h32 h33}\n  h23 -> {h31 h32 h33}\n\n  h31 -> y\n  h32 -> y\n  h33 -> y\n}\n","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
 </div>
 </div>
 <p>Example of fully connected feedfoward neural network. Data only moves through the network in one direction, from input to output.</p>
@@ -167,8 +167,8 @@
 <p><em>Recurrent Neural Networks</em></p>
 <div class="cell" data-layout-align="center">
 <div class="cell-output-display">
-<div class="grViz html-widget html-fill-item" id="htmlwidget-09e437c8304bbf98738d" style="width:960px;height:384px;"></div>
-<script type="application/json" data-for="htmlwidget-09e437c8304bbf98738d">{"x":{"diagram":"\ndigraph RNN_flow {\n  rankdir=LR;\n  splines=ortho;\n  node [shape=ellipse style=filled fontname=\"Arial\" fixedsize=true width=0.6]\n\n  // Real nodes\n  X [label=\"X\", fillcolor=white, style=solid]\n  A [label=\"A\", fillcolor=lightblue]\n  B [label=\"B\", fillcolor=salmon]\n  C [label=\"C\", fillcolor=khaki]\n  D [label=\"D\", fillcolor=green]\n  Y [label=\"Y\", fillcolor=white, style=solid]\n\n  // Invisible routing nodes (for curved-back arrows)\n  DY [label=\"\", width=0, height=0, style=invis]\n  DYtop [label=\"\", width=0, height=0, style=invis]\n  BC [label=\"\", width=0, height=0, style=invis]\n  BCtop [label=\"\", width=0, height=0, style=invis]\n\n  // Main forward flow\n  X -> A\n  A -> B\n  B -> BC [arrowhead=none]\n  BC -> C \n  C -> D\n  D -> DY [arrowhead=none]\n  DY -> Y \n\n  // Routed loopbacks\n  DY -> DYtop [arrowhead=none]\n  DYtop -> C [arrowhead=none]\n  \n  BC -> BCtop [arrowhead=none]\n  BCtop -> A [arrowhead=none]\n\n}\n","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+<div class="grViz html-widget html-fill-item" id="htmlwidget-3e6631a84a693ed121d6" style="width:960px;height:384px;"></div>
+<script type="application/json" data-for="htmlwidget-3e6631a84a693ed121d6">{"x":{"diagram":"\ndigraph RNN_flow {\n  rankdir=LR;\n  splines=ortho;\n  node [shape=ellipse style=filled fontname=\"Arial\" fixedsize=true width=0.6]\n\n  // Real nodes\n  X [label=\"X\", fillcolor=white, style=solid]\n  A [label=\"A\", fillcolor=lightblue]\n  B [label=\"B\", fillcolor=salmon]\n  C [label=\"C\", fillcolor=khaki]\n  D [label=\"D\", fillcolor=green]\n  Y [label=\"Y\", fillcolor=white, style=solid]\n\n  // Invisible routing nodes (for curved-back arrows)\n  DY [label=\"\", width=0, height=0, style=invis]\n  DYtop [label=\"\", width=0, height=0, style=invis]\n  BC [label=\"\", width=0, height=0, style=invis]\n  BCtop [label=\"\", width=0, height=0, style=invis]\n\n  // Main forward flow\n  X -> A\n  A -> B\n  B -> BC [arrowhead=none]\n  BC -> C \n  C -> D\n  D -> DY [arrowhead=none]\n  DY -> Y \n\n  // Routed loopbacks\n  DY -> DYtop [arrowhead=none]\n  DYtop -> C [arrowhead=none]\n  \n  BC -> BCtop [arrowhead=none]\n  BCtop -> A [arrowhead=none]\n\n}\n","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
 </div>
 </div>
 <div>
@@ -291,9 +291,53 @@
 </ul></li>
 </ul>
 </section>
+<section id="explainable-ai" class="slide level2 smaller">
+<h2>Explainable AI</h2>
+<p><em>How this works?</em></p>
+<p><br></p>
+<ul>
+<li>Many modern ML models are <strong>black boxes</strong> — they make accurate predictions, but we don’t know <em>how</em> they do it.</li>
+<li>Often it is essential to understand and justify model decisions.</li>
+</ul>
+<div class="fragment">
+<p><br></p>
+<p><strong>Explainable AI (XAI)</strong> methods aim to:</p>
+<ul>
+<li>Reveal which features influenced a decision</li>
+<li>Detect bias or unintended behavior</li>
+<li>Build trust with users</li>
+</ul>
+</div>
+<div class="fragment">
+<p><br> <strong>Fast growing research field</strong> with some popular methods:</p>
+<ul>
+<li><strong>SHAP</strong>, SHapley Additive exPlanations
+<ul>
+<li>uses concepts from cooperative game theory to assign each feature a <strong>fair share</strong> of the prediction</li>
+<li>allowing us to understand individual-level explanations.</li>
+</ul></li>
+<li><strong>LIME</strong>, Local Interpretable Model-agnostic Explanations
+<ul>
+<li>explains individual predictions by creating a set of perturbed samples around the instance of interest,</li>
+<li>getting the model’s predictions for those samples, and then fitting a simple, interpretable model (usually linear or decision tree) locally to approximate the complex model’s behavior near that point.</li>
+</ul></li>
+<li><strong>DALEX</strong>, Descriptive mAchine Learning EXplanations
+<ul>
+<li>provides both <strong>global</strong> and <strong>local</strong> model interpretations</li>
+<li>by analyzing how predictions change when features are perturbed</li>
+</ul></li>
+</ul>
+</div>
+</section>
 <section id="lab" class="slide level2 smaller">
 <h2>💻 Lab</h2>
 <p><br></p>
+<p>In the lab, we will:</p>
+<ul>
+<li>build a simple feedforward neural network</li>
+<li>see how the training goes over time</li>
+<li>try to improve the model performance by changing the architecture and feature engineering</li>
+</ul>
 </section>
 <section id="thank-you" class="slide level2">
 <h2>Thank you</h2>

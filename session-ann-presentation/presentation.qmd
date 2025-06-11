@@ -345,11 +345,52 @@ Generates entirely new synthetic data by learning the pattern:
   - BERT
   - Google Gemini
   - ChatGPT 
+  
+## Explainable AI {.smaller}
 
+*How this works?*
+
+<br>
+
+- Many modern ML models are **black boxes** — they make accurate predictions, but we don’t know *how* they do it.
+- Often it is essential to understand and justify model decisions.
+
+. . .
+
+<br>
+
+**Explainable AI (XAI)** methods aim to:
+
+  - Reveal which features influenced a decision
+  - Detect bias or unintended behavior
+  - Build trust with users
+  
+
+. . .
+
+<br>
+**Fast growing research field** with some popular methods:
+
+- **SHAP**, SHapley Additive exPlanations 
+  - uses concepts from cooperative game theory to assign each feature a **fair share** of the prediction
+  - allowing us to understand individual-level explanations.
+- **LIME**, Local Interpretable Model-agnostic Explanations
+  - explains individual predictions by creating a set of perturbed samples around the instance of interest, 
+  - getting the model’s predictions for those samples, and then fitting a simple, interpretable model (usually linear or decision tree) locally to approximate the complex model’s behavior near that point.
+- **DALEX**,  Descriptive mAchine Learning EXplanations
+  - provides both **global** and **local** model interpretations
+  - by analyzing how predictions change when features are perturbed
+
+  
 ## 💻 Lab {.smaller}
 
 <br>
 
+In the lab, we will:
+
+- build a simple feedforward neural network
+- see how the training goes over time
+- try to improve the model performance by changing the architecture and feature engineering
 
 
 ## Thank you
