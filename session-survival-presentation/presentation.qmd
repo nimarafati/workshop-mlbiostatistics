@@ -508,7 +508,7 @@ ggsurvplot(fit,
 
 # Comparisons of hazards
 
-# Comparisons of hazards {.smaller}
+## Comparisons of hazards {.smaller}
 
 <br>
 
@@ -521,7 +521,7 @@ ggsurvplot(fit,
 
 . . .
 
-*Proportional Hazards Assumption*
+**Proportional Hazards Assumption**
 
 - Assume hazard ratio is **constant** over time:
   $$
@@ -529,7 +529,51 @@ ggsurvplot(fit,
   $$
 - \( h_1(t) \), \( h_0(t) \): hazards in two comparison groups at time $t$
 
-## Mantel-Cox (log-rank test)
+## Mantel-Cox (log-rank test) {.smaller}
+
+<br>
+
+- Tests for **differences in survival** between two or more groups
+- Assumes **proportional hazards**
+- Null hypothesis: no difference in survival curves
+- Compares the **observed vs. expected** number of events in each group
+- Test statistic follows a **chi-square distribution**
+
+. . .
+
+At each time event, we can set-up a table: 
+
+
+|            | **Died** | **Survived** | **Total** |
+|------------|----------------------------|-------------------------------|----------------------------|
+| **Group A** | $d_{jA}$                      | $r_{jA} = n'_{_jA} - d_{jA}$               | $n'_{jA}$                 |
+| **Group B** | $d_{jB}$                   | $r_{jB} = n_{_jB} - d_{jB}$          | $n'_{jB}$                  |
+| **Total**   | $d_j = d_{jA} + d_{jB}$       | $r_j = r_{jA} + r_{jB}$          | $n'_j = n'_{jA} + n'_{jB}$      |
+
+where: 
+
+- **Group A** and **Group B** represent the two groups being compared (e.g., two different treatments, genders, etc.).
+- **Died** ($d_{jA}$, $d_{jB}$): The number of individuals who experienced the event (e.g., death, tooth filling falling out) in each group.
+- **Survived** ($r_{jA}$, $r_{jB}$): The number of individuals who did not experience the event (survivors, with tooth filling intact) in each group. This is calculated as the total number in the group minus the number of deaths.
+- **Total** ($n_A$, $n_B$): The total number of individuals in each group at risk just before the time of an event 
+
+## Mantel-Cox (log-rank test) {.smaller}
+
+<br>
+<br>
+
+The log-rank test compares the **observed** number of events to the **expected** number of events if the survival curves were the same for all groups. 
+
+The **expected number of events** in group A at each event time is denoted by: $$E(d_{jA}) = \frac{n'_{jA}d_i}{n'_j}$$ and analogously for group B $$E(d_{jB}) = \frac{n'_{jB}d_j}{n'_j}$$
+
+The difference between observed and expected number of events is evidence against the null hypothesis. The Mantel-Cox chi-squared (log-rank) its simple for is the combination of these differences **over all the times at which deaths (events) occurred**: $$
+\chi^2_{MC} = \sum_{j} \left( \frac{(O_{jA} - E_{jA})^2}{E_{jA}} + \frac{(O_{jB} - E_{jB})^2}{E_{jB}} \right)
+$$
+
+with 1 $df$.
+
+
+
 
 # Regression with survival data
 
