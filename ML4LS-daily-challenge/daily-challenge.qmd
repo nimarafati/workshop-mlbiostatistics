@@ -371,5 +371,178 @@ In the context of PLS, what is a latent variable?
 
 ## Thursday
 
+### Censoring
+
+Below are short descriptions of different time-to-event observations from a study. Match each description to the correct type of censoring:
+
+- A patient enters a study tracking time to cancer relapse. The study ends after 5 years, but the patient has not relapsed by then. (rigth answer: right censored)
+- In a study on age at disease onset, a participant is first examined at age 40 and is already diagnosed with the condition. (right answer: left censored)
+- A patient is tested for a condition every 6 months. They test negative at 6 months and positive at 12 months. (right answer: interval censored)
+- A participant is enrolled in a study and attends regular follow-up visits. During one visit, they report having experienced the event of interest two months earlier. The exact date of the event is confirmed in their medical records. (right answer: no censoring)
+
+### KM
+
+```{r}
+library(survival)
+library(survminer)
+
+# Sample survival data
+set.seed(123)
+data_km <- data.frame(
+  time = c(6, 7, 9, 10, 13, 15, 20, 22, 25, 30),
+  status = c(1, 1, 0, 1, 1, 0, 1, 1, 0, 1)  # 1 = event, 0 = censored
+)
+
+# Fit KM estimator
+fit_km <- survfit(Surv(time, status) ~ 1, data = data_km)
+
+# Plot KM curve
+ggsurvplot(fit_km, data = data_km, conf.int = FALSE,
+           xlab = "Time (days)", ylab = "Survival Probability",
+           ggtheme = theme_minimal(), 
+           color = "blue", 
+           censor.size = 10)
+
+```
+
+
+Look at the KM curve. Which of the following statements are true? (Select all that apply)
+
+A. The survival probability decreases only when an event (status = 1) occurs.
+B. The plot shows 3 censored observations.
+C. The Kaplan–Meier curve always ends at zero.
+D. If the last observation is censored, the curve remains flat at the final value.
+E. The curve accounts for censored data when estimating survival probabilities.
+
+Answers: all but C
+
+### Logrank
+
+```{r}
+library(survival)
+library(survminer)
+
+# Example dataset with group assignment
+set.seed(42)
+data_logrank <- data.frame(
+  time = c(5, 6, 6, 7, 10, 12, 15, 16, 18, 22, 25, 30),
+  status = c(1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 0, 1),  # 1 = event, 0 = censored
+  group = c("A", "A", "A", "A", "A", "A", "B", "B", "B", "B", "B", "B")
+)
+
+# Fit survival model
+fit_logrank <- survfit(Surv(time, status) ~ group, data = data_logrank)
+
+# Log-rank test
+logrank_test <- survdiff(Surv(time, status) ~ group, data = data_logrank)
+
+fs <- 16
+
+# Plot KM curves
+ggsurvplot(fit_logrank, data = data_logrank,
+           pval = FALSE, conf.int = FALSE,
+           risk.table = FALSE, 
+           legend.title = "Group",
+           xlab = "Time", ylab = "Survival Probability",
+           ggtheme = theme_minimal(), 
+           censor.size = 15, 
+           size = 2, 
+                      font.main = c(fs, "bold"),
+           font.x = c(fs),
+           font.y = c(fs),
+           font.tickslab = c(fs),
+           font.legend = c(fs),
+           font.risk.table = c(fs))
+
+```
+
+You observe the Kaplan–Meier curves for Group A and Group B along with a p-value from the log-rank test. Which of the following statements are true?
+
+A. The log-rank test compares the number of observed vs. expected events in each group.
+B. A small p-value suggests that the survival experience differs between the groups.
+C. The log-rank test requires that the censoring occurs independently of group membership.
+D. The test is valid even if the hazards in the two groups cross multiple times.
+E. The log-rank test is based on the area under the survival curves.
+
+Correct: not D, not E
+
+### Cox PH model
+
+```{r}
+library(survival)
+
+# Simulated data: time to event, event status, age and treatment group
+set.seed(123)
+data_cox <- data.frame(
+  time = c(5, 6, 6, 8, 10, 12, 15, 17, 20, 22, 25, 30),
+  status = c(1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 0, 1),
+  age = c(60, 65, 70, 55, 50, 75, 67, 63, 58, 69, 72, 55),
+  treatment = c(0, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0)  # 0 = control, 1 = treated
+)
+
+# Fit Cox model with age and treatment
+cox_fit <- coxph(Surv(time, status) ~ age + treatment, data = data_cox)
+
+summary(cox_fit)
+
+```
+
+
+You fit a Cox proportional hazards model with age and treatment as covariates. Based on the summary output, which of the following statements are true?
+
+Select all that apply:
+
+A. Increasing age is associated with a significantly higher hazard of the event.
+B. Being in the treatment group is associated with a lower estimated hazard, but the result is not statistically significant.
+C. The model suggests a trend toward reduced risk in the treatment group, though not conclusive.
+D. The estimated hazard ratio for age is close to 1, meaning age has little effect.
+E. The model provides strong evidence that age and treatment predict time to event.
+
+Answer: not A, not E
+
+### Casual inference I
+
+Q. When correlation is causation? 
+C. When all the counfaders are measured and adjusted and the model assumptions are all perfectly correct. 
+
+Q. When correlation is causation? 
+A. When the correlation coefficient is statistically significant and above 0.7.
+B. When two variables move together consistently across many datasets.
+C. ✅ When all the confounders are measured and adjusted for, and model assumptions are perfectly correct.
+D. When an experiment shows a strong effect in a small sample with a p-value < 0.05.
+E. When the relationship appears consistent in observational studies and expert consensus agrees.
+
+### Causal inference II
+
+Q. What’s the benefit of using of causal of machine learning as opposed to using standard causal inference?
+C: It will automatically take care of all the interactions and combination of confounders
+C: It will take care of effect modifiers. 
+
+❓ Quiz Question: What’s the benefit of using causal machine learning compared to standard causal inference? Mark all that apply. 
+
+A. It eliminates the need for measuring confounders altogether.
+B. It guarantees causal estimates even when the treatment is not randomized.
+C. ✅ It automatically accounts for interactions and complex combinations of confounders.
+D. ✅ It will take care of effect modifiers. 
+
+### Causal inference III
+
+How is causal inference related to missing value imputation?
+A. Causal inference ignores missing values because only observed outcomes matter.
+B. Causal inference assumes we know all counterfactual outcomes but just don’t use them.
+C. ✅ In causal inference, we only observe one of the potential outcomes for each person, and must estimate the unobserved (counterfactual) outcome.
+D. Causal inference relies only on complete cases to avoid bias from missing values.
+
+### Casual infrence IV
+
+❓ Quiz Question: What does heterogeneous treatment effect mean?
+A. The difference between the average outcomes of the treatment and control groups.
+B. The fact that treatment effects can vary across individuals or subgroups.
+C. ✅ The difference in effect size between individuals or subgroups, depending on their characteristics.
+D. The situation where a treatment does not affect anyone in the population.
+E. A violation of randomization that makes results unpredictable.
+
+
+
 ## Friday
 
