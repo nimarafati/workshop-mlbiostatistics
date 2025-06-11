@@ -314,14 +314,13 @@ df |> ggplot(aes(x=age, y=conc, color=group)) + geom_point() + theme_bw() + them
 2. Model **intercept as a random effect** across groups. Estimate variance over groups, but not the intercept for each group. This is more parsimonious and allows us to focus on the overall effect of age without estimating each clinic's baseline concentration.
 
 ## Model with random intercept
-
   
   $$y_{ij} = \beta_0 + \beta_1 x_{ij} + b_{0i} + \varepsilon_{ij}$$
   
 - $y_{ij}$: outcome, dependent variable (concentration)
 - $\beta_0, \beta_1$: fixed effects (intercept and slope)
-- $b_{0i}$: random intercept per group
-  - $b_{0i} \sim N(0, \sigma_b)$, where $\sigma_b$ is the standard deviation of the random intercept
+- $b_{0i}$: random intercept per group (for group $i$)
+- $b_{0i} \sim N(0, \sigma_{b_0})$, where $\sigma_{b_0}$ is the standard deviation of the random intercept
 - $\varepsilon_{ij}$: residual error
 
 ## Model with random intercept
@@ -389,6 +388,17 @@ If you believe that the slope actually varies between groups, include random slo
 pl + geom_line(aes(y=pred2)) + labs(title = "Predicted concentration by age and group")
 ```
 
+## Model with random slope
+
+  $$y_{ij} = \beta_0 + \beta_1 x_{ij} + b_{0i} + b_{1i} x_{ij} + \varepsilon_{ij} = \beta_0 + b_{0i} + (\beta_1 + b_{1i}) x_{ij} + \varepsilon_{ij}$$
+  
+  - $y_{ij}$: outcome, dependent variable (concentration)
+- $\beta_0, \beta_1$: fixed effects (intercept and slope)
+- $b_{0i}$: random intercept per group (for group $i$)
+- $b_{0i} \sim N(0, \sigma_{b_0})$, where $\sigma_{b_0}$ is the standard deviation of the random intercept
+- $b_{1i} \sim N(0, \sigma_{b_1})$, where $\sigma_{b_1}$ is the standard deviation of the random slope
+- $\varepsilon_{ij}$: residual error
+
 ## Random slope in R
 
 ```{r rslope, echo=TRUE}
@@ -405,12 +415,17 @@ mm2 <- lmer(Reaction ~ Days + (1 + Days | Subject), data = sleepall)
 summary(mm2)
 ```
 
-## Predicting random effects
+## Predicting random effects {.smaller}
+
+Fixed effects can be computed using the `fixef()` function.
+
+```{r fixef, echo=TRUE}
+fixef(mm)
+```
 
 The random effects can be predicted using the `ranef()` function.
 
-```{r ranef}
-fixef(mm)
+```{r ranef, echo=TRUE}
 ranef(mm)
 ```
 
