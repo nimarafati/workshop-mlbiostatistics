@@ -378,7 +378,7 @@ m3 <- lmer(Reaction ~ Days + sex + (1 + Days | Subject), data = sleepall)
 anova(m2, m3, refit=TRUE)
 ```
 
-## P-value calculations
+## P-value calculations {.smaller}
 
 As you have noticed `lme4` does not report p-values for the fixed effects.
 
@@ -398,14 +398,14 @@ mm <- lmer(conc ~ age + (1 | group), data = df)
 summary(mm)
 ```
 
+## `lmerTest`
+
 ```{r lmerTest2, echo=FALSE}
 sleepall <- sleepstudy |> filter(Days>=2) |> mutate(Days=Days-2)
 ##Add sex
 set.seed(123)
 sleepall <- sleepall |> mutate(sex=sample(c("M", "F"), nrow(sleepall), replace=TRUE))
-library(lmerTest)
-lmsleep <- lm(Reaction ~ Days, data = sleepstudy)
-mmsleep <- lmer(Reaction ~ Days + (1 + Days | Subject), data = sleepstudy)
+mmsleep <- lmer(Reaction ~ Days + (1 + Days | Subject), data = sleepall)
 summary(mmsleep)
 ```
 
