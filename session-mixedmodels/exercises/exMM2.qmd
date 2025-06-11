@@ -176,8 +176,8 @@ There are multiple ways to specify the random effects structure, use the method 
 
 ```{r}
 ##These two models are equivalent, try it!
-mfat <- lmer(Fat ~ Sample + (1|Lab/Technician/Sample), data = eggs)
-mfat <- lmer(Fat ~ Sample + (1|Lab) + (1|Lab:Technician) + (1|Lab:Technician:Sample), data = eggs)
+mfat <- lmer(Fat ~ 1 + (1|Lab/Technician/Sample), data = eggs)
+mfat <- lmer(Fat ~ 1 + (1|Lab) + (1|Lab:Technician) + (1|Lab:Technician:Sample), data = eggs)
 ```
 :::
 
