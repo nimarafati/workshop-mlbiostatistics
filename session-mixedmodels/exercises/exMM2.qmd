@@ -165,7 +165,7 @@ eggs |> ggplot(aes(x= Lab, y = Fat, color = Technician, shape=Sample)) +
 
 What is the grouping structure and how is it nested. Using this information fit a linear mixed model.
 
-:::{.callout-tip collapse="true"}}
+:::{.callout-tip collapse="true"}
 Sample is nested within Technician, which is nested within Lab.
 :::
 
