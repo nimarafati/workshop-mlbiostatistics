@@ -157,7 +157,7 @@ What would the average blood pressure be at hospital 3 for a patient treated wit
 ## Solution
 
 ```{r}
-fixef(model1)[] + ranef(model1)$hospital[3,1]
+fixef(model1)[1] + ranef(model1)$hospital[3,1]
 ```
 :::
 
