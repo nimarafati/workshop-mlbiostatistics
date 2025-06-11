@@ -260,7 +260,7 @@ anova(mo1, mof2, mof3, refit = TRUE)
 
 In this section you will use the `lmerTest` package to compute p-values for mixed models using Satterthwaite's approximation. This package extends the `lme4` package and provides functions to compute p-values for fixed effects in linear mixed models.
 
-Go back to the exercises from the this morning and use the `lmerTest` package to compute p-values for the fixed effects in the models you fitted.
+Go back to the exercises "Drug effect on blood pressure" and "Sleep study" from the this morning and use the `lmerTest` package to compute p-values for the fixed effects in the models you fitted.
 
 # Logistic mixed model
 
